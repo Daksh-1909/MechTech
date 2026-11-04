@@ -1,0 +1,1 @@
+"""MechTech backend application package."""
