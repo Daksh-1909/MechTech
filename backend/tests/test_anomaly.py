@@ -116,12 +116,22 @@ def test_isolation_forest_event_persists_window_and_model_provenance(db_session)
         window_end=start + timedelta(seconds=10),
         result=result,
     )
+    duplicate = persist_anomaly_event(
+        db_session,
+        equipment_id="motor-001",
+        feature_window_id=window.id,
+        window_start=start,
+        window_end=start + timedelta(seconds=10),
+        result=result,
+    )
     db_session.commit()
     assert event is not None
     assert event.feature_window_id == window.id
     assert event.detector_name == "isolation_forest"
     assert event.model_version == "1.0.0"
     assert event.evidence_json["decision_score"] == -0.1
+    assert duplicate is not None
+    assert duplicate.id == event.id
 
 
 def test_model_registration_does_not_activate_until_validated(

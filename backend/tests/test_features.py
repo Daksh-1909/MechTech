@@ -1,3 +1,4 @@
+from dataclasses import replace
 from datetime import timedelta
 from types import SimpleNamespace
 
@@ -114,3 +115,13 @@ def test_feature_window_persistence_preserves_raw_readings(db_session) -> None:
 
     duplicate = persist_window(db_session, result)
     assert duplicate.id == persisted.id
+
+    late_arrival = replace(
+        result,
+        sample_count=11,
+        source_reading_ids=(*result.source_reading_ids, 999),
+        features={**result.features, "temperature_mean": result.features["temperature_mean"] + 1},
+    )
+    revised_snapshot = persist_window(db_session, late_arrival)
+    assert revised_snapshot.id != persisted.id
+    assert stored.feature_values_json["temperature_mean"] == result.features["temperature_mean"]

@@ -1,7 +1,7 @@
 from sqlalchemy import select, update
 from sqlalchemy.orm import Session
 
-from app.models import MLPrediction, ModelRegistry
+from app.models import AnomalyEvent, MLPrediction, ModelRegistry
 
 
 def get_prediction(db: Session, prediction_id: int) -> MLPrediction | None:
@@ -23,6 +23,23 @@ def list_predictions(
             MLPrediction.prediction_timestamp.desc(),
             MLPrediction.id.desc(),
         )
+        .limit(limit)
+        .offset(offset)
+    )
+    return list(db.scalars(statement))
+
+
+def list_anomalies(
+    db: Session,
+    *,
+    equipment_id: str,
+    limit: int,
+    offset: int,
+) -> list[AnomalyEvent]:
+    statement = (
+        select(AnomalyEvent)
+        .where(AnomalyEvent.equipment_id == equipment_id)
+        .order_by(AnomalyEvent.start_timestamp.desc(), AnomalyEvent.id.desc())
         .limit(limit)
         .offset(offset)
     )

@@ -16,7 +16,8 @@ class FeatureWindow(Base):
             "equipment_id",
             "window_start",
             "feature_schema_version",
-            name="uq_feature_windows_equipment_start_schema",
+            "snapshot_key",
+            name="uq_feature_windows_snapshot",
         ),
         Index("ix_feature_windows_equipment_end", "equipment_id", "window_end"),
     )
@@ -30,6 +31,7 @@ class FeatureWindow(Base):
     window_end: Mapped[datetime] = mapped_column(UTCDateTime, nullable=False)
     sample_count: Mapped[int] = mapped_column(Integer, nullable=False)
     feature_schema_version: Mapped[str] = mapped_column(String(30), nullable=False)
+    snapshot_key: Mapped[str | None] = mapped_column(String(64), nullable=True)
     feature_values_json: Mapped[dict[str, Any]] = mapped_column(JSON, nullable=False)
     source_reading_ids_json: Mapped[list[int]] = mapped_column(JSON, nullable=False)
     incomplete_reason: Mapped[str | None] = mapped_column(String(200), nullable=True)

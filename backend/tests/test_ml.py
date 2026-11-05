@@ -10,6 +10,8 @@ from app.core.config import settings
 from app.core.exceptions import AppError
 from app.core.time import utcnow
 from app.main import app
+from app.ml.anomaly import train_isolation_forest
+from app.ml.baseline import activate_baseline, fit_baseline, save_baseline
 from app.ml.datasets import generate_labeled_window_dataset
 from app.ml.features import FEATURE_NAMES, FEATURE_SCHEMA_VERSION, build_features
 from app.ml.service import resolve_artifact_path
@@ -237,7 +239,7 @@ def test_phase3_random_forest_can_be_explicitly_activated_and_used(
         make_reading(
             db_session,
             timestamp=start + timedelta(seconds=index),
-            temperature_c=50.0 + index * 0.1,
+            temperature_c=95.0 + index * 0.1,
             vibration_value=0.2 + index * 0.001,
             source_event_id=f"rf-analysis-{index}",
         )
@@ -247,10 +249,36 @@ def test_phase3_random_forest_can_be_explicitly_activated_and_used(
         samples_per_scenario=40,
     )
     bundle, _ = train_classifier(training_rows, seed=71, minimum_score=0.4)
+    normal_rows = [row["features"] for row in training_rows if row["label"] == "normal"]
+    anomaly_bundle = train_isolation_forest(normal_rows, seed=71)
+    baseline_values = fit_baseline(
+        normal_rows,
+        scenario_labels=["normal"] * len(normal_rows),
+        baseline_name="analysis-test-baseline",
+        baseline_version="1.0.0",
+        dataset_description="run-separated normal test windows",
+        z_threshold=3.0,
+    )
+    baseline = activate_baseline(db_session, save_baseline(db_session, baseline_values))
     models_dir = settings.data_root / "models"
     models_dir.mkdir(parents=True, exist_ok=True)
     artifact = models_dir / "phase3-random-forest.joblib"
     joblib.dump(bundle, artifact)
+    anomaly_artifact = models_dir / "phase3-isolation-forest.joblib"
+    joblib.dump(anomaly_bundle, anomaly_artifact)
+    anomaly_model = ml_service.register_model(
+        db_session,
+        actor=admin,
+        model_name="phase3-isolation-forest",
+        model_version="1.0.0",
+        model_type=ModelType.ANOMALY,
+        artifact_path="models/phase3-isolation-forest.joblib",
+        training_dataset_description="Run-separated normal training fixture",
+        evaluation_metrics_json={"f1": 0.9},
+        training_dataset_version="1.0",
+        activate=False,
+    )
+    ml_service.activate_model(db_session, actor=admin, model_entry=anomaly_model)
     registered = ml_service.register_model(
         db_session,
         actor=admin,
@@ -267,6 +295,21 @@ def test_phase3_random_forest_can_be_explicitly_activated_and_used(
     active = ml_service.activate_model(db_session, actor=admin, model_entry=registered)
     assert active.is_active is True
 
+    technician_csrf = login(client, technician.email)
+    forbidden_activation = client.post(
+        f"{settings.api_v1_prefix}/models/{registered.id}/activate",
+        headers=csrf_headers(technician_csrf),
+    )
+    assert forbidden_activation.status_code == 403
+    with TestClient(app) as admin_client:
+        admin_csrf = login(admin_client, admin.email)
+        activated_response = admin_client.post(
+            f"{settings.api_v1_prefix}/models/{registered.id}/activate",
+            headers=csrf_headers(admin_csrf),
+        )
+    assert activated_response.status_code == 200, activated_response.text
+    assert "artifact_path" not in activated_response.json()
+
     csrf = login(client, technician.email)
     response = client.post(
         f"{settings.api_v1_prefix}/equipment/motor-001/analysis",
@@ -276,6 +319,9 @@ def test_phase3_random_forest_can_be_explicitly_activated_and_used(
     assert response.status_code == 200, response.text
     prediction = response.json()
     assert prediction["model_registry_id"] == registered.id
+    assert prediction["feature_window_id"] is not None
+    assert prediction["window_start"] is not None
+    assert prediction["feature_schema_version"] == FEATURE_SCHEMA_VERSION
     assert prediction["predicted_class"] in {
         "normal",
         "excessive_vibration",
@@ -287,3 +333,20 @@ def test_phase3_random_forest_can_be_explicitly_activated_and_used(
     assert isinstance(prediction["evidence_json"]["uncertain"], bool)
     assert isinstance(prediction["probabilities_json"], dict)
     assert "Random Forest class scores" in prediction["evidence_json"]["score_semantics"]
+    assert prediction["anomaly_result"]["is_anomaly"] is True
+    assert prediction["anomaly_result"]["isolation_forest"]["model_version"] == "1.0.0"
+    assert (
+        prediction["anomaly_result"]["statistical_baseline"]["baseline_version"]
+        == baseline.baseline_version
+    )
+
+    prediction_history = client.get(
+        f"{settings.api_v1_prefix}/equipment/motor-001/predictions",
+        params={"limit": 5},
+    )
+    assert prediction_history.status_code == 200
+    assert prediction_history.json()[0]["id"] == prediction["id"]
+    anomalies = client.get(f"{settings.api_v1_prefix}/equipment/motor-001/anomalies")
+    assert anomalies.status_code == 200
+    assert anomalies.json()
+    assert anomalies.json()[0]["feature_window_id"] == prediction["feature_window_id"]

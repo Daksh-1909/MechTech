@@ -1,5 +1,7 @@
 """Deterministic fixed-window feature extraction; raw readings are never modified."""
 
+import hashlib
+import json
 import math
 import statistics
 from collections.abc import Iterable
@@ -277,20 +279,26 @@ def persist_window(db: Session, window: WindowFeatures) -> FeatureWindow:
         raise AppError(
             "Cannot persist an empty feature window.", code="EMPTY_WINDOW", status_code=400
         )
+    snapshot_key = hashlib.sha256(
+        json.dumps(
+            {
+                "equipment_id": window.equipment_id,
+                "window_start": window.window_start.isoformat(),
+                "feature_schema_version": window.feature_schema_version,
+                "source_reading_ids": window.source_reading_ids,
+            },
+            sort_keys=True,
+        ).encode("utf-8")
+    ).hexdigest()
     existing = db.scalar(
         select(FeatureWindow).where(
             FeatureWindow.equipment_id == window.equipment_id,
             FeatureWindow.window_start == window.window_start,
             FeatureWindow.feature_schema_version == window.feature_schema_version,
+            FeatureWindow.snapshot_key == snapshot_key,
         )
     )
     if existing is not None:
-        existing.window_end = window.window_end
-        existing.sample_count = window.sample_count
-        existing.feature_values_json = window.features
-        existing.source_reading_ids_json = list(window.source_reading_ids)
-        existing.incomplete_reason = window.incomplete_reason
-        db.flush()
         return existing
     stored = FeatureWindow(
         equipment_id=window.equipment_id,
@@ -298,6 +306,7 @@ def persist_window(db: Session, window: WindowFeatures) -> FeatureWindow:
         window_end=window.window_end,
         sample_count=window.sample_count,
         feature_schema_version=window.feature_schema_version,
+        snapshot_key=snapshot_key,
         feature_values_json=window.features,
         source_reading_ids_json=list(window.source_reading_ids),
         incomplete_reason=window.incomplete_reason,

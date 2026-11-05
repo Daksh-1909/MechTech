@@ -7,6 +7,7 @@ from typing import Any
 
 import numpy as np
 from sklearn.ensemble import IsolationForest
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.core.exceptions import AppError
@@ -167,6 +168,17 @@ def persist_anomaly_event(
         return None
     if not math.isfinite(result.score):
         raise AppError("Anomaly score is non-finite.", code="INVALID_SCORE", status_code=422)
+    existing = db.scalar(
+        select(AnomalyEvent).where(
+            AnomalyEvent.equipment_id == equipment_id,
+            AnomalyEvent.feature_window_id == feature_window_id,
+            AnomalyEvent.detector_name == result.detector_name,
+            AnomalyEvent.model_version == result.model_version,
+            AnomalyEvent.event_type == "ml_anomaly",
+        )
+    )
+    if existing is not None:
+        return existing
     event = AnomalyEvent(
         equipment_id=equipment_id,
         feature_window_id=feature_window_id,

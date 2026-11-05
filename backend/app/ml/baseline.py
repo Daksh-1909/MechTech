@@ -3,6 +3,7 @@
 import math
 from collections.abc import Iterable
 from dataclasses import dataclass
+from datetime import datetime
 
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -10,7 +11,7 @@ from sqlalchemy.orm import Session
 from app.core.exceptions import AppError
 from app.core.time import utcnow
 from app.ml.features import FEATURE_NAMES, FEATURE_SCHEMA_VERSION
-from app.models import BaselineProfile
+from app.models import AnomalyEvent, BaselineProfile
 
 
 @dataclass(frozen=True, slots=True)
@@ -158,3 +159,54 @@ def compare_features(
         threshold=profile.z_threshold,
         evidence=evidence,
     )
+
+
+def persist_baseline_event(
+    db: Session,
+    *,
+    equipment_id: str,
+    feature_window_id: int,
+    window_start: datetime,
+    window_end: datetime,
+    result: BaselineResult,
+) -> AnomalyEvent | None:
+    if not result.is_anomaly:
+        return None
+    deviations = [
+        abs(float(values["z_score"]))
+        if values["z_score"] is not None
+        else abs(float(values["deviation"]))
+        for values in result.evidence.values()
+    ]
+    existing = db.scalar(
+        select(AnomalyEvent).where(
+            AnomalyEvent.equipment_id == equipment_id,
+            AnomalyEvent.feature_window_id == feature_window_id,
+            AnomalyEvent.detector_name == result.detector_name,
+            AnomalyEvent.model_version == result.baseline_version,
+            AnomalyEvent.event_type == "statistical_baseline_anomaly",
+        )
+    )
+    if existing is not None:
+        return existing
+    event = AnomalyEvent(
+        equipment_id=equipment_id,
+        feature_window_id=feature_window_id,
+        event_type="statistical_baseline_anomaly",
+        severity="medium",
+        start_timestamp=window_start,
+        end_timestamp=window_end,
+        anomaly_score=max(deviations, default=0.0),
+        description="Statistical baseline flagged this window; advisory only.",
+        evidence_json={
+            "detector_name": result.detector_name,
+            "baseline_version": result.baseline_version,
+            "z_threshold": result.threshold,
+            "features": result.evidence,
+        },
+        detector_name=result.detector_name,
+        model_version=result.baseline_version,
+    )
+    db.add(event)
+    db.flush()
+    return event

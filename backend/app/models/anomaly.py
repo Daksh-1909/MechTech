@@ -27,6 +27,7 @@ class AnomalyEvent(Base):
         CheckConstraint(INTEGRITY_CHECKS["ck_anomaly_severity"], name="ck_anomaly_severity"),
         CheckConstraint(INTEGRITY_CHECKS["ck_anomaly_review"], name="ck_anomaly_review"),
         Index("ix_anomaly_events_equipment_start", "equipment_id", "start_timestamp"),
+        Index("ix_anomaly_events_feature_window_id", "feature_window_id"),
     )
 
     id: Mapped[int] = mapped_column(primary_key=True)

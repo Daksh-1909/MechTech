@@ -21,6 +21,7 @@ class Permission(StrEnum):
     KNOWLEDGE_MANAGE = "knowledge:manage"
     ML_ANALYSIS_REQUEST = "ml:analysis_request"
     MODELS_VIEW = "models:view"
+    MODEL_MANAGE = "models:manage"
     AUDIT_VIEW = "audit:view"
 
 

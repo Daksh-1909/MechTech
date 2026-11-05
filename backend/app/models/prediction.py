@@ -63,6 +63,7 @@ class MLPrediction(Base):
             name="ck_predictions_review",
         ),
         Index("ix_ml_predictions_equipment_timestamp", "equipment_id", "prediction_timestamp"),
+        Index("ix_ml_predictions_feature_window", "feature_window_id"),
     )
 
     id: Mapped[int] = mapped_column(primary_key=True)
@@ -78,6 +79,13 @@ class MLPrediction(Base):
         ForeignKey("model_registry.id", ondelete="SET NULL"),
         nullable=True,
     )
+    feature_window_id: Mapped[int | None] = mapped_column(
+        ForeignKey("feature_windows.id", ondelete="SET NULL"),
+        nullable=True,
+    )
+    window_start: Mapped[datetime | None] = mapped_column(UTCDateTime, nullable=True)
+    window_end: Mapped[datetime | None] = mapped_column(UTCDateTime, nullable=True)
+    training_dataset_version: Mapped[str | None] = mapped_column(String(50), nullable=True)
     predicted_class: Mapped[str] = mapped_column(String(50), nullable=False)
     probabilities_json: Mapped[dict[str, Any] | None] = mapped_column(JSON, nullable=True)
     confidence_value: Mapped[float | None] = mapped_column(Float, nullable=True)
