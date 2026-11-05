@@ -43,6 +43,7 @@ Sensor ingestion accepts either:
 | Manage alerts | Yes | Yes | No |
 | Create/edit maintenance records | Yes | Yes | No |
 | Request ML analysis and view model metadata | Yes | Yes | No |
+| Queue training jobs and activate models | Yes | No | No |
 | Edit knowledge graph reference data | Yes | No | No |
 | Manage users and view audit logs | Yes | No | No |
 
@@ -68,6 +69,46 @@ Errors use one envelope:
 
 `X-Request-ID` is returned on every response and appears in the error body.
 Unexpected exceptions never include tracebacks in the response.
+
+## Phase 3 sensor and ML pipeline
+
+`POST /api/v1/readings` accepts a validated single sensor reading;
+`POST /api/v1/readings/batch` accepts up to `READINGS_BATCH_MAX` readings
+(default 100). Both persist raw inputs and apply the same timestamp,
+measurement, equipment and idempotency rules. The batch endpoint is intended
+for simulator/device ingestion.
+
+`POST /api/v1/equipment/{equipment_id}/analysis` stores an advisory prediction
+for the latest complete feature window. Its evidence includes feature schema,
+source reading IDs, the immutable feature-window snapshot, model provenance,
+classification score semantics, and any active baseline/anomaly-detector
+results. Read history through `GET /api/v1/predictions` or equipment-scoped
+prediction/anomaly history endpoints with bounded `limit`/`offset`.
+
+Admin-only model lifecycle endpoints:
+
+| Method | Endpoint | Description |
+| --- | --- | --- |
+| GET | `/api/v1/models` | List safe registry metadata; artifact paths are not exposed |
+| POST | `/api/v1/models/{model_id}/activate` | Verify artifact checksum/schema and activate explicitly |
+| POST | `/api/v1/train` | Queue one bounded synthetic training job; returns 202 |
+| GET | `/api/v1/training-jobs/{job_id}` | Read job state, result, or safe error text |
+
+Training submission requires an admin session and CSRF token. Request fields
+are `model_type` (`anomaly` or `classification`), `model_name`,
+`model_version`, `runs` (2–20), `test_runs` (1–5),
+`samples_per_scenario` (40–1000), and `seed`. Optional classifier
+`minimum_score` defaults to 0.4; optional anomaly `contamination` defaults to
+0.05. Jobs are single-flight and queued in one local worker thread. They
+register trained models inactive; use the activation endpoint after reviewing
+the held-out report. Training-job execution is process-local and intended for
+one local API process.
+
+Feature schema `2.0` contains a count plus mean, median, standard deviation,
+minimum, maximum, RMS, peak-to-peak, slope, rate of change, rolling standard
+deviation, last value and delta for temperature and vibration. Missing or
+incomplete windows are marked explicitly; RMS-like vibration simulation
+values use `simulated_index`, not physical mm/s RMS.
 
 ## Equipment
 

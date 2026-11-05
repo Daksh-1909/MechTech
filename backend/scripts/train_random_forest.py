@@ -49,7 +49,6 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--register", action="store_true")
     parser.add_argument("--activate", action="store_true")
     parser.add_argument("--admin-email")
-    parser.add_argument("--admin-email")
     parser.add_argument("--report")
     return parser
 

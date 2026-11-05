@@ -4,6 +4,7 @@ from types import SimpleNamespace
 import joblib
 import pytest
 from fastapi.testclient import TestClient
+from simulator.dataset import generate_dataset
 from sklearn.linear_model import LogisticRegression
 
 from app.core.config import settings
@@ -391,3 +392,50 @@ def test_training_jobs_are_admin_only_and_single_flight(client, db_session, monk
     oversized = {**payload, "runs": 21}
     rejected = client.post(f"{settings.api_v1_prefix}/train", json=oversized, headers=headers)
     assert rejected.status_code == 422
+
+
+def test_simulator_batch_ingestion_to_prediction_end_to_end(client, db_session) -> None:
+    make_equipment(db_session)
+    admin = create_user(db_session, email="pipeline-admin@example.com", role=UserRole.ADMIN)
+    training_rows = generate_labeled_window_dataset(run_seeds=[91, 92], samples_per_scenario=40)
+    bundle, _ = train_classifier(training_rows, seed=91, minimum_score=0.4)
+    artifact = settings.data_root / "models" / "simulator-e2e.joblib"
+    artifact.parent.mkdir(parents=True, exist_ok=True)
+    joblib.dump(bundle, artifact)
+    model = ml_service.register_model(
+        db_session,
+        actor=admin,
+        model_name="simulator-e2e",
+        model_version="1.0.0",
+        model_type=ModelType.CLASSIFICATION,
+        artifact_path="models/simulator-e2e.joblib",
+        training_dataset_description="Independent synthetic run fixture",
+        evaluation_metrics_json={"f1_macro": 1.0},
+        training_dataset_version="1.0",
+        activate=False,
+    )
+    ml_service.activate_model(db_session, actor=admin, model_entry=model)
+
+    csrf = login(client, admin.email)
+    simulator_readings = generate_dataset(samples_per_scenario=10, seed=44)
+    ingested = client.post(
+        f"{settings.api_v1_prefix}/sensor-readings/batch",
+        json={"readings": simulator_readings},
+    )
+    assert ingested.status_code == 201, ingested.text
+    assert ingested.json()["created"] == 50
+
+    result = client.post(
+        f"{settings.api_v1_prefix}/equipment/motor-001/analysis",
+        json={},
+        headers=csrf_headers(csrf),
+    )
+    assert result.status_code == 200, result.text
+    prediction = result.json()
+    assert prediction["feature_window_id"] is not None
+    assert len(prediction["evidence_json"]["reading_ids"]) >= 8
+    assert prediction["model_registry_id"] == model.id
+
+    history = client.get(f"{settings.api_v1_prefix}/predictions")
+    assert history.status_code == 200
+    assert any(item["id"] == prediction["id"] for item in history.json())

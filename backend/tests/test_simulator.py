@@ -163,6 +163,7 @@ def test_phase3_dataset_is_deterministic_and_has_five_run_labels(tmp_path) -> No
         "combined_abnormality",
     }
     assert len({row["simulation_run_id"] for row in first}) == 5
+    assert [row["sequence"] for row in first] == list(range(20))
     assert all(row["vibration_unit"] == "simulated_index" for row in first)
     assert all(SensorReadingPayload.model_validate(row) for row in first)
 

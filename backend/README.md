@@ -103,9 +103,45 @@ Anomaly evaluation is rule-based and configurable. Controlled threshold
 breaches create anomaly events and deduplicated alerts. Alert acknowledgement,
 resolution and dismissal are admin/technician actions.
 
-## ML workflow
+## Phase 3 sensor-to-ML pipeline
 
-Training is explicit and outside request handling:
+Generate a deterministic labeled CSV dataset from the repository root:
+
+```powershell
+python -m simulator.simulator --export-csv data/exports/phase3.csv --samples-per-scenario 120 --seed 42
+```
+
+Create equipment, then run the simulator with `SIMULATOR_API_KEY` configured
+to send readings through the authenticated ingestion endpoint. Batch requests
+are bounded by `READINGS_BATCH_MAX` (default 100). Reading source metadata and
+raw values remain separate from immutable feature-window snapshots.
+
+Train and evaluate models from the repository root (artifacts and reports are
+written under `DATA_ROOT/models`):
+
+```powershell
+python backend/scripts/train_statistical_baseline.py --samples-per-scenario 120 --seed 42 --output data/exports/baseline-report.json
+python backend/scripts/train_isolation_forest.py --train-runs 6 --evaluation-runs 2 --samples-per-scenario 120 --seed 42
+python backend/scripts/train_random_forest.py --runs 8 --test-runs 2 --samples-per-scenario 120 --seed 42
+```
+
+The baseline trainer writes a versioned profile/report; the two ML trainers
+write joblib artifacts and JSON evaluation reports. Add `--register` and
+`--admin-email admin@example.com` to register an artifact inactive, then have
+an administrator activate its registry entry with `POST
+/api/v1/models/{model_id}/activate`. Do not activate a model based only on a
+synthetic metric; review the report and data provenance first.
+
+An administrator can optionally queue bounded local training through
+`POST /api/v1/train` and poll `GET /api/v1/training-jobs/{job_id}`. The API
+requires an admin session and CSRF token. Only one queued/running job is
+allowed; the worker is a single process-local thread. Training jobs never
+activate the resulting model automatically. See the [Phase 3 completion
+report](../docs/phase-3-completion.md) for verification and limitations.
+
+## Legacy Phase 2 ML workflow
+
+The Phase 2 anomaly trainer remains available for backward compatibility:
 
 ```powershell
 Set-Location backend

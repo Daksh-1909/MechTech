@@ -34,14 +34,17 @@ def generate_dataset(
     for scenario_index, scenario in enumerate(PHASE3_SCENARIOS):
         run_id = f"{run_prefix}-{scenario.value}-{seed}-{scenario_index}"
         rng = random.Random(seed + scenario_index * 1009)  # noqa: S311
-        for sequence in range(samples_per_scenario):
-            timestamp = started_at.astimezone(UTC) + timedelta(seconds=sequence * interval_seconds)
+        for _sequence in range(samples_per_scenario):
+            stream_sequence = len(output)
+            timestamp = started_at.astimezone(UTC) + timedelta(
+                seconds=stream_sequence * interval_seconds
+            )
             reading = generate_contract_reading(
                 equipment_id=equipment_id,
                 scenario=scenario,
                 rng=rng,
                 timestamp=timestamp,
-                sequence=sequence,
+                sequence=stream_sequence,
                 seed=seed,
                 run_id=run_id,
             )
