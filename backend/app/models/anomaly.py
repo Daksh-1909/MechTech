@@ -38,6 +38,12 @@ class AnomalyEvent(Base):
         ForeignKey("components.id", ondelete="SET NULL"),
         nullable=True,
     )
+    feature_window_id: Mapped[int | None] = mapped_column(
+        ForeignKey("feature_windows.id", ondelete="SET NULL"),
+        nullable=True,
+    )
+    detector_name: Mapped[str | None] = mapped_column(String(50), nullable=True)
+    model_version: Mapped[str | None] = mapped_column(String(50), nullable=True)
     event_type: Mapped[str] = mapped_column(String(50), nullable=False)
     severity: Mapped[str] = mapped_column(
         String(20),

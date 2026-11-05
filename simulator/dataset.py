@@ -6,15 +6,9 @@ import random
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
-from simulator.scenarios import Scenario
+from simulator.scenarios import PHASE3_LABELS, Scenario
 
-PHASE3_SCENARIOS = (
-    Scenario.NORMAL,
-    Scenario.EXCESSIVE_VIBRATION,
-    Scenario.OVERHEATING,
-    Scenario.BEARING_ABNORMALITY,
-    Scenario.COMBINED_ABNORMALITY,
-)
+PHASE3_SCENARIOS = tuple(Scenario(label) for label in PHASE3_LABELS)
 
 
 def generate_dataset(

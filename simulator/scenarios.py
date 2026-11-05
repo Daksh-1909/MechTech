@@ -15,6 +15,15 @@ class Scenario(StrEnum):
     RETURN_TO_NORMAL = "return_to_normal"
 
 
+PHASE3_LABELS: tuple[str, ...] = (
+    "normal",
+    "excessive_vibration",
+    "overheating",
+    "bearing_abnormality",
+    "combined_abnormality",
+)
+
+
 # All ranges are prototype simulation settings, not motor safety limits.
 # Vibration is a simplified normalized indicator, not calibrated mm/s RMS.
 NORMAL_RANGES: dict[str, tuple[float, float]] = {

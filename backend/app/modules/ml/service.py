@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 from app.core.exceptions import AppError
 from app.core.time import utcnow
 from app.ml.features import FEATURE_SCHEMA_VERSION, build_features, to_feature_vector
-from app.ml.service import load_artifact, predict_classification
+from app.ml.service import load_artifact, load_registered_artifact, predict_classification
 from app.models import MLPrediction, ModelRegistry, User
 from app.models.enums import ModelType
 from app.modules.audit import service as audit_service
@@ -53,6 +53,8 @@ def register_model(
     artifact_path: str,
     training_dataset_description: str | None,
     evaluation_metrics_json: dict | None,
+    training_dataset_version: str | None = None,
+    activate: bool = True,
 ) -> ModelRegistry:
     if (
         repository.get_model_by_name_version(
@@ -68,14 +70,12 @@ def register_model(
             status_code=409,
         )
 
-    from app.ml.service import resolve_artifact_path
+    from app.ml.service import artifact_sha256, resolve_artifact_path
 
-    resolve_artifact_path(artifact_path)
-
-    if model_type == ModelType.ANOMALY:
-        repository.deactivate_models(db, model_type=ModelType.ANOMALY.value)
-    elif model_type == ModelType.CLASSIFICATION:
-        repository.deactivate_models(db, model_type=ModelType.CLASSIFICATION.value)
+    artifact = resolve_artifact_path(artifact_path)
+    checksum = artifact_sha256(artifact)
+    if activate:
+        repository.deactivate_models(db, model_type=model_type.value)
 
     entry = ModelRegistry(
         model_name=model_name,
@@ -85,7 +85,9 @@ def register_model(
         feature_schema_version=FEATURE_SCHEMA_VERSION,
         training_dataset_description=training_dataset_description,
         evaluation_metrics_json=evaluation_metrics_json,
-        is_active=True,
+        training_dataset_version=training_dataset_version,
+        artifact_sha256=checksum,
+        is_active=activate,
     )
     db.add(entry)
     db.flush()
@@ -100,6 +102,38 @@ def register_model(
     db.commit()
     db.refresh(entry)
     return entry
+
+
+def activate_model(db: Session, *, actor: User, model_entry: ModelRegistry) -> ModelRegistry:
+    artifact = load_registered_artifact(model_entry)
+    expected_type = {
+        ModelType.ANOMALY.value: "isolation_forest",
+        ModelType.CLASSIFICATION.value: "random_forest",
+    }.get(model_entry.model_type)
+    if (
+        not isinstance(artifact, dict)
+        or artifact.get("artifact_type") != expected_type
+        or artifact.get("feature_schema_version") != FEATURE_SCHEMA_VERSION
+        or model_entry.feature_schema_version != FEATURE_SCHEMA_VERSION
+    ):
+        raise AppError(
+            "The model artifact metadata is incompatible and cannot be activated.",
+            code="MODEL_METADATA_INVALID",
+            status_code=409,
+        )
+    repository.deactivate_models(db, model_type=model_entry.model_type)
+    model_entry.is_active = True
+    audit_service.record_event(
+        db,
+        action=AuditAction.MODEL_ACTIVATED,
+        resource_type="model",
+        resource_id=model_entry.id,
+        actor_user_id=actor.id,
+        metadata={"model_name": model_entry.model_name, "model_type": model_entry.model_type},
+    )
+    db.commit()
+    db.refresh(model_entry)
+    return model_entry
 
 
 def analyze_equipment(

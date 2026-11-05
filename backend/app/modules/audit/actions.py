@@ -27,6 +27,7 @@ class AuditAction(StrEnum):
     MAINTENANCE_UPDATED = "maintenance.updated"
 
     MODEL_REGISTERED = "model.registered"
+    MODEL_ACTIVATED = "model.activated"
     KNOWLEDGE_NODE_CREATED = "knowledge.node_created"
     KNOWLEDGE_NODE_UPDATED = "knowledge.node_updated"
     KNOWLEDGE_EDGE_CREATED = "knowledge.edge_created"

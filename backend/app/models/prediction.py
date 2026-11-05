@@ -44,6 +44,8 @@ class ModelRegistry(Base):
     feature_schema_version: Mapped[str] = mapped_column(String(50), nullable=False)
     training_dataset_description: Mapped[str | None] = mapped_column(Text, nullable=True)
     evaluation_metrics_json: Mapped[dict[str, Any] | None] = mapped_column(JSON, nullable=True)
+    artifact_sha256: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    training_dataset_version: Mapped[str | None] = mapped_column(String(50), nullable=True)
     created_at: Mapped[datetime] = mapped_column(UTCDateTime, nullable=False, default=utcnow)
     is_active: Mapped[bool] = mapped_column(
         Boolean,

@@ -23,7 +23,7 @@ def test_synthetic_dataset_is_deterministic_and_balanced() -> None:
     assert len(features) == 20
     assert len(features[0]) == len(feature_names)
     assert set(labels) == set(SYNTHETIC_LABELS)
-    assert labels.count("normal") == 5
+    assert all(labels.count(label) == 4 for label in SYNTHETIC_LABELS)
 
 
 def test_training_and_evaluation_scripts_produce_artifacts() -> None:

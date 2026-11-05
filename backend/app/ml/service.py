@@ -1,3 +1,4 @@
+import hashlib
 import logging
 from functools import lru_cache
 from pathlib import Path
@@ -7,6 +8,7 @@ import joblib
 
 from app.core.config import settings
 from app.core.exceptions import AppError
+from app.models import ModelRegistry
 
 logger = logging.getLogger(__name__)
 
@@ -35,7 +37,7 @@ def resolve_artifact_path(artifact_path: str) -> Path:
 
 
 @lru_cache(maxsize=16)
-def _load_joblib(path: str) -> Any:
+def _load_joblib(path: str, checksum: str | None = None) -> Any:
     logger.info("Loading trusted model artifact: %s", path)
     return joblib.load(path)
 
@@ -43,6 +45,26 @@ def _load_joblib(path: str) -> Any:
 def load_artifact(artifact_path: str) -> Any:
     resolved = resolve_artifact_path(artifact_path)
     return _load_joblib(str(resolved))
+
+
+def artifact_sha256(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as artifact:
+        for chunk in iter(lambda: artifact.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def load_registered_artifact(model_entry: ModelRegistry) -> Any:
+    resolved = resolve_artifact_path(model_entry.artifact_path)
+    checksum = artifact_sha256(resolved)
+    if model_entry.artifact_sha256 and checksum != model_entry.artifact_sha256:
+        raise AppError(
+            "The registered model artifact failed its integrity check.",
+            code="ARTIFACT_CHECKSUM_INVALID",
+            status_code=409,
+        )
+    return _load_joblib(str(resolved), checksum)
 
 
 def predict_classification(
