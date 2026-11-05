@@ -10,6 +10,7 @@ from app.models.maintenance import MaintenanceRecord
 from app.models.prediction import MLPrediction, ModelRegistry
 from app.models.reading import SensorReading
 from app.models.session import UserSession
+from app.models.training_job import MLTrainingJob
 from app.models.user import User, UserRole
 
 __all__ = [
@@ -23,6 +24,7 @@ __all__ = [
     "KnowledgeEdge",
     "KnowledgeNode",
     "MLPrediction",
+    "MLTrainingJob",
     "MaintenanceRecord",
     "ModelRegistry",
     "SensorReading",

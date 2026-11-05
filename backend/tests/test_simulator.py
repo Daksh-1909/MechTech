@@ -1,5 +1,6 @@
 import json
 import random
+import threading
 from datetime import UTC, datetime
 
 from simulator import simulator
@@ -123,6 +124,28 @@ def test_once_sends_one_batch() -> None:
     assert count == 3
     assert len(sent) == 1
     assert len(sent[0][1]) == 3
+
+
+def test_continuous_simulation_stops_and_flushes_partial_batch() -> None:
+    stop_event = threading.Event()
+    sent = []
+
+    def fake_sender(config, readings):
+        sent.extend(readings)
+
+    def stop_after_first_sample(_seconds):
+        stop_event.set()
+
+    config = SimulatorConfig(interval_seconds=0.01, batch_size=3, seed=7)
+    count = simulator.run_simulation(
+        config,
+        sender=fake_sender,
+        sleep=stop_after_first_sample,
+        stop_event=stop_event,
+    )
+
+    assert count == 1
+    assert len(sent) == 1
 
 
 def test_phase3_dataset_is_deterministic_and_has_five_run_labels(tmp_path) -> None:

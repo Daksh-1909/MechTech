@@ -8,6 +8,7 @@ import argparse
 import json
 import os
 import random
+import threading
 import time
 from dataclasses import asdict
 from datetime import UTC, datetime
@@ -220,6 +221,7 @@ def run_simulation(
     sender=send_readings,
     sleep=time.sleep,
     clock=time.monotonic,
+    stop_event: threading.Event | None = None,
 ) -> int:
     rng = rng or random.Random(config.seed)  # noqa: S311
     run_id = uuid4().hex
@@ -227,6 +229,7 @@ def run_simulation(
         batch = [
             reading
             for sequence in range(config.batch_size)
+            if stop_event is None or not stop_event.is_set()
             if (reading := generate_reading(config, rng, sequence=sequence, run_id=run_id))
             is not None
         ]
@@ -238,7 +241,9 @@ def run_simulation(
     batch: list[dict[str, Any]] = []
     sent = 0
 
-    while deadline is None or clock() < deadline:
+    while (deadline is None or clock() < deadline) and not (
+        stop_event is not None and stop_event.is_set()
+    ):
         reading = generate_reading(config, rng, sequence=sent + len(batch), run_id=run_id)
         if reading is not None:
             batch.append(reading)

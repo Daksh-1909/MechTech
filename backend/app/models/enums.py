@@ -51,6 +51,13 @@ class ModelType(StrEnum):
     CLASSIFICATION = "classification"
 
 
+class TrainingJobStatus(StrEnum):
+    QUEUED = "queued"
+    RUNNING = "running"
+    SUCCEEDED = "succeeded"
+    FAILED = "failed"
+
+
 class NodeType(StrEnum):
     EQUIPMENT = "equipment"
     COMPONENT = "component"

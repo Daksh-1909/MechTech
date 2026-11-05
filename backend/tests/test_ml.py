@@ -18,6 +18,7 @@ from app.ml.service import resolve_artifact_path
 from app.models import UserRole
 from app.models.enums import ModelType
 from app.modules.ml import service as ml_service
+from app.modules.ml import training as ml_training
 from scripts.train_random_forest import train_classifier
 from tests.helpers import (
     create_user,
@@ -350,3 +351,43 @@ def test_phase3_random_forest_can_be_explicitly_activated_and_used(
     assert anomalies.status_code == 200
     assert anomalies.json()
     assert anomalies.json()[0]["feature_window_id"] == prediction["feature_window_id"]
+
+
+def test_training_jobs_are_admin_only_and_single_flight(client, db_session, monkeypatch) -> None:
+    admin = create_user(db_session, email="train-admin@example.com", role=UserRole.ADMIN)
+    technician = create_user(db_session, email="train-tech@example.com", role=UserRole.TECHNICIAN)
+    monkeypatch.setattr(ml_training._executor, "submit", lambda *args, **kwargs: None)
+    payload = {
+        "model_type": "classification",
+        "model_name": "queued-test",
+        "model_version": "1.0.0",
+        "runs": 2,
+        "test_runs": 1,
+        "samples_per_scenario": 40,
+    }
+
+    technician_csrf = login(client, technician.email)
+    forbidden = client.post(
+        f"{settings.api_v1_prefix}/train",
+        json=payload,
+        headers=csrf_headers(technician_csrf),
+    )
+    assert forbidden.status_code == 403
+
+    admin_csrf = login(client, admin.email)
+    headers = csrf_headers(admin_csrf)
+    created = client.post(f"{settings.api_v1_prefix}/train", json=payload, headers=headers)
+    assert created.status_code == 202, created.text
+    job = created.json()
+    assert job["status"] == "queued"
+    assert "artifact_path" not in job
+
+    duplicate = client.post(f"{settings.api_v1_prefix}/train", json=payload, headers=headers)
+    assert duplicate.status_code == 409
+    status_response = client.get(f"{settings.api_v1_prefix}/training-jobs/{job['id']}")
+    assert status_response.status_code == 200
+    assert status_response.json()["id"] == job["id"]
+
+    oversized = {**payload, "runs": 21}
+    rejected = client.post(f"{settings.api_v1_prefix}/train", json=oversized, headers=headers)
+    assert rejected.status_code == 422

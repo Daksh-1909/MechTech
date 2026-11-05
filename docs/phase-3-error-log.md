@@ -12,6 +12,7 @@ Track implementation and verification errors here so failures can be reproduced 
 | P3-006 | 2026-11-05 | 5 | Existing dataset test expected four classes with five `normal` rows; initial Ruff checks also reported import ordering and line wrapping in new anomaly files. | Phase 3 expands classification to five balanced labels; the test still encoded the Phase 2 dataset, and new files needed repository style fixes. | Updated the balanced-class assertion to all five labels and applied Ruff's import/format fixes. | 7 anomaly, dataset and migration tests passed; Ruff check passed and 143 files passed format check. |
 | P3-007 | 2026-11-05 | 6 | Initial Ruff check found import order, long `AppError` calls, unused imports and simple test dictionary comprehensions in the new classifier/evaluator. | New Random Forest inference and CLI files had not yet been linted against project rules. | Reordered imports, wrapped errors, removed unused imports, and applied the safe test simplifications. | 14 classifier/training/evaluation/anomaly/Phase 2 inference tests passed; Ruff check passed and 146 files passed format check. |
 | P3-008 | 2026-11-05 | 7 | Initial Ruff check reported line lengths in the prediction provenance migration and unified evidence responses. | New end-to-end service and migration were first drafted before the configured formatter/linter was run. | Wrapped migration operations, error messages and explanation strings. | Full backend suite: 95 passed; Ruff check passed and 148 files passed format check. |
+| P3-009 | 2026-11-05 | 8 | Initial `ruff check` / `ruff format --check` reported long lines and import order in the training-job migration, API schema/router, worker and simulator. | New hardening code had not yet gone through the full configured style checks. | Applied Ruff import fixes and formatting, then added a training-job security and single-flight regression test. | Full backend suite: 96 passed; final milestone lint/format and bounded benchmark recorded in Phase 3 completion report. |
 
 ## Entry template
 
@@ -27,4 +28,4 @@ Verification command/result:
 Related files/commit:
 ```
 
-No Phase 3 implementation errors have been recorded yet.
+Entries P3-001 through P3-009 capture the actionable lint/format failures encountered and their fixes.

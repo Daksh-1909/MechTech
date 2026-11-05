@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Query, status
 
 from app.api.deps import DbSession
 from app.core.permissions import Permission
@@ -12,11 +12,14 @@ from app.modules.auth.dependencies import (
     require_permission,
 )
 from app.modules.ml import service
+from app.modules.ml import training as training_service
 from app.modules.ml.schemas import (
     AnalysisRequest,
     AnomalyResponse,
     ModelResponse,
     PredictionResponse,
+    TrainingJobCreateRequest,
+    TrainingJobResponse,
 )
 
 router = APIRouter()
@@ -134,3 +137,30 @@ def analyze_equipment(
         window_size=payload.window_size,
     )
     return PredictionResponse.model_validate(prediction)
+
+
+@router.post("/train", response_model=TrainingJobResponse, status_code=status.HTTP_202_ACCEPTED)
+def submit_training_job(
+    payload: TrainingJobCreateRequest,
+    db: DbSession,
+    manager: ModelManager,
+    _: CsrfProtected,
+) -> TrainingJobResponse:
+    parameters = payload.model_dump(exclude={"model_type"})
+    if payload.model_type == ModelType.ANOMALY:
+        parameters.pop("minimum_score")
+    else:
+        parameters.pop("contamination")
+    job = training_service.submit_job(
+        db, actor=manager, model_type=payload.model_type, parameters=parameters
+    )
+    return TrainingJobResponse.model_validate(job)
+
+
+@router.get("/training-jobs/{job_id}", response_model=TrainingJobResponse)
+def get_training_job(
+    job_id: str,
+    db: DbSession,
+    manager: ModelManager,
+) -> TrainingJobResponse:
+    return TrainingJobResponse.model_validate(training_service.get_job(db, job_id))
