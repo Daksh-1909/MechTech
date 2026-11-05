@@ -25,7 +25,7 @@ htmlcov/
 *.joblib
 *.pkl
 *.onnx
-data/generated/
+data/
 
 # Node / frontend
 node_modules/
