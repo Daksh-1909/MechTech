@@ -4,8 +4,10 @@ from sqlalchemy.orm import Session
 
 from app.core.exceptions import AppError
 from app.core.time import utcnow
-from app.ml.features import FEATURE_SCHEMA_VERSION, build_features, to_feature_vector
-from app.ml.service import load_artifact, load_registered_artifact, predict_classification
+from app.ml.classification import predict_fault
+from app.ml.datasets import SYNTHETIC_LABELS
+from app.ml.features import FEATURE_NAMES, FEATURE_SCHEMA_VERSION, build_features, to_feature_vector
+from app.ml.service import load_registered_artifact, predict_classification
 from app.models import MLPrediction, ModelRegistry, User
 from app.models.enums import ModelType
 from app.modules.audit import service as audit_service
@@ -114,7 +116,23 @@ def activate_model(db: Session, *, actor: User, model_entry: ModelRegistry) -> M
         not isinstance(artifact, dict)
         or artifact.get("artifact_type") != expected_type
         or artifact.get("feature_schema_version") != FEATURE_SCHEMA_VERSION
+        or artifact.get("feature_names") != list(FEATURE_NAMES)
         or model_entry.feature_schema_version != FEATURE_SCHEMA_VERSION
+        or not hasattr(artifact.get("model"), "predict")
+        or (
+            expected_type == "random_forest"
+            and (
+                not hasattr(artifact.get("model"), "predict_proba")
+                or artifact.get("labels") != list(SYNTHETIC_LABELS)
+            )
+        )
+        or (
+            expected_type == "isolation_forest"
+            and (
+                not hasattr(artifact.get("model"), "decision_function")
+                or not hasattr(artifact.get("model"), "score_samples")
+            )
+        )
     ):
         raise AppError(
             "The model artifact metadata is incompatible and cannot be activated.",
@@ -172,11 +190,18 @@ def analyze_equipment(
         )
 
     try:
-        model = load_artifact(model_entry.artifact_path)
-        predicted_class, probabilities, confidence = predict_classification(
-            model,
-            feature_vector,
-        )
+        artifact = load_registered_artifact(model_entry)
+        uncertain = False
+        if isinstance(artifact, dict) and artifact.get("artifact_type") == "random_forest":
+            predicted_class, probabilities, confidence, uncertain = predict_fault(
+                artifact,
+                features,
+            )
+        else:
+            predicted_class, probabilities, confidence = predict_classification(
+                artifact,
+                feature_vector,
+            )
     except AppError:
         raise
     except Exception as exc:
@@ -198,6 +223,12 @@ def analyze_equipment(
             "window_size": len(readings),
             "reading_ids": reading_ids,
             "features": features,
+            "uncertain": uncertain,
+            "score_semantics": (
+                "Random Forest class scores; not calibrated fault probabilities."
+                if isinstance(artifact, dict) and artifact.get("artifact_type") == "random_forest"
+                else "Legacy classifier output; interpret as advisory only."
+            ),
             "note": "Prediction based on simulated data; not a confirmed diagnosis.",
         },
         prediction_timestamp=utcnow(),

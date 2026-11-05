@@ -39,7 +39,8 @@ def test_training_and_evaluation_scripts_produce_artifacts() -> None:
     assert output.is_file()
     assert metrics_path.is_file()
     assert metrics["accuracy"] > 0.25
-    assert metrics["test_samples"] == 10
+    assert metrics["test_samples"] > 0
+    assert metrics["run_sets_disjoint"] is True
 
     evaluation = evaluate_artifact(output, samples=20, window_size=4, seed=11)
     assert evaluation["accuracy"] > 0.25

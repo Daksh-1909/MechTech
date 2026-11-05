@@ -10,11 +10,13 @@ from app.core.config import settings
 from app.core.exceptions import AppError
 from app.core.time import utcnow
 from app.main import app
+from app.ml.datasets import generate_labeled_window_dataset
 from app.ml.features import FEATURE_NAMES, FEATURE_SCHEMA_VERSION, build_features
 from app.ml.service import resolve_artifact_path
 from app.models import UserRole
 from app.models.enums import ModelType
 from app.modules.ml import service as ml_service
+from scripts.train_random_forest import train_classifier
 from tests.helpers import (
     create_user,
     csrf_headers,
@@ -221,3 +223,67 @@ def test_analysis_handles_missing_active_artifact(client: TestClient, db_session
     )
     assert response.status_code == 409
     assert response.json()["error"]["code"] == "ARTIFACT_MISSING"
+
+
+def test_phase3_random_forest_can_be_explicitly_activated_and_used(
+    client: TestClient,
+    db_session,
+) -> None:
+    make_equipment(db_session)
+    admin = create_user(db_session, email="admin-rf@example.com", role=UserRole.ADMIN)
+    technician = create_user(db_session, email="tech-rf@example.com", role=UserRole.TECHNICIAN)
+    start = utcnow() - timedelta(minutes=2)
+    for index in range(12):
+        make_reading(
+            db_session,
+            timestamp=start + timedelta(seconds=index),
+            temperature_c=50.0 + index * 0.1,
+            vibration_value=0.2 + index * 0.001,
+            source_event_id=f"rf-analysis-{index}",
+        )
+
+    training_rows = generate_labeled_window_dataset(
+        run_seeds=[71, 72],
+        samples_per_scenario=40,
+    )
+    bundle, _ = train_classifier(training_rows, seed=71, minimum_score=0.4)
+    models_dir = settings.data_root / "models"
+    models_dir.mkdir(parents=True, exist_ok=True)
+    artifact = models_dir / "phase3-random-forest.joblib"
+    joblib.dump(bundle, artifact)
+    registered = ml_service.register_model(
+        db_session,
+        actor=admin,
+        model_name="phase3-random-forest",
+        model_version="1.0.0",
+        model_type=ModelType.CLASSIFICATION,
+        artifact_path="models/phase3-random-forest.joblib",
+        training_dataset_description="Run-separated test fixture",
+        evaluation_metrics_json={"f1_macro": 1.0},
+        training_dataset_version="1.0",
+        activate=False,
+    )
+    assert registered.is_active is False
+    active = ml_service.activate_model(db_session, actor=admin, model_entry=registered)
+    assert active.is_active is True
+
+    csrf = login(client, technician.email)
+    response = client.post(
+        f"{settings.api_v1_prefix}/equipment/motor-001/analysis",
+        json={},
+        headers=csrf_headers(csrf),
+    )
+    assert response.status_code == 200, response.text
+    prediction = response.json()
+    assert prediction["model_registry_id"] == registered.id
+    assert prediction["predicted_class"] in {
+        "normal",
+        "excessive_vibration",
+        "overheating",
+        "bearing_abnormality",
+        "combined_abnormality",
+        "unknown",
+    }
+    assert isinstance(prediction["evidence_json"]["uncertain"], bool)
+    assert isinstance(prediction["probabilities_json"], dict)
+    assert "Random Forest class scores" in prediction["evidence_json"]["score_semantics"]
