@@ -4,6 +4,7 @@ from datetime import UTC, datetime
 
 from simulator import simulator
 from simulator.config import SimulatorConfig
+from simulator.dataset import export_csv, export_metadata, generate_dataset
 from simulator.scenarios import Scenario
 
 
@@ -120,3 +121,26 @@ def test_once_sends_one_batch() -> None:
     assert count == 3
     assert len(sent) == 1
     assert len(sent[0][1]) == 3
+
+
+def test_phase3_dataset_is_deterministic_and_has_five_run_labels(tmp_path) -> None:
+    first = generate_dataset(samples_per_scenario=4, seed=42)
+    second = generate_dataset(samples_per_scenario=4, seed=42)
+
+    assert first == second
+    assert len(first) == 20
+    assert {row["schema_version"] for row in first} == {"1.0"}
+    assert {row["simulation"]["scenario_label"] for row in first} == {
+        "normal",
+        "excessive_vibration",
+        "overheating",
+        "bearing_abnormality",
+        "combined_abnormality",
+    }
+    assert len({row["simulation"]["run_id"] for row in first}) == 5
+    assert all(row["measurements"]["vibration_unit"] == "simulated_index" for row in first)
+
+    csv_path = export_csv(first, tmp_path / "dataset.csv")
+    metadata_path = export_metadata(first, csv_path, seed=42)
+    assert csv_path.is_file()
+    assert metadata_path.is_file()

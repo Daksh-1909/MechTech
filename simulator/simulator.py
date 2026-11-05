@@ -11,6 +11,7 @@ import random
 import time
 from dataclasses import asdict
 from datetime import UTC, datetime
+from pathlib import Path
 from typing import Any
 from urllib.error import HTTPError, URLError
 from urllib.parse import urlparse
@@ -18,6 +19,7 @@ from urllib.request import Request, urlopen
 from uuid import uuid4
 
 from simulator.config import SimulatorConfig
+from simulator.dataset import export_csv, export_metadata, generate_dataset
 from simulator.scenarios import NORMAL_RANGES, SCENARIO_RANGES, Scenario
 
 
@@ -54,7 +56,68 @@ def build_parser() -> argparse.ArgumentParser:
         help="Device API key (or set SIMULATOR_API_KEY).",
     )
     parser.add_argument("--timeout", type=float, default=5.0, help="HTTP timeout in seconds.")
+    parser.add_argument(
+        "--export-csv",
+        help="Generate a deterministic labeled CSV instead of sending readings to the API.",
+    )
+    parser.add_argument(
+        "--samples-per-scenario",
+        type=int,
+        default=100,
+        help="Readings per Phase 3 scenario when --export-csv is used.",
+    )
     return parser
+
+
+def generate_contract_reading(
+    *,
+    equipment_id: str,
+    scenario: Scenario,
+    rng: random.Random,
+    timestamp: datetime,
+    sequence: int,
+    seed: int,
+    run_id: str,
+) -> dict[str, Any]:
+    """Generate the versioned Phase 3 envelope, preserving normalized vibration units."""
+    aliases = {
+        Scenario.INCREASED_VIBRATION: Scenario.EXCESSIVE_VIBRATION,
+    }
+    label = aliases.get(scenario, scenario).value
+    ranges = SCENARIO_RANGES.get(scenario, NORMAL_RANGES)
+    temp_range = ranges["temperature_c"]
+    vibration_range = ranges["vibration_normalized"]
+    temperature = rng.uniform(*temp_range)
+    vibration = rng.uniform(*vibration_range)
+    if scenario == Scenario.BEARING_ABNORMALITY:
+        # Vary the synthetic signal over time to model a scenario distinction,
+        # without claiming a physical bearing-fault signature.
+        vibration = min(1.0, vibration + 0.08 * abs(rng.gauss(0.0, 1.0)))
+    observed_at = timestamp.astimezone(UTC)
+    source_event_id = f"{equipment_id}:{run_id}:{sequence}"
+    return {
+        "schema_version": "1.0",
+        "equipment_id": equipment_id,
+        "timestamp": observed_at.isoformat().replace("+00:00", "Z"),
+        "sequence": sequence,
+        "source": "simulator",
+        "source_event_id": source_event_id,
+        "measurements": {
+            "temperature_c": round(temperature, 3),
+            "vibration_value": round(vibration, 4),
+            "vibration_unit": "simulated_index",
+        },
+        "operating_conditions": {
+            "speed_rpm": round(rng.uniform(1420.0, 1500.0), 1),
+            "load_percent": round(rng.uniform(45.0, 85.0), 1),
+        },
+        "simulation": {
+            "scenario_id": run_id,
+            "scenario_label": label,
+            "seed": seed,
+            "run_id": run_id,
+        },
+    }
 
 
 def generate_reading(
@@ -192,6 +255,24 @@ def run_simulation(
 
 def main() -> int:
     args = build_parser().parse_args()
+    if args.export_csv:
+        if args.seed is None:
+            raise SystemExit("--export-csv requires --seed for reproducibility.")
+        try:
+            readings = generate_dataset(
+                samples_per_scenario=args.samples_per_scenario,
+                seed=args.seed,
+                equipment_id=args.equipment_id,
+                interval_seconds=args.interval,
+            )
+            path = export_csv(readings, Path(args.export_csv))
+            metadata = export_metadata(readings, path, seed=args.seed)
+        except (OSError, ValueError) as exc:
+            raise SystemExit(f"Dataset export failed: {exc}") from exc
+        print(f"Exported {len(readings)} simulated readings to {path}")
+        print(f"Dataset metadata: {metadata}")
+        return 0
+
     config = SimulatorConfig(
         equipment_id=args.equipment_id,
         backend_url=args.backend_url,
