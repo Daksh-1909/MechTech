@@ -1,0 +1,107 @@
+{
+  "base_url": "http://127.0.0.1:8765",
+  "environment": {
+    "authenticated": true,
+    "data_root": "C:\\Users\\DAKSH\\AppData\\Local\\Temp\\opencode\\mechtech-bench\\data",
+    "database_url": "sqlite:///C:/Users/DAKSH/AppData/Local/Temp/opencode/mechtech-bench/db/bench.db",
+    "platform": "Windows-11-10.0.26300-SP0",
+    "python": "3.13.7 (tags/v3.13.7:bcee1c3, Aug 14 2025, 14:15:11) [MSC v.1944 64 bit (AMD64)]"
+  },
+  "iterations": 100,
+  "measured_at": "2026-11-05T07:48:48.567594+00:00",
+  "note": "Local prototype measurements only. Percentiles depend on machine load, SQLite state and endpoint data volume.",
+  "results": [
+    {
+      "count": 100,
+      "max_ms": 1.597,
+      "mean_ms": 0.958,
+      "min_ms": 0.805,
+      "p50_ms": 0.944,
+      "p95_ms": 1.122,
+      "p99_ms": 1.242,
+      "status_codes": [
+        200
+      ],
+      "url": "http://127.0.0.1:8765/health/live"
+    },
+    {
+      "count": 100,
+      "max_ms": 2.919,
+      "mean_ms": 2.156,
+      "min_ms": 1.875,
+      "p50_ms": 2.09,
+      "p95_ms": 2.539,
+      "p99_ms": 2.83,
+      "status_codes": [
+        200
+      ],
+      "url": "http://127.0.0.1:8765/api/v1/equipment"
+    },
+    {
+      "count": 100,
+      "max_ms": 4.431,
+      "mean_ms": 2.792,
+      "min_ms": 2.43,
+      "p50_ms": 2.649,
+      "p95_ms": 3.436,
+      "p99_ms": 4.158,
+      "status_codes": [
+        200
+      ],
+      "url": "http://127.0.0.1:8765/api/v1/monitoring/overview"
+    },
+    {
+      "count": 100,
+      "max_ms": 2.869,
+      "mean_ms": 2.071,
+      "min_ms": 1.814,
+      "p50_ms": 1.999,
+      "p95_ms": 2.523,
+      "p99_ms": 2.805,
+      "status_codes": [
+        200
+      ],
+      "url": "http://127.0.0.1:8765/api/v1/equipment/motor-001"
+    },
+    {
+      "count": 100,
+      "max_ms": 4.938,
+      "mean_ms": 2.714,
+      "min_ms": 2.421,
+      "p50_ms": 2.61,
+      "p95_ms": 3.261,
+      "p99_ms": 3.978,
+      "status_codes": [
+        200
+      ],
+      "url": "http://127.0.0.1:8765/api/v1/equipment/motor-001/status"
+    },
+    {
+      "count": 100,
+      "max_ms": 4.821,
+      "mean_ms": 3.533,
+      "min_ms": 3.151,
+      "p50_ms": 3.434,
+      "p95_ms": 4.088,
+      "p99_ms": 4.15,
+      "status_codes": [
+        200
+      ],
+      "url": "http://127.0.0.1:8765/api/v1/equipment/motor-001/readings?limit=100"
+    },
+    {
+      "count": 100,
+      "max_ms": 3.073,
+      "mean_ms": 2.41,
+      "min_ms": 2.155,
+      "p50_ms": 2.337,
+      "p95_ms": 2.82,
+      "p99_ms": 2.927,
+      "status_codes": [
+        200
+      ],
+      "url": "http://127.0.0.1:8765/api/v1/knowledge-graph"
+    }
+  ],
+  "warmup": 10
+}

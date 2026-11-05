@@ -1,8 +1,11 @@
 # MechTech Documentation
 
-Phase 1 requirements live in [`../MechTech_Phase_1_Requirements.md`](../MechTech_Phase_1_Requirements.md).
+Phase 1 requirements live in
+[`../MechTech_Phase_1_Requirements.md`](../MechTech_Phase_1_Requirements.md).
+The Phase 2 backend design and milestones live in
+[`../MechTech_Phase_2_Backend_Architecture.md`](../MechTech_Phase_2_Backend_Architecture.md).
 
-## Phase 2 deliverables (to be produced and reviewed before large-scale implementation)
+## Phase 2 deliverables
 
 1. Detailed system architecture diagram
 2. Frontend and backend module breakdown
@@ -16,11 +19,15 @@ Phase 1 requirements live in [`../MechTech_Phase_1_Requirements.md`](../MechTech
 10. Final project folder structure
 11. Staged implementation plan with test checkpoints
 
-Suggested files:
+## Implemented documentation
 
-- `architecture.md`
-- `data-model.md`
-- `api-contract.md`
-- `ml-pipeline.md`
-- `knowledge-graph.md`
-- `roadmap.md`
+- [`api-contract.md`](./api-contract.md): Phase 2 endpoint, authentication,
+  role, idempotency, error and schema contract.
+- [`performance-baseline.md`](./performance-baseline.md): measured local
+  p50/p95/p99 baseline, environment and limitations.
+- [`benchmark-baseline.json`](./benchmark-baseline.json): raw benchmark report.
+- [`../backend/README.md`](../backend/README.md): local setup, domain APIs,
+  ML scripts, simulator, backup/restore and operational notes.
+
+The architecture, data-model, ML-pipeline and knowledge-graph design content is
+currently maintained in the Phase 2 backend architecture document.
