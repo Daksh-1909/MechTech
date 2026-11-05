@@ -68,6 +68,10 @@ class Settings(BaseSettings):
 
     feature_window_size: int = Field(default=12, ge=2, le=1000)
     analysis_window_max: int = Field(default=100, ge=2, le=1000)
+    feature_window_seconds: float = Field(default=10.0, gt=0, le=3600)
+    feature_stride_seconds: float = Field(default=5.0, gt=0, le=3600)
+    feature_sample_interval_seconds: float = Field(default=1.0, gt=0, le=3600)
+    feature_min_samples: int = Field(default=8, ge=2, le=1000)
 
     cors_origins: list[str] = [
         "http://localhost:5173",

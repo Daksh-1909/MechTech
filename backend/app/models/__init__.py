@@ -3,6 +3,7 @@
 from app.models.anomaly import Alert, AnomalyEvent
 from app.models.audit_log import AuditLog
 from app.models.equipment import Component, Equipment
+from app.models.feature_window import FeatureWindow
 from app.models.knowledge import KnowledgeEdge, KnowledgeNode
 from app.models.maintenance import MaintenanceRecord
 from app.models.prediction import MLPrediction, ModelRegistry
@@ -16,6 +17,7 @@ __all__ = [
     "AuditLog",
     "Component",
     "Equipment",
+    "FeatureWindow",
     "KnowledgeEdge",
     "KnowledgeNode",
     "MLPrediction",
