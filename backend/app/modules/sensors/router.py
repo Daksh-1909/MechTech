@@ -15,8 +15,31 @@ from app.modules.sensors.schemas import (
     ReadingResponse,
     ReadingSummaryResponse,
 )
+from app.schemas.sensor import SensorReadingBatchPayload, SensorReadingPayload
 
 router = APIRouter()
+
+
+@router.post("/sensor-readings", response_model=ReadingIngestResponse)
+def ingest_versioned_reading(
+    payload: SensorReadingPayload,
+    response: Response,
+    db: DbSession,
+    _: IngestionAccess,
+) -> ReadingIngestResponse:
+    reading, duplicate = service.ingest_contract_single(db, payload=payload)
+    response.status_code = 200 if duplicate else 201
+    return ReadingIngestResponse(reading=reading, duplicate=duplicate)
+
+
+@router.post("/sensor-readings/batch", response_model=ReadingBatchResponse, status_code=201)
+def ingest_versioned_readings_batch(
+    payload: SensorReadingBatchPayload,
+    db: DbSession,
+    _: IngestionAccess,
+) -> ReadingBatchResponse:
+    readings, created, duplicates = service.ingest_contract_batch(db, payloads=payload.readings)
+    return ReadingBatchResponse(created=created, duplicates=duplicates, readings=readings)
 
 
 @router.post("/readings", response_model=ReadingIngestResponse)

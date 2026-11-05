@@ -26,6 +26,20 @@ def get_by_event_id(
     )
 
 
+def get_by_sequence(
+    db: Session,
+    *,
+    equipment_id: str,
+    sequence_number: int,
+) -> SensorReading | None:
+    return db.scalar(
+        select(SensorReading).where(
+            SensorReading.equipment_id == equipment_id,
+            SensorReading.sequence_number == sequence_number,
+        )
+    )
+
+
 def get_latest_reading(db: Session, equipment_id: str) -> SensorReading | None:
     return db.scalar(
         select(SensorReading)

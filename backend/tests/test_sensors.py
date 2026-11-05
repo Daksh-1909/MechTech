@@ -106,6 +106,69 @@ def test_device_key_allows_unauthenticated_ingestion(
         assert accepted.status_code == 201, accepted.text
 
 
+def test_versioned_sensor_contract_persists_metadata_and_sequence_is_idempotent(
+    client: TestClient,
+    db_session,
+) -> None:
+    make_equipment(db_session)
+    _login_technician(client, db_session)
+    prefix = settings.api_v1_prefix
+    payload = {
+        "schema_version": "1.0",
+        "equipment_id": "motor-001",
+        "timestamp": utcnow().isoformat(),
+        "sequence": 17,
+        "source": "simulator",
+        "source_event_id": "phase3-run:17",
+        "temperature_c": 58.2,
+        "vibration_value": 0.34,
+        "vibration_unit": "simulated_index",
+        "speed_rpm": 1475.0,
+        "load_percent": 65.0,
+        "scenario_id": "run-abc",
+        "scenario_label": "normal",
+        "simulation_seed": 42,
+        "simulation_run_id": "run-abc",
+    }
+
+    first = client.post(f"{prefix}/sensor-readings", json=payload)
+    assert first.status_code == 201, first.text
+    result = first.json()["reading"]
+    assert result["schema_version"] == "1.0"
+    assert result["sequence_number"] == 17
+    assert result["scenario_label"] == "normal"
+    assert result["simulation_run_id"] == "run-abc"
+
+    replay = {**payload, "source_event_id": "different-event-id"}
+    duplicate = client.post(f"{prefix}/sensor-readings", json=replay)
+    assert duplicate.status_code == 200, duplicate.text
+    assert duplicate.json()["duplicate"] is True
+    assert duplicate.json()["reading"]["id"] == result["id"]
+
+
+def test_versioned_sensor_contract_rejects_invalid_values(client: TestClient, db_session) -> None:
+    make_equipment(db_session)
+    _login_technician(client, db_session)
+    payload = {
+        "schema_version": "1.0",
+        "equipment_id": "motor-001",
+        "timestamp": utcnow().isoformat(),
+        "sequence": 0,
+        "source": "simulator",
+        "source_event_id": "phase3-run:0",
+        "temperature_c": "58.2",
+        "vibration_value": 0.34,
+        "vibration_unit": "simulated_index",
+    }
+    response = client.post(f"{settings.api_v1_prefix}/sensor-readings", json=payload)
+    assert response.status_code == 422
+
+    payload["temperature_c"] = 58.2
+    payload["timestamp"] = "2026-01-01T00:00:00"
+    response = client.post(f"{settings.api_v1_prefix}/sensor-readings", json=payload)
+    assert response.status_code == 422
+
+
 def test_ingestion_validation_and_permissions(client: TestClient, db_session) -> None:
     make_equipment(db_session)
     make_equipment(

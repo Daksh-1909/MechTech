@@ -102,21 +102,15 @@ def generate_contract_reading(
         "sequence": sequence,
         "source": "simulator",
         "source_event_id": source_event_id,
-        "measurements": {
-            "temperature_c": round(temperature, 3),
-            "vibration_value": round(vibration, 4),
-            "vibration_unit": "simulated_index",
-        },
-        "operating_conditions": {
-            "speed_rpm": round(rng.uniform(1420.0, 1500.0), 1),
-            "load_percent": round(rng.uniform(45.0, 85.0), 1),
-        },
-        "simulation": {
-            "scenario_id": run_id,
-            "scenario_label": label,
-            "seed": seed,
-            "run_id": run_id,
-        },
+        "temperature_c": round(temperature, 3),
+        "vibration_value": round(vibration, 4),
+        "vibration_unit": "simulated_index",
+        "speed_rpm": round(rng.uniform(1420.0, 1500.0), 1),
+        "load_percent": round(rng.uniform(45.0, 85.0), 1),
+        "scenario_id": run_id,
+        "scenario_label": label,
+        "simulation_seed": seed,
+        "simulation_run_id": run_id,
     }
 
 
@@ -125,6 +119,8 @@ def generate_reading(
     rng: random.Random,
     *,
     timestamp: datetime | None = None,
+    sequence: int = 0,
+    run_id: str | None = None,
 ) -> dict[str, Any] | None:
     if config.scenario == Scenario.SENSOR_DISCONNECTION:
         return None
@@ -143,14 +139,26 @@ def generate_reading(
             quality_status = "partial"
 
     observed_at = timestamp or datetime.now(UTC)
+    current_run_id = run_id or f"sim-{config.seed if config.seed is not None else 'live'}"
+    scenario_label = {
+        Scenario.INCREASED_VIBRATION: Scenario.EXCESSIVE_VIBRATION.value,
+    }.get(config.scenario, config.scenario.value)
     return {
+        "schema_version": "1.0",
         "equipment_id": config.equipment_id,
         "timestamp": observed_at.astimezone(UTC).isoformat().replace("+00:00", "Z"),
+        "sequence": sequence,
+        "source": config.source,
+        "source_event_id": f"{config.equipment_id}:{current_run_id}:{sequence}",
         "temperature_c": round(temperature, 3),
         "vibration_value": round(max(0.0, vibration), 4),
         "vibration_unit": "simulated_index",
-        "source": config.source,
-        "source_event_id": uuid4().hex,
+        "speed_rpm": round(rng.uniform(1420.0, 1500.0), 1),
+        "load_percent": round(rng.uniform(45.0, 85.0), 1),
+        "scenario_id": current_run_id,
+        "scenario_label": scenario_label,
+        "simulation_seed": config.seed,
+        "simulation_run_id": current_run_id,
         "quality_status": quality_status,
     }
 
@@ -214,11 +222,13 @@ def run_simulation(
     clock=time.monotonic,
 ) -> int:
     rng = rng or random.Random(config.seed)  # noqa: S311
+    run_id = uuid4().hex
     if config.once:
         batch = [
             reading
-            for _ in range(config.batch_size)
-            if (reading := generate_reading(config, rng)) is not None
+            for sequence in range(config.batch_size)
+            if (reading := generate_reading(config, rng, sequence=sequence, run_id=run_id))
+            is not None
         ]
         sender(config, batch)
         return len(batch)
@@ -229,7 +239,7 @@ def run_simulation(
     sent = 0
 
     while deadline is None or clock() < deadline:
-        reading = generate_reading(config, rng)
+        reading = generate_reading(config, rng, sequence=sent + len(batch), run_id=run_id)
         if reading is not None:
             batch.append(reading)
             if len(batch) >= config.batch_size:

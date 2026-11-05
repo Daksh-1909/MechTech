@@ -7,6 +7,8 @@ from simulator.config import SimulatorConfig
 from simulator.dataset import export_csv, export_metadata, generate_dataset
 from simulator.scenarios import Scenario
 
+from app.schemas.sensor import SensorReadingPayload
+
 
 class _FakeResponse:
     def __init__(self, payload: dict) -> None:
@@ -130,15 +132,16 @@ def test_phase3_dataset_is_deterministic_and_has_five_run_labels(tmp_path) -> No
     assert first == second
     assert len(first) == 20
     assert {row["schema_version"] for row in first} == {"1.0"}
-    assert {row["simulation"]["scenario_label"] for row in first} == {
+    assert {row["scenario_label"] for row in first} == {
         "normal",
         "excessive_vibration",
         "overheating",
         "bearing_abnormality",
         "combined_abnormality",
     }
-    assert len({row["simulation"]["run_id"] for row in first}) == 5
-    assert all(row["measurements"]["vibration_unit"] == "simulated_index" for row in first)
+    assert len({row["simulation_run_id"] for row in first}) == 5
+    assert all(row["vibration_unit"] == "simulated_index" for row in first)
+    assert all(SensorReadingPayload.model_validate(row) for row in first)
 
     csv_path = export_csv(first, tmp_path / "dataset.csv")
     metadata_path = export_metadata(first, csv_path, seed=42)

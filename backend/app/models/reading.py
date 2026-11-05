@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import TYPE_CHECKING
 
-from sqlalchemy import CheckConstraint, Float, ForeignKey, Index, String, UniqueConstraint
+from sqlalchemy import CheckConstraint, Float, ForeignKey, Index, Integer, String, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.time import utcnow
@@ -23,6 +23,7 @@ class SensorReading(Base):
             name="uq_readings_equipment_source_event",
         ),
         Index("ix_readings_equipment_timestamp", "equipment_id", "timestamp"),
+        Index("ix_readings_equipment_sequence", "equipment_id", "sequence_number", unique=True),
         CheckConstraint(
             "temperature_c IS NOT NULL OR vibration_value IS NOT NULL",
             name="ck_readings_at_least_one_channel",
@@ -46,6 +47,14 @@ class SensorReading(Base):
     )
     source: Mapped[str] = mapped_column(String(50), nullable=False, default="simulator")
     source_event_id: Mapped[str | None] = mapped_column(String(100), nullable=True)
+    schema_version: Mapped[str] = mapped_column(String(20), nullable=False, default="1.0")
+    sequence_number: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    speed_rpm: Mapped[float | None] = mapped_column(Float, nullable=True)
+    load_percent: Mapped[float | None] = mapped_column(Float, nullable=True)
+    scenario_id: Mapped[str | None] = mapped_column(String(100), nullable=True)
+    scenario_label: Mapped[str | None] = mapped_column(String(50), nullable=True)
+    simulation_seed: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    simulation_run_id: Mapped[str | None] = mapped_column(String(100), nullable=True)
     quality_status: Mapped[str] = mapped_column(
         String(20),
         nullable=False,

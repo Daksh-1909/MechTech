@@ -15,6 +15,7 @@ from app.modules.sensors.schemas import (
     ReadingResponse,
     ReadingSummaryResponse,
 )
+from app.schemas.sensor import SensorReadingPayload
 
 logger = logging.getLogger(__name__)
 
@@ -46,8 +47,52 @@ def _reading_values(payload: ReadingCreateRequest) -> dict:
         "vibration_unit": payload.vibration_unit,
         "source": payload.source,
         "source_event_id": payload.source_event_id,
+        "schema_version": payload.schema_version,
+        "sequence_number": payload.sequence_number,
+        "speed_rpm": payload.speed_rpm,
+        "load_percent": payload.load_percent,
+        "scenario_id": payload.scenario_id,
+        "scenario_label": payload.scenario_label,
+        "simulation_seed": payload.simulation_seed,
+        "simulation_run_id": payload.simulation_run_id,
         "quality_status": payload.quality_status.value,
     }
+
+
+def _contract_to_request(payload: SensorReadingPayload) -> ReadingCreateRequest:
+    return ReadingCreateRequest(
+        equipment_id=payload.equipment_id,
+        timestamp=payload.timestamp,
+        temperature_c=payload.temperature_c,
+        vibration_value=payload.vibration_value,
+        vibration_unit=payload.vibration_unit,
+        source=payload.source,
+        source_event_id=payload.source_event_id,
+        schema_version=payload.schema_version,
+        sequence_number=payload.sequence,
+        speed_rpm=payload.speed_rpm,
+        load_percent=payload.load_percent,
+        scenario_id=payload.scenario_id,
+        scenario_label=payload.scenario_label,
+        simulation_seed=payload.simulation_seed,
+        simulation_run_id=payload.simulation_run_id,
+    )
+
+
+def ingest_contract_single(
+    db: Session,
+    *,
+    payload: SensorReadingPayload,
+) -> tuple[ReadingResponse, bool]:
+    return ingest_single(db, payload=_contract_to_request(payload))
+
+
+def ingest_contract_batch(
+    db: Session,
+    *,
+    payloads: list[SensorReadingPayload],
+) -> tuple[list[ReadingResponse], int, int]:
+    return ingest_batch(db, payloads=[_contract_to_request(payload) for payload in payloads])
 
 
 def _evaluate_new_readings(db: Session, readings: list[SensorReading]) -> None:
@@ -79,6 +124,15 @@ def ingest_single(
         if existing is not None:
             return ReadingResponse.model_validate(existing), True
 
+    if payload.sequence_number is not None:
+        existing = repository.get_by_sequence(
+            db,
+            equipment_id=payload.equipment_id,
+            sequence_number=payload.sequence_number,
+        )
+        if existing is not None:
+            return ReadingResponse.model_validate(existing), True
+
     reading = repository.create_reading(db, **_reading_values(payload))
     db.commit()
     db.refresh(reading)
@@ -93,6 +147,7 @@ def ingest_batch(
 ) -> tuple[list[ReadingResponse], int, int]:
     created_models: list[SensorReading] = []
     created_by_key: dict[tuple[str, str, str], SensorReading] = {}
+    created_by_sequence: dict[tuple[str, int], SensorReading] = {}
     results: list[tuple[SensorReading, bool]] = []
     equipment_cache: dict[str, Equipment] = {}
 
@@ -120,11 +175,31 @@ def ingest_batch(
                 results.append((existing, True))
                 continue
 
+        sequence_key = (
+            (payload.equipment_id, payload.sequence_number)
+            if payload.sequence_number is not None
+            else None
+        )
+        if sequence_key is not None:
+            if sequence_key in created_by_sequence:
+                results.append((created_by_sequence[sequence_key], True))
+                continue
+            existing = repository.get_by_sequence(
+                db,
+                equipment_id=payload.equipment_id,
+                sequence_number=payload.sequence_number,
+            )
+            if existing is not None:
+                results.append((existing, True))
+                continue
+
         reading = repository.create_reading(db, **_reading_values(payload))
         created_models.append(reading)
         results.append((reading, False))
         if key is not None:
             created_by_key[key] = reading
+        if sequence_key is not None:
+            created_by_sequence[sequence_key] = reading
 
     db.commit()
     for reading in created_models:

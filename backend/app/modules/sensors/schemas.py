@@ -25,6 +25,14 @@ class ReadingCreateRequest(BaseModel):
     vibration_unit: str = Field(default="simulated_index", min_length=1, max_length=30)
     source: str = Field(default="simulator", min_length=1, max_length=50)
     source_event_id: str | None = Field(default=None, max_length=100)
+    schema_version: str = Field(default="1.0", min_length=1, max_length=20)
+    sequence_number: int | None = Field(default=None, ge=0)
+    speed_rpm: float | None = Field(default=None, ge=0, le=100_000)
+    load_percent: float | None = Field(default=None, ge=0, le=100)
+    scenario_id: str | None = Field(default=None, max_length=100)
+    scenario_label: str | None = Field(default=None, max_length=50)
+    simulation_seed: int | None = None
+    simulation_run_id: str | None = Field(default=None, max_length=100)
     quality_status: ReadingQuality = ReadingQuality.VALID
 
     @field_validator("timestamp")
@@ -107,6 +115,14 @@ class ReadingResponse(BaseModel):
     vibration_unit: str
     source: str
     source_event_id: str | None
+    schema_version: str = "1.0"
+    sequence_number: int | None = None
+    speed_rpm: float | None = None
+    load_percent: float | None = None
+    scenario_id: str | None = None
+    scenario_label: str | None = None
+    simulation_seed: int | None = None
+    simulation_run_id: str | None = None
     quality_status: ReadingQuality
 
     @classmethod

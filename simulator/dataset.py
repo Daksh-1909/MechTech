@@ -72,19 +72,13 @@ def export_csv(readings: list[dict[str, object]], path: Path) -> Path:
         "scenario_id",
         "scenario_label",
         "simulation_seed",
-        "run_id",
+        "simulation_run_id",
         "source_event_id",
     )
     with path.open("w", newline="", encoding="utf-8") as output_file:
         writer = csv.DictWriter(output_file, fieldnames=fieldnames)
         writer.writeheader()
         for payload in readings:
-            measurements = payload["measurements"]
-            conditions = payload["operating_conditions"]
-            simulation = payload["simulation"]
-            assert isinstance(measurements, dict)
-            assert isinstance(conditions, dict)
-            assert isinstance(simulation, dict)
             writer.writerow(
                 {
                     "schema_version": payload["schema_version"],
@@ -92,15 +86,15 @@ def export_csv(readings: list[dict[str, object]], path: Path) -> Path:
                     "timestamp": payload["timestamp"],
                     "sequence": payload["sequence"],
                     "source": payload["source"],
-                    "temperature_c": measurements["temperature_c"],
-                    "vibration_value": measurements["vibration_value"],
-                    "vibration_unit": measurements["vibration_unit"],
-                    "speed_rpm": conditions["speed_rpm"],
-                    "load_percent": conditions["load_percent"],
-                    "scenario_id": simulation["scenario_id"],
-                    "scenario_label": simulation["scenario_label"],
-                    "simulation_seed": simulation["seed"],
-                    "run_id": simulation["run_id"],
+                    "temperature_c": payload["temperature_c"],
+                    "vibration_value": payload["vibration_value"],
+                    "vibration_unit": payload["vibration_unit"],
+                    "speed_rpm": payload["speed_rpm"],
+                    "load_percent": payload["load_percent"],
+                    "scenario_id": payload["scenario_id"],
+                    "scenario_label": payload["scenario_label"],
+                    "simulation_seed": payload["simulation_seed"],
+                    "simulation_run_id": payload["simulation_run_id"],
                     "source_event_id": payload["source_event_id"],
                 }
             )
@@ -117,13 +111,7 @@ def export_metadata(readings: list[dict[str, object]], path: Path, *, seed: int)
                 "seed": seed,
                 "scenario_labels": [scenario.value for scenario in PHASE3_SCENARIOS],
                 "samples": len(readings),
-                "run_ids": sorted(
-                    {
-                        str(row["simulation"]["run_id"])
-                        for row in readings
-                        if isinstance(row.get("simulation"), dict)
-                    }
-                ),
+                "run_ids": sorted({str(row["simulation_run_id"]) for row in readings}),
                 "synthetic_data": True,
             },
             indent=2,
