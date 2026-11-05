@@ -1,14 +1,10 @@
-from collections.abc import Generator
+from typing import Annotated
 
+from fastapi import Depends
 from sqlalchemy.orm import Session
 
 from app.db.session import get_db
 
-__all__ = ["get_db", "DbSession"]
+DbSession = Annotated[Session, Depends(get_db)]
 
-
-def db_session() -> Generator[Session]:
-    yield from get_db()
-
-
-DbSession = Session
+__all__ = ["DbSession", "get_db"]
