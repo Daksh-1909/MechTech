@@ -72,6 +72,7 @@ class Settings(BaseSettings):
     feature_stride_seconds: float = Field(default=5.0, gt=0, le=3600)
     feature_sample_interval_seconds: float = Field(default=1.0, gt=0, le=3600)
     feature_min_samples: int = Field(default=8, ge=2, le=1000)
+    statistical_baseline_z_threshold: float = Field(default=3.0, gt=0, le=20)
 
     cors_origins: list[str] = [
         "http://localhost:5173",
