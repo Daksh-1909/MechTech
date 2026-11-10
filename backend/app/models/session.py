@@ -1,12 +1,13 @@
 from datetime import datetime
 from typing import TYPE_CHECKING
+import uuid
 
 from sqlalchemy import ForeignKey, Index, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.time import utcnow
 from app.db.base import Base
-from app.db.types import UTCDateTime
+from app.db.types import GUID, UTCDateTime
 
 if TYPE_CHECKING:
     from app.models.user import User
@@ -16,8 +17,9 @@ class UserSession(Base):
     __tablename__ = "sessions"
     __table_args__ = (Index("ix_sessions_user_id_expires_at", "user_id", "expires_at"),)
 
-    id: Mapped[int] = mapped_column(primary_key=True)
-    user_id: Mapped[int] = mapped_column(
+    id: Mapped[uuid.UUID] = mapped_column(GUID, primary_key=True, default=uuid.uuid4)
+    user_id: Mapped[uuid.UUID] = mapped_column(
+        GUID,
         ForeignKey("users.id", ondelete="CASCADE"),
         nullable=False,
     )

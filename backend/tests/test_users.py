@@ -140,7 +140,7 @@ def test_admin_updates_email_and_rejects_conflicts(client: TestClient, db_sessio
     assert null_field.json()["error"]["code"] == "VALIDATION_ERROR"
 
     unknown = client.patch(
-        f"{settings.api_v1_prefix}/users/999999",
+        f"{settings.api_v1_prefix}/users/00000000-0000-0000-0000-000000000000",
         json={"name": "Nobody"},
         headers=_headers(csrf_token),
     )
@@ -152,12 +152,12 @@ def test_non_admin_cannot_probe_user_ids(client: TestClient, db_session) -> None
     csrf_token = _login(client, operator.email)
 
     existing = client.patch(
-        f"{settings.api_v1_prefix}/users/{operator.id + 100}",
+        f"{settings.api_v1_prefix}/users/11111111-1111-1111-1111-111111111111",
         json={"name": "Probe"},
         headers=_headers(csrf_token),
     )
     missing = client.patch(
-        f"{settings.api_v1_prefix}/users/999999",
+        f"{settings.api_v1_prefix}/users/00000000-0000-0000-0000-000000000000",
         json={"name": "Probe"},
         headers=_headers(csrf_token),
     )

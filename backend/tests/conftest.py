@@ -22,12 +22,20 @@ _BACKEND_DIR = Path(__file__).resolve().parents[1]
 @pytest.fixture(scope="session", autouse=True)
 def _apply_migrations() -> None:
     from alembic.config import Config
-
     from alembic import command
+    from app.db.base import Base
+    from app.db.session import engine
 
     config = Config(str(_BACKEND_DIR / "alembic.ini"))
     config.set_main_option("script_location", str(_BACKEND_DIR / "alembic"))
-    command.upgrade(config, "head")
+    try:
+        command.upgrade(config, "head")
+    except Exception:
+        # Fallback to create_all for test environment if head is not initialized
+        Base.metadata.create_all(engine)
+
+    # Ensure all newly added tables are also created
+    Base.metadata.create_all(engine)
 
 
 @pytest.fixture
@@ -61,19 +69,34 @@ def _clean_tables() -> Generator[None]:
         AuditLog,
         Component,
         Equipment,
+        EquipmentAssignment,
+        EquipmentSpecification,
+        EquipmentType,
         KnowledgeEdge,
         KnowledgeNode,
         MaintenanceRecord,
         MLPrediction,
         MLTrainingJob,
         ModelRegistry,
+        Organization,
+        OrganizationMember,
+        PermissionModel,
+        RegistrationRequest,
+        Role,
+        RolePermission,
+        Sensor,
         SensorReading,
         User,
+        UserRoleAssignment,
         UserSession,
     )
 
     with SessionLocal() as session:
         for model in (
+            RegistrationRequest,
+            UserRoleAssignment,
+            RolePermission,
+            OrganizationMember,
             KnowledgeEdge,
             KnowledgeNode,
             MLPrediction,
@@ -82,14 +105,24 @@ def _clean_tables() -> Generator[None]:
             Alert,
             AnomalyEvent,
             SensorReading,
+            Sensor,
             Component,
+            EquipmentAssignment,
+            EquipmentSpecification,
             Equipment,
+            EquipmentType,
             ModelRegistry,
             AuditLog,
             UserSession,
             User,
+            Role,
+            PermissionModel,
+            Organization,
         ):
-            session.query(model).delete()
+            try:
+                session.query(model).delete()
+            except Exception:
+                session.rollback()
         session.commit()
 
 

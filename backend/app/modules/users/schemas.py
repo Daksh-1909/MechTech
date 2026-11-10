@@ -1,14 +1,16 @@
+import uuid
+
 from pydantic import BaseModel, EmailStr, Field, field_validator
 
 from app.core.security import MAX_PASSWORD_LENGTH, MIN_PASSWORD_LENGTH
-from app.models import UserRole
 
 
 class UserCreateRequest(BaseModel):
     name: str = Field(min_length=1, max_length=200)
     email: EmailStr
     password: str = Field(min_length=MIN_PASSWORD_LENGTH, max_length=MAX_PASSWORD_LENGTH)
-    role: UserRole = UserRole.OPERATOR
+    role: str = Field(default="viewer")
+    organization_id: uuid.UUID | None = None
 
     @field_validator("name")
     @classmethod
@@ -27,7 +29,7 @@ class UserCreateRequest(BaseModel):
 class UserUpdateRequest(BaseModel):
     name: str | None = Field(default=None, min_length=1, max_length=200)
     email: EmailStr | None = None
-    role: UserRole | None = None
+    role: str | None = None
 
     @field_validator("name")
     @classmethod
@@ -46,4 +48,5 @@ class UserUpdateRequest(BaseModel):
 
 
 class UserStatusRequest(BaseModel):
-    is_active: bool
+    status: str | None = None
+    is_active: bool | None = None

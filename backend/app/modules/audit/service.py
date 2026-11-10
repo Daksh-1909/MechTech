@@ -1,6 +1,7 @@
 import json
 import re
 from typing import Any
+import uuid
 
 from sqlalchemy.orm import Session
 
@@ -65,8 +66,9 @@ def record_event(
     *,
     action: str,
     resource_type: str,
-    resource_id: str | int | None = None,
-    actor_user_id: int | None = None,
+    resource_id: str | int | uuid.UUID | None = None,
+    actor_user_id: uuid.UUID | str | int | None = None,
+    organization_id: uuid.UUID | str | None = None,
     metadata: dict[str, Any] | None = None,
     request_id: str | None = None,
 ) -> None:
@@ -75,12 +77,19 @@ def record_event(
         action=action,
         resource_type=resource_type,
         resource_id=None if resource_id is None else str(resource_id),
-        actor_user_id=actor_user_id,
+        actor_user_id=None if actor_user_id is None else str(actor_user_id),
+        organization_id=organization_id,
         timestamp=utcnow(),
         request_id=request_id or get_request_id(),
         metadata_json=sanitize_metadata(metadata),
     )
 
 
-def list_events(db: Session, *, limit: int, offset: int) -> list[AuditLog]:
-    return repository.list_audit_logs(db, limit=limit, offset=offset)
+def list_events(
+    db: Session,
+    *,
+    limit: int,
+    offset: int,
+    organization_id: uuid.UUID | str | None = None,
+) -> list[AuditLog]:
+    return repository.list_audit_logs(db, limit=limit, offset=offset, organization_id=organization_id)

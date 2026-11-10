@@ -1,5 +1,7 @@
-import math
 from datetime import UTC, datetime, timedelta
+import math
+from typing import Any
+import uuid
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
@@ -8,7 +10,7 @@ from app.core.time import utcnow
 from app.models import SensorReading
 from app.models.enums import ReadingQuality
 
-ALLOWED_VIBRATION_UNITS = frozenset({"simulated_index", "mm_s_rms", "mm_s", "g", "arbitrary_unit"})
+ALLOWED_VIBRATION_UNITS = frozenset({"simulated_index", "mm_s_rms", "mm_s", "mm/s", "g", "arbitrary_unit"})
 
 
 def _to_utc(value: datetime) -> datetime:
@@ -17,12 +19,47 @@ def _to_utc(value: datetime) -> datetime:
     return value.astimezone(UTC)
 
 
+class SensorCreateRequest(BaseModel):
+    sensor_key: str = Field(min_length=1, max_length=100, pattern=r"^[a-z0-9_]+$")
+    measurement_type: str = Field(min_length=1, max_length=100)
+    unit: str = Field(min_length=1, max_length=50)
+    component_id: uuid.UUID | None = None
+    status: str = Field(default="active", max_length=50)
+    configuration: dict[str, Any] | None = None
+
+
+class SensorUpdateRequest(BaseModel):
+    unit: str | None = None
+    status: str | None = None
+    component_id: uuid.UUID | None = None
+    configuration: dict[str, Any] | None = None
+
+
+class SensorResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: uuid.UUID
+    organization_id: uuid.UUID
+    equipment_id: uuid.UUID
+    component_id: uuid.UUID | None = None
+    sensor_key: str
+    measurement_type: str
+    unit: str
+    status: str
+    configuration: dict[str, Any] | None = None
+    created_at: datetime
+    updated_at: datetime
+
+
 class ReadingCreateRequest(BaseModel):
-    equipment_id: str = Field(min_length=1, max_length=64)
+    equipment_id: uuid.UUID | str
+    sensor_id: uuid.UUID | str | None = None
     timestamp: datetime
     temperature_c: float | None = None
     vibration_value: float | None = None
     vibration_unit: str = Field(default="simulated_index", min_length=1, max_length=30)
+    value: float | None = None
+    unit: str | None = None
     source: str = Field(default="simulator", min_length=1, max_length=50)
     source_event_id: str | None = Field(default=None, max_length=100)
     schema_version: str = Field(default="1.0", min_length=1, max_length=20)
@@ -84,7 +121,7 @@ class ReadingCreateRequest(BaseModel):
 
     @model_validator(mode="after")
     def validate_channels(self) -> "ReadingCreateRequest":
-        if self.temperature_c is None and self.vibration_value is None:
+        if self.temperature_c is None and self.vibration_value is None and self.value is None:
             raise ValueError("At least one sensor channel is required.")
         return self
 
@@ -106,15 +143,18 @@ class ReadingBatchRequest(BaseModel):
 class ReadingResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
-    id: int
-    equipment_id: str
+    id: uuid.UUID
+    equipment_id: uuid.UUID
+    sensor_id: uuid.UUID | None = None
     timestamp: datetime
     received_at: datetime
-    temperature_c: float | None
-    vibration_value: float | None
-    vibration_unit: str
-    source: str
-    source_event_id: str | None
+    temperature_c: float | None = None
+    vibration_value: float | None = None
+    vibration_unit: str = "simulated_index"
+    value: float | None = None
+    unit: str | None = None
+    source: str = "simulator"
+    source_event_id: str | None = None
     schema_version: str = "1.0"
     sequence_number: int | None = None
     speed_rpm: float | None = None
@@ -142,7 +182,7 @@ class ReadingBatchResponse(BaseModel):
 
 
 class ReadingSummaryResponse(BaseModel):
-    equipment_id: str
+    equipment_id: uuid.UUID
     from_timestamp: datetime | None
     to_timestamp: datetime | None
     count: int

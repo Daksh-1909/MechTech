@@ -1,130 +1,105 @@
 from datetime import datetime
+from typing import Any
+import uuid
 
-from sqlalchemy import func, select
-from sqlalchemy.orm import Session
+from sqlalchemy import select
+from sqlalchemy.orm import Session, joinedload
 
-from app.models import SensorReading
-
-
-def get_reading(db: Session, reading_id: int) -> SensorReading | None:
-    return db.get(SensorReading, reading_id)
+from app.core.time import utcnow
+from app.models import Sensor
 
 
-def get_by_event_id(
+def create_sensor(
     db: Session,
     *,
-    equipment_id: str,
-    source: str,
-    source_event_id: str,
-) -> SensorReading | None:
-    return db.scalar(
-        select(SensorReading).where(
-            SensorReading.equipment_id == equipment_id,
-            SensorReading.source == source,
-            SensorReading.source_event_id == source_event_id,
-        )
+    organization_id: uuid.UUID,
+    equipment_id: uuid.UUID,
+    sensor_key: str,
+    measurement_type: str,
+    unit: str,
+    component_id: uuid.UUID | None = None,
+    status: str = "active",
+    configuration: dict[str, Any] | None = None,
+) -> Sensor:
+    sensor = Sensor(
+        organization_id=organization_id,
+        equipment_id=equipment_id,
+        component_id=component_id,
+        sensor_key=sensor_key,
+        measurement_type=measurement_type,
+        unit=unit,
+        status=status,
+        configuration=configuration,
     )
-
-
-def get_by_sequence(
-    db: Session,
-    *,
-    equipment_id: str,
-    sequence_number: int,
-) -> SensorReading | None:
-    return db.scalar(
-        select(SensorReading).where(
-            SensorReading.equipment_id == equipment_id,
-            SensorReading.sequence_number == sequence_number,
-        )
-    )
-
-
-def get_latest_reading(db: Session, equipment_id: str) -> SensorReading | None:
-    return db.scalar(
-        select(SensorReading)
-        .where(SensorReading.equipment_id == equipment_id)
-        .order_by(SensorReading.timestamp.desc(), SensorReading.id.desc())
-        .limit(1)
-    )
-
-
-def list_readings(
-    db: Session,
-    *,
-    equipment_id: str,
-    start: datetime | None,
-    end: datetime | None,
-    limit: int,
-) -> list[SensorReading]:
-    statement = select(SensorReading).where(SensorReading.equipment_id == equipment_id)
-    if start is not None:
-        statement = statement.where(SensorReading.timestamp >= start)
-    if end is not None:
-        statement = statement.where(SensorReading.timestamp <= end)
-    statement = statement.order_by(SensorReading.timestamp.asc(), SensorReading.id.asc()).limit(
-        limit
-    )
-    return list(db.scalars(statement))
-
-
-def list_recent_readings(
-    db: Session,
-    *,
-    equipment_id: str,
-    limit: int,
-) -> list[SensorReading]:
-    readings = list(
-        db.scalars(
-            select(SensorReading)
-            .where(SensorReading.equipment_id == equipment_id)
-            .order_by(SensorReading.timestamp.desc(), SensorReading.id.desc())
-            .limit(limit)
-        )
-    )
-    readings.reverse()
-    return readings
-
-
-def summarize_readings(
-    db: Session,
-    *,
-    equipment_id: str,
-    start: datetime | None,
-    end: datetime | None,
-) -> dict:
-    statement = select(
-        func.count(SensorReading.id),
-        func.min(SensorReading.timestamp),
-        func.max(SensorReading.timestamp),
-        func.min(SensorReading.temperature_c),
-        func.max(SensorReading.temperature_c),
-        func.avg(SensorReading.temperature_c),
-        func.min(SensorReading.vibration_value),
-        func.max(SensorReading.vibration_value),
-        func.avg(SensorReading.vibration_value),
-    ).where(SensorReading.equipment_id == equipment_id)
-    if start is not None:
-        statement = statement.where(SensorReading.timestamp >= start)
-    if end is not None:
-        statement = statement.where(SensorReading.timestamp <= end)
-
-    row = db.execute(statement).one()
-    return {
-        "count": row[0] or 0,
-        "from_timestamp": row[1],
-        "to_timestamp": row[2],
-        "temperature_min": row[3],
-        "temperature_max": row[4],
-        "temperature_avg": row[5],
-        "vibration_min": row[6],
-        "vibration_max": row[7],
-        "vibration_avg": row[8],
-    }
-
-
-def create_reading(db: Session, **values) -> SensorReading:
-    reading = SensorReading(**values)
-    db.add(reading)
+    db.add(sensor)
     db.flush()
-    return reading
+    return sensor
+
+
+def get_sensor_by_id(db: Session, sensor_id: uuid.UUID | str) -> Sensor | None:
+    sid = sensor_id if isinstance(sensor_id, uuid.UUID) else uuid.UUID(str(sensor_id))
+    return db.scalar(
+        select(Sensor)
+        .options(
+            joinedload(Sensor.equipment),
+            joinedload(Sensor.component),
+            joinedload(Sensor.organization),
+        )
+        .where(Sensor.id == sid)
+    )
+
+
+def get_sensor_by_key(
+    db: Session,
+    *,
+    equipment_id: uuid.UUID,
+    sensor_key: str,
+) -> Sensor | None:
+    return db.scalar(
+        select(Sensor).where(
+            Sensor.equipment_id == equipment_id,
+            Sensor.sensor_key == sensor_key,
+        )
+    )
+
+
+def list_sensors(
+    db: Session,
+    *,
+    equipment_id: uuid.UUID | str | None = None,
+    organization_id: uuid.UUID | str | None = None,
+    limit: int = 50,
+    offset: int = 0,
+) -> list[Sensor]:
+    stmt = (
+        select(Sensor)
+        .options(joinedload(Sensor.component))
+        .order_by(Sensor.created_at.asc())
+        .limit(limit)
+        .offset(offset)
+    )
+    if equipment_id is not None:
+        eid = equipment_id if isinstance(equipment_id, uuid.UUID) else uuid.UUID(str(equipment_id))
+        stmt = stmt.where(Sensor.equipment_id == eid)
+    if organization_id is not None:
+        oid = organization_id if isinstance(organization_id, uuid.UUID) else uuid.UUID(str(organization_id))
+        stmt = stmt.where(Sensor.organization_id == oid)
+    return list(db.scalars(stmt))
+
+
+def update_sensor(
+    db: Session,
+    *,
+    sensor_id: uuid.UUID | str,
+    changes: dict[str, Any],
+) -> Sensor | None:
+    sid = sensor_id if isinstance(sensor_id, uuid.UUID) else uuid.UUID(str(sensor_id))
+    sensor = db.get(Sensor, sid)
+    if not sensor:
+        return None
+    for field, value in changes.items():
+        if hasattr(sensor, field) and field not in {"id", "equipment_id", "organization_id", "created_at"}:
+            setattr(sensor, field, value)
+    sensor.updated_at = utcnow()
+    db.flush()
+    return sensor

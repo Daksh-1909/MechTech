@@ -82,7 +82,7 @@ def main() -> int:
                 action=AuditAction.USER_CREATED,
                 resource_type="user",
                 resource_id=user.id,
-                metadata={"role": user.role, "bootstrap": True},
+                metadata={"role": "platform_admin", "bootstrap": True},
             )
             db.commit()
         except AppError as exc:

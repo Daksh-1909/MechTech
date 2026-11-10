@@ -31,6 +31,7 @@ def create_app() -> FastAPI:
 
     register_exception_handlers(app)
     app.include_router(system_router)
+    app.include_router(system_router, prefix=settings.api_v1_prefix)
     app.include_router(api_router, prefix=settings.api_v1_prefix)
 
     return app

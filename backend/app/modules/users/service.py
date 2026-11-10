@@ -1,11 +1,12 @@
 from typing import Any
+import uuid
 
 from sqlalchemy.orm import Session
 
 from app.core.exceptions import AppError
 from app.core.permissions import Permission, has_permission
 from app.core.time import utcnow
-from app.models import User, UserRole
+from app.models import User, UserStatus
 from app.modules.audit import service as audit_service
 from app.modules.audit.actions import AuditAction
 from app.modules.auth import repository as auth_repository
@@ -17,7 +18,7 @@ def list_users(db: Session, *, limit: int, offset: int) -> list[User]:
     return repository.list_users(db, limit=limit, offset=offset)
 
 
-def get_user(db: Session, user_id: int) -> User:
+def get_user(db: Session, user_id: uuid.UUID | str) -> User:
     user = repository.get_user_by_id(db, user_id)
     if user is None:
         raise AppError("User not found.", code="NOT_FOUND", status_code=404)
@@ -31,7 +32,8 @@ def create_user(
     name: str,
     email: str,
     password: str,
-    role: UserRole,
+    role: str = "viewer",
+    organization_id: uuid.UUID | None = None,
 ) -> User:
     user = auth_service.create_user(
         db,
@@ -39,6 +41,7 @@ def create_user(
         email=email,
         password=password,
         role=role,
+        organization_id=organization_id,
         commit=False,
     )
     audit_service.record_event(
@@ -47,54 +50,29 @@ def create_user(
         resource_type="user",
         resource_id=user.id,
         actor_user_id=actor.id,
-        metadata={"role": user.role},
+        metadata={"role": role},
     )
     db.commit()
     db.refresh(user)
     return user
 
 
-def _ensure_can_manage_target(actor: User, target: User, *, changing_role: bool) -> None:
-    if has_permission(actor, Permission.USERS_MANAGE):
-        if changing_role and actor.id == target.id:
-            raise AppError(
-                "You cannot change your own role.",
-                code="SELF_ROLE_CHANGE",
-                status_code=403,
-            )
-        return
-
-    if actor.id != target.id:
-        raise AppError(
-            "You do not have permission to perform this action.",
-            code="FORBIDDEN",
-            status_code=403,
-        )
-
-    if changing_role:
-        raise AppError(
-            "You cannot change your own role.",
-            code="SELF_ROLE_CHANGE",
-            status_code=403,
-        )
-
-
 def update_user(
     db: Session,
     *,
     actor: User,
-    user_id: int,
+    user_id: uuid.UUID | str,
     changes: dict[str, Any],
 ) -> User:
-    if not has_permission(actor, Permission.USERS_MANAGE) and actor.id != user_id:
+    uid = user_id if isinstance(user_id, uuid.UUID) else uuid.UUID(str(user_id))
+    if not has_permission(actor, Permission.USER_CREATE) and actor.id != uid:
         raise AppError(
             "You do not have permission to perform this action.",
             code="FORBIDDEN",
             status_code=403,
         )
 
-    target = get_user(db, user_id)
-    _ensure_can_manage_target(actor, target, changing_role="role" in changes)
+    target = get_user(db, uid)
 
     if not changes:
         return target
@@ -110,9 +88,10 @@ def update_user(
 
     updated_fields: list[str] = []
 
-    if "name" in changes:
-        target.name = str(changes["name"])
-        updated_fields.append("name")
+    if "name" in changes or "display_name" in changes:
+        new_name = str(changes.get("display_name") or changes.get("name"))
+        target.display_name = new_name
+        updated_fields.append("display_name")
 
     if "email" in changes:
         normalized_email = auth_service.normalize_email(str(changes["email"]))
@@ -127,23 +106,23 @@ def update_user(
         updated_fields.append("email")
 
     if "role" in changes:
-        new_role = UserRole(changes["role"])
-        if new_role.value != target.role:
-            target.role = new_role.value
-            updated_fields.append("role")
-            auth_repository.revoke_all_sessions(
-                db,
-                user_id=target.id,
-                revoked_at=utcnow(),
-            )
-            audit_service.record_event(
-                db,
-                action=AuditAction.USER_ROLE_CHANGED,
-                resource_type="user",
-                resource_id=target.id,
-                actor_user_id=actor.id,
-                metadata={"role": new_role.value},
-            )
+        if actor.id == target.id:
+            raise AppError("You cannot change your own role.", code="SELF_ROLE_CHANGE", status_code=403)
+        if not has_permission(actor, Permission.USER_CREATE):
+            raise AppError("Permission denied.", code="FORBIDDEN", status_code=403)
+
+        role_key = str(changes["role"]).lower()
+        auth_repository.assign_role(db, user_id=target.id, role_key=role_key)
+        auth_repository.revoke_all_sessions(db, user_id=target.id, revoked_at=utcnow())
+        updated_fields.append("role")
+        audit_service.record_event(
+            db,
+            action=AuditAction.USER_ROLE_CHANGED,
+            resource_type="user",
+            resource_id=target.id,
+            actor_user_id=actor.id,
+            metadata={"role": role_key},
+        )
 
     if updated_fields:
         target.updated_at = utcnow()
@@ -165,25 +144,26 @@ def set_user_status(
     db: Session,
     *,
     actor: User,
-    user_id: int,
-    is_active: bool,
+    user_id: uuid.UUID | str,
+    status: str,
 ) -> User:
-    target = get_user(db, user_id)
+    uid = user_id if isinstance(user_id, uuid.UUID) else uuid.UUID(str(user_id))
+    target = get_user(db, uid)
 
-    if actor.id == target.id and not is_active:
+    if actor.id == target.id and status != UserStatus.ACTIVE.value:
         raise AppError(
-            "You cannot deactivate your own account.",
+            "You cannot deactivate or suspend your own account.",
             code="SELF_DEACTIVATION",
             status_code=400,
         )
 
-    if target.is_active == is_active:
+    if target.status == status:
         return target
 
-    target.is_active = is_active
+    target.status = status
     target.updated_at = utcnow()
 
-    if not is_active:
+    if status != UserStatus.ACTIVE.value:
         auth_repository.revoke_all_sessions(
             db,
             user_id=target.id,
@@ -196,7 +176,7 @@ def set_user_status(
         resource_type="user",
         resource_id=target.id,
         actor_user_id=actor.id,
-        metadata={"is_active": is_active},
+        metadata={"status": status},
     )
     db.commit()
     db.refresh(target)

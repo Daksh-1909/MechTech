@@ -246,7 +246,7 @@ def test_sessions_can_be_listed_and_revoked(client: TestClient, db_session) -> N
     assert stored.revoked_at is not None
 
     missing = client.delete(
-        f"{settings.api_v1_prefix}/auth/sessions/999999",
+        f"{settings.api_v1_prefix}/auth/sessions/00000000-0000-0000-0000-000000000000",
         headers={settings.csrf_header_name: csrf_token},
     )
     assert missing.status_code == 404
@@ -256,7 +256,7 @@ def test_protected_endpoints_require_authentication(client: TestClient) -> None:
     prefix = settings.api_v1_prefix
     assert client.get(f"{prefix}/auth/me").status_code == 401
     assert client.get(f"{prefix}/auth/sessions").status_code == 401
-    assert client.delete(f"{prefix}/auth/sessions/1").status_code in {401, 403}
+    assert client.delete(f"{prefix}/auth/sessions/00000000-0000-0000-0000-000000000000").status_code in {401, 403}
     assert client.post(
         f"{prefix}/auth/change-password",
         json={"current_password": PASSWORD, "new_password": NEW_PASSWORD},

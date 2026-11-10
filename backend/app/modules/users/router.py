@@ -1,11 +1,13 @@
 from typing import Annotated
+import uuid
 
 from fastapi import APIRouter, Depends, Query
 
 from app.api.deps import DbSession
 from app.core.exceptions import AppError
 from app.core.permissions import Permission, has_permission
-from app.models import User
+from app.models import User, UserStatus
+from app.modules.auth import service as auth_service
 from app.modules.auth.dependencies import (
     CsrfProtected,
     CurrentUser,
@@ -21,11 +23,11 @@ from app.modules.users.schemas import (
 
 router = APIRouter()
 
-UserManager = Annotated[User, Depends(require_permission(Permission.USERS_MANAGE))]
+UserManager = Annotated[User, Depends(require_permission(Permission.USER_CREATE))]
 
 
-def _ensure_can_view(actor: User, user_id: int) -> None:
-    if has_permission(actor, Permission.USERS_MANAGE) or actor.id == user_id:
+def _ensure_can_view(actor: User, user_id: uuid.UUID) -> None:
+    if has_permission(actor, Permission.USER_VIEW) or actor.id == user_id:
         return
     raise AppError(
         "You do not have permission to perform this action.",
@@ -42,7 +44,7 @@ def list_users(
     offset: Annotated[int, Query(ge=0)] = 0,
 ) -> list[UserResponse]:
     users = service.list_users(db, limit=limit, offset=offset)
-    return [UserResponse.model_validate(user) for user in users]
+    return [auth_service.build_user_response(user) for user in users]
 
 
 @router.post("", response_model=UserResponse, status_code=201)
@@ -59,19 +61,20 @@ def create_user(
         email=str(payload.email),
         password=payload.password,
         role=payload.role,
+        organization_id=payload.organization_id,
     )
-    return UserResponse.model_validate(user)
+    return auth_service.build_user_response(user)
 
 
 @router.get("/{user_id}", response_model=UserResponse)
-def get_user(user_id: int, db: DbSession, actor: CurrentUser) -> UserResponse:
+def get_user(user_id: uuid.UUID, db: DbSession, actor: CurrentUser) -> UserResponse:
     _ensure_can_view(actor, user_id)
-    return UserResponse.model_validate(service.get_user(db, user_id))
+    return auth_service.build_user_response(service.get_user(db, user_id))
 
 
 @router.patch("/{user_id}", response_model=UserResponse)
 def update_user(
-    user_id: int,
+    user_id: uuid.UUID,
     payload: UserUpdateRequest,
     db: DbSession,
     actor: CurrentUser,
@@ -83,21 +86,25 @@ def update_user(
         user_id=user_id,
         changes=payload.model_dump(exclude_unset=True),
     )
-    return UserResponse.model_validate(user)
+    return auth_service.build_user_response(user)
 
 
 @router.patch("/{user_id}/status", response_model=UserResponse)
 def set_user_status(
-    user_id: int,
+    user_id: uuid.UUID,
     payload: UserStatusRequest,
     db: DbSession,
     manager: UserManager,
     _: CsrfProtected,
 ) -> UserResponse:
+    new_status = payload.status
+    if new_status is None:
+        new_status = UserStatus.ACTIVE.value if payload.is_active else UserStatus.SUSPENDED.value
+
     user = service.set_user_status(
         db,
         actor=manager,
         user_id=user_id,
-        is_active=payload.is_active,
+        status=new_status,
     )
-    return UserResponse.model_validate(user)
+    return auth_service.build_user_response(user)

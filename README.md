@@ -11,17 +11,12 @@ view and a repair knowledge graph.
 
 ## Status
 
-Phase 1 requirements and all Phase 2 backend milestones **2.1-2.10** are
-implemented: typed settings, request-ID middleware, standard error envelopes,
-structured JSON logging with redaction, health/version endpoints, SQLite with
-foreign keys and WAL, Alembic migrations, isolated test fixtures, Argon2id
-password hashing, server-side sessions, HttpOnly cookies, CSRF protection,
-backend-enforced role permissions, admin-only user administration, redacted
-audit events, equipment/components, idempotent sensor ingestion, monitoring,
-anomalies and alerts, local ML training/evaluation and safe inference, a
-persisted knowledge graph, maintenance records, a security test suite, benchmark
-tooling, and tested SQLite backup/restore. Frontend, 3D and deployment remain
-out of scope for Phase 2.
+Architecture v1.0 is finalized according to [`SYSTEM_ARCHITECTURE.md`](./SYSTEM_ARCHITECTURE.md), [`DATABASE_DESIGN.md`](./DATABASE_DESIGN.md), [`API_DESIGN.md`](./API_DESIGN.md), and [`SECURITY_BASELINE.md`](./SECURITY_BASELINE.md).
+
+**Phases completed:**
+- **Phase 0 — Repository and Engineering Foundation:** Docker Compose local PostgreSQL service, platform-independent database types (`GUID`, `UTCDateTime`, `JSONType`), Alembic baseline migrations, and GitHub Actions CI workflow.
+- **Phase 1 — Identity, Organizations, and Authorization:** Multi-tenant organization isolation (`organizations`, `organization_members`), public registration with admin approval workflow (`registration_requests`), granular database-driven RBAC (`roles`, `permissions`, `user_roles`), Argon2id password hashing, opaque server-side session cookies, CSRF protection, and audit logs.
+- **Phase 2 — Equipment and Sensor Foundations:** Extensible equipment type registry (`equipment_types`), generic equipment with tenant asset tags (`equipment`), versioned JSONB motor technical specifications (`equipment_specifications`), hierarchical components (`components`), user responsibility assignments (`equipment_assignments`), and sensor definitions (`sensors`).
 
 ## Tech stack
 
@@ -152,18 +147,14 @@ MechTech/
 
 ## Roadmap
 
-Phase 2 backend milestones (see
-[`MechTech_Phase_2_Backend_Architecture.md`](./MechTech_Phase_2_Backend_Architecture.md)):
+Development progress per [`DEVELOPMENT_ROADMAP.md`](./DEVELOPMENT_ROADMAP.md):
 
-- [x] 2.1 Backend foundation
-- [x] 2.2 Database foundation
-- [x] 2.3 Users and authentication (opaque sessions)
-- [x] 2.4 RBAC and audit
-- [x] 2.5 Equipment and components
-- [x] 2.6 Sensor ingestion and querying
-- [x] 2.7 Monitoring, anomalies and alerts
-- [x] 2.8 ML integration
-- [x] 2.9 Knowledge graph and maintenance
-- [x] 2.10 Hardening and performance baseline
-
-Frontend, 3D visualization and deployment follow in later phases.
+- [x] **Phase 0 — Repository and engineering foundation**
+- [x] **Phase 1 — Identity, organizations, and authorization**
+- [x] **Phase 2 — Equipment and sensor foundations** (extensible motor specifications, components, sensor registry)
+- [ ] **Phase 3 — Telemetry simulator and ingestion** (bounded batch ingestion, idempotency, deterministic simulator)
+- [ ] **Phase 4 — Monitoring and alerts** (configurable threshold/duration rules, anomalies, alert resolution)
+- [ ] **Phase 5 — Hybrid diagnostics** (diagnostic orchestrator, rules + ML inference + NetworkX graph reasoning, human review)
+- [ ] **Phase 6 — Maintenance and files** (maintenance tasks, secure local file storage, audit history)
+- [ ] **Phase 7 — Frontend and 3D experience** (full feature UI, dashboard, equipment inspection, 3D digital twin)
+- [ ] **Phase 8 — Hardening and optional public deployment** (E2E tests, security audits, backups, production guides)

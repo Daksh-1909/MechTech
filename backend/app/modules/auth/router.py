@@ -1,4 +1,5 @@
 from datetime import datetime
+import uuid
 
 from fastapi import APIRouter, Request, Response
 
@@ -18,6 +19,8 @@ from app.modules.auth.schemas import (
     LoginRequest,
     LoginResponse,
     MessageResponse,
+    RegisterRequest,
+    RegisterResponse,
     SessionResponse,
     UserResponse,
 )
@@ -71,6 +74,27 @@ def _clear_session_cookies(response: Response) -> None:
         )
 
 
+@router.post("/register", response_model=RegisterResponse, status_code=201)
+def register(
+    payload: RegisterRequest,
+    request: Request,
+    db: DbSession,
+) -> RegisterResponse:
+    validate_origin(request)
+    user, _ = service.register_user(
+        db,
+        display_name=payload.display_name,
+        email=str(payload.email),
+        password=payload.password,
+        organization_name=payload.organization_name,
+    )
+    return RegisterResponse(
+        message="Registration submitted successfully. Your account is pending administrator approval.",
+        user_id=user.id,
+        status=user.status,
+    )
+
+
 @router.post("/login", response_model=LoginResponse)
 def login(
     payload: LoginRequest,
@@ -93,7 +117,7 @@ def login(
         expires_at=session.expires_at,
     )
     return LoginResponse(
-        user=UserResponse.model_validate(user),
+        user=service.build_user_response(user),
         csrf_token=csrf_token,
         expires_at=session.expires_at,
     )
@@ -112,7 +136,7 @@ def logout(
 
 @router.get("/me", response_model=UserResponse)
 def me(user: CurrentUser) -> UserResponse:
-    return UserResponse.model_validate(user)
+    return service.build_user_response(user)
 
 
 @router.get("/sessions", response_model=list[SessionResponse])
@@ -132,7 +156,7 @@ def list_sessions(
 
 @router.delete("/sessions/{session_id}", status_code=204)
 def revoke_session(
-    session_id: int,
+    session_id: uuid.UUID,
     db: DbSession,
     user: CurrentUser,
     _: CsrfProtected,
