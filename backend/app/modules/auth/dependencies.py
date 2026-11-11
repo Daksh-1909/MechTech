@@ -78,7 +78,17 @@ def require_ingestion_access(request: Request, db: DbSession) -> None:
     ensure_permission(session.user, Permission.READINGS_INGEST)
 
 
+def get_ingestion_user(request: Request, db: DbSession) -> User | None:
+    raw_token = request.cookies.get(settings.session_cookie_name)
+    if raw_token:
+        session = service.get_active_session(db, raw_token)
+        if session:
+            return session.user
+    return None
+
+
 IngestionAccess = Annotated[None, Depends(require_ingestion_access)]
+IngestionUser = Annotated[User | None, Depends(get_ingestion_user)]
 
 
 def require_permission(permission: Permission) -> Callable[[CurrentUser], User]:

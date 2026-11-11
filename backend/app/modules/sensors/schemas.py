@@ -192,3 +192,71 @@ class ReadingSummaryResponse(BaseModel):
     vibration_min: float | None
     vibration_max: float | None
     vibration_avg: float | None
+
+
+# ---------------------------------------------------------------------------
+# Telemetry Batch Contract (API_DESIGN.md Section 5)
+# ---------------------------------------------------------------------------
+
+
+class TelemetryReadingItem(BaseModel):
+    sensor_id: uuid.UUID
+    value: float
+    unit: str = Field(min_length=1, max_length=50)
+    recorded_at: datetime
+    idempotency_key: str | None = Field(default=None, max_length=100)
+    quality_status: ReadingQuality = ReadingQuality.VALID
+    metadata: dict[str, Any] | None = None
+
+    @field_validator("recorded_at")
+    @classmethod
+    def validate_recorded_at(cls, value: datetime) -> datetime:
+        normalized = _to_utc(value)
+        tolerance = timedelta(seconds=settings.reading_future_tolerance_seconds)
+        if normalized > utcnow() + tolerance:
+            raise ValueError("Timestamp is implausibly far in the future.")
+        return normalized
+
+    @field_validator("value")
+    @classmethod
+    def validate_value(cls, value: float) -> float:
+        if not math.isfinite(value):
+            raise ValueError("Value must be a finite numeric value.")
+        return value
+
+    @field_validator("idempotency_key")
+    @classmethod
+    def normalize_key(cls, value: str | None) -> str | None:
+        if value is None:
+            return None
+        stripped = value.strip()
+        return stripped or None
+
+
+class TelemetryBatchRequest(BaseModel):
+    readings: list[TelemetryReadingItem] = Field(min_length=1)
+
+    @field_validator("readings")
+    @classmethod
+    def validate_batch_size(
+        cls,
+        value: list[TelemetryReadingItem],
+    ) -> list[TelemetryReadingItem]:
+        if len(value) > settings.readings_batch_max:
+            raise ValueError(f"A batch may contain at most {settings.readings_batch_max} readings.")
+        return value
+
+
+class TelemetryItemError(BaseModel):
+    index: int
+    sensor_id: uuid.UUID | None = None
+    error_code: str
+    message: str
+
+
+class TelemetryBatchResponse(BaseModel):
+    accepted: int
+    duplicates: int
+    rejected: int
+    errors: list[TelemetryItemError] = Field(default_factory=list)
+    readings: list[ReadingResponse] = Field(default_factory=list)

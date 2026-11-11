@@ -12,6 +12,7 @@ from app.modules.auth.dependencies import (
     CsrfProtected,
     CurrentUser,
     IngestionAccess,
+    IngestionUser,
     require_permission,
 )
 from app.modules.sensors import service
@@ -24,6 +25,8 @@ from app.modules.sensors.schemas import (
     ReadingSummaryResponse,
     SensorResponse,
     SensorUpdateRequest,
+    TelemetryBatchRequest,
+    TelemetryBatchResponse,
 )
 from app.schemas.sensor import SensorReadingBatchPayload, SensorReadingPayload
 
@@ -79,6 +82,37 @@ def update_sensor(
     return SensorResponse.model_validate(sensor)
 
 
+@router.post("/telemetry/readings:batch", response_model=TelemetryBatchResponse, status_code=201, tags=["telemetry"])
+def ingest_telemetry_batch(
+    payload: TelemetryBatchRequest,
+    db: DbSession,
+    _: IngestionAccess,
+    user: IngestionUser,
+) -> TelemetryBatchResponse:
+    return service.ingest_telemetry_batch(db, payload=payload, actor=user)
+
+
+@router.get("/sensors/{sensor_id}/readings", response_model=list[ReadingResponse], tags=["telemetry"])
+def list_sensor_readings(
+    sensor_id: uuid.UUID,
+    db: DbSession,
+    user: CurrentUser,
+    start: Annotated[datetime | None, Query(alias="from")] = None,
+    end: Annotated[datetime | None, Query(alias="to")] = None,
+    limit: Annotated[int, Query(ge=1, le=settings.reading_query_max_limit)] = 100,
+    before_id: uuid.UUID | None = None,
+) -> list[ReadingResponse]:
+    return service.list_readings_by_sensor(
+        db,
+        actor=user,
+        sensor_id=sensor_id,
+        start=start,
+        end=end,
+        limit=limit,
+        before_id=before_id,
+    )
+
+
 @router.post("/sensor-readings", response_model=ReadingIngestResponse, tags=["telemetry"])
 def ingest_versioned_reading(
     payload: SensorReadingPayload,
@@ -131,6 +165,7 @@ def list_readings(
     start: Annotated[datetime | None, Query(alias="from")] = None,
     end: Annotated[datetime | None, Query(alias="to")] = None,
     limit: Annotated[int, Query(ge=1, le=settings.reading_query_max_limit)] = 100,
+    before_id: uuid.UUID | None = None,
 ) -> list[ReadingResponse]:
     return service.list_readings(
         db,
@@ -138,6 +173,7 @@ def list_readings(
         start=start,
         end=end,
         limit=limit,
+        before_id=before_id,
     )
 
 
