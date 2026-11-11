@@ -37,6 +37,9 @@ class AuditAction(StrEnum):
     COMPONENT_UPDATED = "component.updated"
 
     # Alerts & Monitoring
+    MONITORING_RULE_CREATED = "monitoring_rule.created"
+    MONITORING_RULE_UPDATED = "monitoring_rule.updated"
+    MONITORING_RULE_DELETED = "monitoring_rule.deleted"
     ALERT_ACKNOWLEDGED = "alert.acknowledged"
     ALERT_RESOLVED = "alert.resolved"
     ALERT_DISMISSED = "alert.dismissed"

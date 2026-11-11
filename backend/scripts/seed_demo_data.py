@@ -9,6 +9,7 @@ from app.modules.auth import repository as auth_repo
 from app.modules.auth import service as auth_service
 from app.modules.equipment import repository as eq_repo
 from app.modules.equipment import service as eq_service
+from app.modules.monitoring import repository as monitoring_repo
 from app.modules.organizations import repository as org_repo
 from app.modules.sensors import repository as sensor_repo
 
@@ -164,6 +165,27 @@ def seed_demo(db) -> None:
                 assignment_type="primary_maintainer",
             )
             print("   Assigned demo maintainer to sample motor.")
+
+        # Seed standard monitoring rules
+        demo_rules = [
+            ("Stator Overheat Warning", "temperature", "gt", 75.0, "°C", 0, "high"),
+            ("Drive-End Vibration Warning", "vibration", "gt", 0.45, "mm/s", 5, "critical"),
+        ]
+        for r_name, m_type, op, thresh, unit, dur, sev in demo_rules:
+            monitoring_repo.create_rule(
+                db,
+                organization_id=demo_org.id,
+                equipment_type_id=motor_type.id,
+                name=r_name,
+                measurement_type=m_type,
+                operator=op,
+                threshold=thresh,
+                unit=unit,
+                duration_seconds=dur,
+                severity=sev,
+                created_by=admin_user.id,
+            )
+        print(f"   Created {len(demo_rules)} default monitoring rules.")
     else:
         print("   Sample motor already exists.")
 

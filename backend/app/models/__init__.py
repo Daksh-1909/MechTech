@@ -13,6 +13,7 @@ from app.models.equipment import (
 from app.models.feature_window import FeatureWindow
 from app.models.knowledge import KnowledgeEdge, KnowledgeNode
 from app.models.maintenance import MaintenanceRecord
+from app.models.monitoring_rule import MonitoringRule
 from app.models.organization import Organization, OrganizationMember
 from app.models.prediction import MLPrediction, ModelRegistry
 from app.models.reading import SensorReading
@@ -40,6 +41,7 @@ __all__ = [
     "MLTrainingJob",
     "MaintenanceRecord",
     "ModelRegistry",
+    "MonitoringRule",
     "Organization",
     "OrganizationMember",
     "PermissionModel",

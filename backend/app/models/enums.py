@@ -13,6 +13,15 @@ class ReadingQuality(StrEnum):
     PARTIAL = "partial"
 
 
+class RuleOperator(StrEnum):
+    GT = "gt"
+    GTE = "gte"
+    LT = "lt"
+    LTE = "lte"
+    EQ = "eq"
+    NEQ = "neq"
+
+
 class Severity(StrEnum):
     LOW = "low"
     MEDIUM = "medium"
@@ -89,6 +98,8 @@ INTEGRITY_CHECKS: dict[str, str] = {
     "ck_readings_at_least_one_channel": (
         "temperature_c IS NOT NULL OR vibration_value IS NOT NULL"
     ),
+    "ck_monitoring_rules_operator": "operator IN ('gt', 'gte', 'lt', 'lte', 'eq', 'neq')",
+    "ck_monitoring_rules_severity": "severity IN ('low', 'medium', 'high', 'critical')",
     "ck_anomaly_severity": "severity IN ('low', 'medium', 'high', 'critical')",
     "ck_anomaly_review": "review_status IN ('pending', 'confirmed', 'rejected')",
     "ck_alerts_severity": "severity IN ('low', 'medium', 'high', 'critical')",

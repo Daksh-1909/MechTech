@@ -251,6 +251,11 @@ def _build_reading(
         )
         db.commit()
         db.refresh(reading)
+        try:
+            from app.modules.monitoring import service as mon_service
+            mon_service.evaluate_reading(db, reading)
+        except Exception:
+            pass
         return ReadingResponse.from_model(reading), False
     except IntegrityError:
         db.rollback()
@@ -566,6 +571,11 @@ def ingest_telemetry_batch(
             )
             db.commit()
             db.refresh(reading)
+            try:
+                from app.modules.monitoring import service as mon_service
+                mon_service.evaluate_reading(db, reading)
+            except Exception:
+                pass
             accepted += 1
             readings.append(ReadingResponse.from_model(reading))
         except IntegrityError:
