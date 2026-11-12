@@ -6,6 +6,7 @@ from app.modules.audit.router import router as audit_router
 from app.modules.auth.router import router as auth_router
 from app.modules.diagnostics.router import router as diagnostics_router
 from app.modules.equipment.router import router as equipment_router
+from app.modules.files.router import router as files_router
 from app.modules.knowledge_graph.router import router as knowledge_graph_router
 from app.modules.maintenance.router import router as maintenance_router
 from app.modules.ml.router import router as ml_router
@@ -37,3 +38,9 @@ api_router.include_router(
     prefix="/maintenance-records",
     tags=["maintenance"],
 )
+api_router.include_router(
+    maintenance_router,
+    prefix="/maintenance",
+    tags=["maintenance"],
+)
+api_router.include_router(files_router, prefix="/files", tags=["files"])

@@ -13,6 +13,7 @@ from app.models.equipment import (
 )
 from app.models.fault import Fault
 from app.models.feature_window import FeatureWindow
+from app.models.file import StoredFile
 from app.models.knowledge import KnowledgeEdge, KnowledgeNode
 from app.models.maintenance import MaintenanceRecord
 from app.models.ml_model import MLModel
@@ -57,6 +58,7 @@ __all__ = [
     "RolePermission",
     "Sensor",
     "SensorReading",
+    "StoredFile",
     "User",
     "UserRole",
     "UserRoleAssignment",

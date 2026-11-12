@@ -53,6 +53,11 @@ class AuditAction(StrEnum):
     # Maintenance
     MAINTENANCE_CREATED = "maintenance.created"
     MAINTENANCE_UPDATED = "maintenance.updated"
+    MAINTENANCE_VERIFIED = "maintenance.verified"
+
+    # Files
+    FILE_UPLOADED = "file.uploaded"
+    FILE_DOWNLOADED = "file.downloaded"
 
     # Knowledge
     KNOWLEDGE_NODE_CREATED = "knowledge.node_created"

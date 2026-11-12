@@ -55,6 +55,35 @@ class VerificationStatus(StrEnum):
     REJECTED = "rejected"
 
 
+class MaintenanceType(StrEnum):
+    CORRECTIVE = "corrective"
+    PREVENTIVE = "preventive"
+    CONDITION_BASED = "condition_based"
+    EMERGENCY = "emergency"
+
+
+class MaintenanceStatus(StrEnum):
+    SCHEDULED = "scheduled"
+    IN_PROGRESS = "in_progress"
+    COMPLETED = "completed"
+    CANCELLED = "cancelled"
+
+
+class MaintenancePriority(StrEnum):
+    LOW = "low"
+    MEDIUM = "medium"
+    HIGH = "high"
+    CRITICAL = "critical"
+
+
+class FilePurpose(StrEnum):
+    MAINTENANCE_ATTACHMENT = "maintenance_attachment"
+    VIBRATION_REPORT = "vibration_report"
+    INSPECTION_PHOTO = "inspection_photo"
+    MANUAL = "manual"
+    GENERAL = "general"
+
+
 class ModelType(StrEnum):
     ANOMALY = "anomaly"
     CLASSIFICATION = "classification"
@@ -143,6 +172,18 @@ INTEGRITY_CHECKS: dict[str, str] = {
         "outcome IN ('resolved', 'not_resolved', 'inconclusive', 'pending_verification')"
     ),
     "ck_maintenance_verification": ("verification_status IN ('pending', 'verified', 'rejected')"),
+    "ck_maintenance_type": (
+        "maintenance_type IN ('corrective', 'preventive', 'condition_based', 'emergency')"
+    ),
+    "ck_maintenance_status": (
+        "status IN ('scheduled', 'in_progress', 'completed', 'cancelled')"
+    ),
+    "ck_maintenance_priority": (
+        "priority IN ('low', 'medium', 'high', 'critical')"
+    ),
+    "ck_stored_files_purpose": (
+        "purpose IN ('maintenance_attachment', 'vibration_report', 'inspection_photo', 'manual', 'general')"
+    ),
     "ck_knowledge_node_type": (
         "node_type IN ('equipment', 'component', 'sensor', 'symptom', 'fault', "
         "'diagnostic_step', 'repair_action', 'part', 'maintenance_record')"

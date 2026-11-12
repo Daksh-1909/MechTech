@@ -11,6 +11,7 @@ from app.modules.diagnostics import repository as diagnostics_repo
 from app.modules.equipment import repository as eq_repo
 from app.modules.equipment import service as eq_service
 from app.modules.knowledge_graph import service as kg_service
+from app.modules.maintenance import repository as maintenance_repo
 from app.modules.monitoring import repository as monitoring_repo
 from app.modules.organizations import repository as org_repo
 from app.modules.sensors import repository as sensor_repo
@@ -106,6 +107,7 @@ def seed_demo(db) -> None:
             },
         )
         print(f"   Demo motor created: {motor.id} ({motor.name})")
+        existing_motor = motor
 
         # Seed standard components per architecture specification
         components_spec = [
@@ -220,6 +222,26 @@ def seed_demo(db) -> None:
         print(f"   Registered ML model: {ml_entry.model_key} (v{ml_entry.version}, status={ml_entry.status})")
     except Exception as exc:
         print(f"   Warning: Could not train/register baseline ML model: {exc}")
+
+    print("9. Seeding initial maintenance work orders...")
+    existing_maint = maintenance_repo.list_records(db, organization_id=demo_org.id, limit=1)
+    if not existing_maint and admin_user and existing_motor:
+        m_rec = maintenance_repo.create_record(
+            db,
+            organization_id=demo_org.id,
+            equipment_id=existing_motor.id,
+            created_by=admin_user.id,
+            assigned_to=maintainer_user.id if maintainer_user else admin_user.id,
+            title="Scheduled 500-Hour Bearing Lubrication & Stator Inspection",
+            description="Routine preventive inspection. Purge bearing cavity, replenish ISO VG 46 synthetic grease, and measure phase-to-ground insulation resistance.",
+            maintenance_type="preventive",
+            priority="medium",
+            status="scheduled",
+            notes="Use manufacturer-specified grease gun calibration (3.5g per stroke).",
+        )
+        print(f"   Created demo maintenance record: {m_rec.id} ({m_rec.title})")
+    else:
+        print("   Maintenance records already seeded or equipment pending.")
 
     db.commit()
     print("Demo seeding completed successfully.")

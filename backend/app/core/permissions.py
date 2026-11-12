@@ -54,6 +54,7 @@ class Permission(StrEnum):
     # Maintenance
     MAINTENANCE_CREATE = "maintenance.create"
     MAINTENANCE_UPDATE = "maintenance.update"
+    MAINTENANCE_VERIFY = "maintenance.verify"
     MAINTENANCE_VIEW = "maintenance.view"
 
     # Files and audit
@@ -108,6 +109,7 @@ ROLE_PERMISSIONS: dict[str, frozenset[Permission]] = {
             Permission.KNOWLEDGE_VIEW,
             Permission.MAINTENANCE_CREATE,
             Permission.MAINTENANCE_UPDATE,
+            Permission.MAINTENANCE_VERIFY,
             Permission.MAINTENANCE_VIEW,
             Permission.FILES_UPLOAD,
             Permission.FILES_DOWNLOAD,
@@ -132,6 +134,7 @@ ROLE_PERMISSIONS: dict[str, frozenset[Permission]] = {
             Permission.KNOWLEDGE_VIEW,
             Permission.MAINTENANCE_CREATE,
             Permission.MAINTENANCE_UPDATE,
+            Permission.MAINTENANCE_VERIFY,
             Permission.MAINTENANCE_VIEW,
             Permission.FILES_UPLOAD,
             Permission.FILES_DOWNLOAD,
