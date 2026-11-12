@@ -207,3 +207,91 @@ def create_edge(
     db.commit()
     db.refresh(edge)
     return edge
+
+
+def ensure_default_motor_knowledge_graph(db: Session) -> None:
+    """Seed baseline knowledge graph nodes and edges for electric motor diagnostics."""
+    from sqlalchemy import select
+    from app.models.enums import NodeType, RelationshipType
+
+    existing = db.scalar(select(KnowledgeNode).limit(1))
+    if existing:
+        return
+
+    # Define standard nodes: (key, node_type, label, description)
+    nodes_def = [
+        # Symptoms
+        ("sym_high_temperature", NodeType.SYMPTOM.value, "High Motor Temperature", "Elevated frame or winding thermal readings exceeding threshold."),
+        ("sym_high_vibration", NodeType.SYMPTOM.value, "High Overall Vibration", "Excessive RMS or peak vibration velocity."),
+        ("sym_speed_drop", NodeType.SYMPTOM.value, "Rotational Speed Drop", "Motor running below rated speed under moderate load."),
+        # Faults
+        ("fault_bearing_wear", NodeType.FAULT.value, "Drive-End Bearing Degradation", "Flaking, spalling, or micro-pitting in rolling element bearings."),
+        ("fault_stator_overheat", NodeType.FAULT.value, "Stator Thermal Overload", "Inter-turn insulation thermal degradation in stator copper windings."),
+        ("fault_cooling_failure", NodeType.FAULT.value, "Cooling System Airflow Obstruction", "Clogged ventilation ribs or damaged bi-directional fan assembly."),
+        ("fault_rotor_imbalance", NodeType.FAULT.value, "Rotor Dynamic Imbalance", "Mass eccentricity generating 1X rotational speed vibration."),
+        # Components
+        ("comp_bearing_front", NodeType.COMPONENT.value, "Drive-End Front Bearing", "Front rolling element bearing supporting drive shaft."),
+        ("comp_stator_winding", NodeType.COMPONENT.value, "Copper Stator Windings", "Three-phase insulated copper stator winding assembly."),
+        ("comp_cooling_fan", NodeType.COMPONENT.value, "Bi-directional Cooling Fan", "Rear mounted ventilation fan."),
+        # Diagnostic Steps
+        ("step_vibration_fft", NodeType.DIAGNOSTIC_STEP.value, "Vibration Spectrum Analysis", "FFT spectrum analysis focusing on bearing defect frequencies (BPFO, BPFI)."),
+        ("step_thermal_imaging", NodeType.DIAGNOSTIC_STEP.value, "Infrared Thermography Scan", "Thermal camera scan to isolate localized hotspot vs uniform frame heating."),
+        ("step_bearing_grease_inspection", NodeType.DIAGNOSTIC_STEP.value, "Lubricant Condition Inspection", "Visual and viscosity check for grease discoloration or metal particulate."),
+        # Repair Actions
+        ("repair_relubricate", NodeType.REPAIR_ACTION.value, "Bearing Lubrication Service", "Purge degraded lubricant and replenish with manufacturer-specified grease."),
+        ("repair_replace_bearing", NodeType.REPAIR_ACTION.value, "Bearing Assembly Replacement", "Extract worn bearing and press-fit replacement with calibrated clearance."),
+        ("repair_clean_cooling", NodeType.REPAIR_ACTION.value, "Cooling System Maintenance", "Clean ventilation ribs, blow out airflow duct, and inspect fan blades."),
+    ]
+
+    nodes_map: dict[str, KnowledgeNode] = {}
+    for key, n_type, label, desc in nodes_def:
+        node = KnowledgeNode(
+            key=key,
+            node_type=n_type,
+            label=label,
+            description=desc,
+            version=1,
+            created_at=utcnow(),
+            updated_at=utcnow(),
+        )
+        db.add(node)
+        nodes_map[key] = node
+    db.flush()
+
+    # Define standard relationships: (src_key, tgt_key, rel_type, weight, confidence)
+    edges_def = [
+        # Symptoms -> Faults
+        ("sym_high_temperature", "fault_stator_overheat", RelationshipType.INDICATES.value, 1.0, 0.90),
+        ("sym_high_temperature", "fault_cooling_failure", RelationshipType.INDICATES.value, 0.8, 0.75),
+        ("sym_high_vibration", "fault_bearing_wear", RelationshipType.INDICATES.value, 1.0, 0.92),
+        ("sym_high_vibration", "fault_rotor_imbalance", RelationshipType.INDICATES.value, 0.7, 0.65),
+        # Faults -> Components
+        ("fault_bearing_wear", "comp_bearing_front", RelationshipType.AFFECTS.value, 1.0, 0.95),
+        ("fault_stator_overheat", "comp_stator_winding", RelationshipType.AFFECTS.value, 1.0, 0.95),
+        ("fault_cooling_failure", "comp_cooling_fan", RelationshipType.AFFECTS.value, 1.0, 0.90),
+        # Faults -> Diagnostic Procedures
+        ("fault_bearing_wear", "step_vibration_fft", RelationshipType.CHECK_WITH.value, 1.0, 0.90),
+        ("fault_bearing_wear", "step_bearing_grease_inspection", RelationshipType.CHECK_WITH.value, 0.9, 0.85),
+        ("fault_stator_overheat", "step_thermal_imaging", RelationshipType.CHECK_WITH.value, 1.0, 0.90),
+        # Faults -> Repair Recommendations
+        ("fault_bearing_wear", "repair_relubricate", RelationshipType.MAY_BE_RESOLVED_BY.value, 0.8, 0.75),
+        ("fault_bearing_wear", "repair_replace_bearing", RelationshipType.MAY_BE_RESOLVED_BY.value, 1.0, 0.90),
+        ("fault_cooling_failure", "repair_clean_cooling", RelationshipType.MAY_BE_RESOLVED_BY.value, 1.0, 0.90),
+    ]
+
+    for src_key, tgt_key, rel, wt, conf in edges_def:
+        src = nodes_map.get(src_key)
+        tgt = nodes_map.get(tgt_key)
+        if src and tgt:
+            edge = KnowledgeEdge(
+                source_node_id=src.id,
+                target_node_id=tgt.id,
+                relationship_type=rel,
+                weight=wt,
+                confidence=conf,
+                version=1,
+                created_at=utcnow(),
+            )
+            db.add(edge)
+    db.commit()
+

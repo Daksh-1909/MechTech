@@ -60,6 +60,31 @@ class ModelType(StrEnum):
     CLASSIFICATION = "classification"
 
 
+class ModelStatus(StrEnum):
+    DRAFT = "draft"
+    VALIDATED = "validated"
+    ACTIVE = "active"
+    RETIRED = "retired"
+
+
+class DiagnosisStatus(StrEnum):
+    NORMAL = "normal"
+    ATTENTION_REQUIRED = "attention_required"
+    POSSIBLE_FAULT = "possible_fault"
+    INSUFFICIENT_DATA = "insufficient_data"
+    UNDER_REVIEW = "under_review"
+    CONFIRMED_BY_REVIEWER = "confirmed_by_reviewer"
+    DISMISSED = "dismissed"
+
+
+class EvidenceType(StrEnum):
+    RULE = "rule"
+    PREDICTION = "prediction"
+    GRAPH = "graph"
+    SENSOR = "sensor"
+    MANUAL = "manual"
+
+
 class TrainingJobStatus(StrEnum):
     QUEUED = "queued"
     RUNNING = "running"
@@ -104,6 +129,14 @@ INTEGRITY_CHECKS: dict[str, str] = {
     "ck_anomaly_review": "review_status IN ('pending', 'confirmed', 'rejected')",
     "ck_alerts_severity": "severity IN ('low', 'medium', 'high', 'critical')",
     "ck_alerts_status": "status IN ('open', 'acknowledged', 'resolved', 'dismissed')",
+    "ck_diagnoses_status": (
+        "status IN ('normal', 'attention_required', 'possible_fault', 'insufficient_data', "
+        "'under_review', 'confirmed_by_reviewer', 'dismissed')"
+    ),
+    "ck_diagnosis_evidence_type": (
+        "evidence_type IN ('rule', 'prediction', 'graph', 'sensor', 'manual')"
+    ),
+    "ck_ml_models_status": "status IN ('draft', 'validated', 'active', 'retired')",
     "ck_predictions_review": "review_status IN ('pending', 'confirmed', 'rejected')",
     "ck_models_type": "model_type IN ('anomaly', 'classification')",
     "ck_maintenance_outcome": (

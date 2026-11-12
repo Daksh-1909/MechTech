@@ -4,6 +4,7 @@ from app.modules.admin.router import router as admin_router
 from app.modules.alerts.router import router as alerts_router
 from app.modules.audit.router import router as audit_router
 from app.modules.auth.router import router as auth_router
+from app.modules.diagnostics.router import router as diagnostics_router
 from app.modules.equipment.router import router as equipment_router
 from app.modules.knowledge_graph.router import router as knowledge_graph_router
 from app.modules.maintenance.router import router as maintenance_router
@@ -24,6 +25,7 @@ api_router.include_router(equipment_router, prefix="/equipment", tags=["equipmen
 api_router.include_router(sensors_router, tags=["sensors"])
 api_router.include_router(monitoring_router, tags=["monitoring"])
 api_router.include_router(alerts_router, prefix="/alerts", tags=["alerts"])
+api_router.include_router(diagnostics_router, prefix="/diagnoses", tags=["diagnostics"])
 api_router.include_router(ml_router, tags=["ml"])
 api_router.include_router(
     knowledge_graph_router,

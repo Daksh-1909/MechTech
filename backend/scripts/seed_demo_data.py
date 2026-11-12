@@ -7,8 +7,10 @@ from app.db.session import SessionLocal
 from app.models import Organization, UserStatus
 from app.modules.auth import repository as auth_repo
 from app.modules.auth import service as auth_service
+from app.modules.diagnostics import repository as diagnostics_repo
 from app.modules.equipment import repository as eq_repo
 from app.modules.equipment import service as eq_service
+from app.modules.knowledge_graph import service as kg_service
 from app.modules.monitoring import repository as monitoring_repo
 from app.modules.organizations import repository as org_repo
 from app.modules.sensors import repository as sensor_repo
@@ -188,6 +190,36 @@ def seed_demo(db) -> None:
         print(f"   Created {len(demo_rules)} default monitoring rules.")
     else:
         print("   Sample motor already exists.")
+
+    print("6. Seeding standard motor faults for hybrid diagnostics...")
+    faults = diagnostics_repo.ensure_default_faults(db, motor_type.id)
+    print(f"   Created/verified {len(faults)} standard faults.")
+
+    print("7. Seeding default motor diagnostic knowledge graph...")
+    kg_service.ensure_default_motor_knowledge_graph(db)
+    print("   Knowledge graph seeded with symptoms, faults, components, steps, and repairs.")
+
+    print("8. Training and registering baseline ML fault classifier model...")
+    try:
+        from app.ml.baseline_model import train_baseline_classifier
+        from app.ml.service import models_root
+
+        model_file = models_root() / "motor_fault_classifier_v1.joblib"
+        metrics = None
+        if not model_file.exists():
+            _, metrics, _ = train_baseline_classifier()
+            print("   Trained baseline Random Forest classifier on synthetic scenarios.")
+        else:
+            print("   Model artifact already exists on disk.")
+
+        ml_entry = diagnostics_repo.ensure_default_ml_model(
+            db,
+            equipment_type_id=motor_type.id,
+            metrics=metrics,
+        )
+        print(f"   Registered ML model: {ml_entry.model_key} (v{ml_entry.version}, status={ml_entry.status})")
+    except Exception as exc:
+        print(f"   Warning: Could not train/register baseline ML model: {exc}")
 
     db.commit()
     print("Demo seeding completed successfully.")

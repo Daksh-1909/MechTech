@@ -3,6 +3,7 @@
 from app.models.anomaly import Alert, AnomalyEvent
 from app.models.audit_log import AuditLog
 from app.models.baseline import BaselineProfile
+from app.models.diagnosis import Diagnosis, DiagnosisEvidence
 from app.models.equipment import (
     Component,
     Equipment,
@@ -10,9 +11,11 @@ from app.models.equipment import (
     EquipmentSpecification,
     EquipmentType,
 )
+from app.models.fault import Fault
 from app.models.feature_window import FeatureWindow
 from app.models.knowledge import KnowledgeEdge, KnowledgeNode
 from app.models.maintenance import MaintenanceRecord
+from app.models.ml_model import MLModel
 from app.models.monitoring_rule import MonitoringRule
 from app.models.organization import Organization, OrganizationMember
 from app.models.prediction import MLPrediction, ModelRegistry
@@ -30,13 +33,17 @@ __all__ = [
     "AuditLog",
     "BaselineProfile",
     "Component",
+    "Diagnosis",
+    "DiagnosisEvidence",
     "Equipment",
     "EquipmentAssignment",
     "EquipmentSpecification",
     "EquipmentType",
+    "Fault",
     "FeatureWindow",
     "KnowledgeEdge",
     "KnowledgeNode",
+    "MLModel",
     "MLPrediction",
     "MLTrainingJob",
     "MaintenanceRecord",

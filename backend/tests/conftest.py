@@ -58,6 +58,11 @@ def db_session() -> Generator[Session]:
         session.close()
 
 
+@pytest.fixture
+def db(db_session: Session) -> Session:
+    return db_session
+
+
 @pytest.fixture(autouse=True)
 def _clean_tables() -> Generator[None]:
     yield
@@ -68,13 +73,17 @@ def _clean_tables() -> Generator[None]:
         AnomalyEvent,
         AuditLog,
         Component,
+        Diagnosis,
+        DiagnosisEvidence,
         Equipment,
         EquipmentAssignment,
         EquipmentSpecification,
         EquipmentType,
+        Fault,
         KnowledgeEdge,
         KnowledgeNode,
         MaintenanceRecord,
+        MLModel,
         MLPrediction,
         MLTrainingJob,
         ModelRegistry,
@@ -103,6 +112,8 @@ def _clean_tables() -> Generator[None]:
             MLPrediction,
             MLTrainingJob,
             MaintenanceRecord,
+            DiagnosisEvidence,
+            Diagnosis,
             Alert,
             AnomalyEvent,
             MonitoringRule,
@@ -112,7 +123,9 @@ def _clean_tables() -> Generator[None]:
             EquipmentAssignment,
             EquipmentSpecification,
             Equipment,
+            Fault,
             EquipmentType,
+            MLModel,
             ModelRegistry,
             AuditLog,
             UserSession,
