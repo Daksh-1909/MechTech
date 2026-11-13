@@ -14,9 +14,15 @@ view and a repair knowledge graph.
 Architecture v1.0 is finalized according to [`SYSTEM_ARCHITECTURE.md`](./SYSTEM_ARCHITECTURE.md), [`DATABASE_DESIGN.md`](./DATABASE_DESIGN.md), [`API_DESIGN.md`](./API_DESIGN.md), and [`SECURITY_BASELINE.md`](./SECURITY_BASELINE.md).
 
 **Phases completed:**
-- **Phase 0 — Repository and Engineering Foundation:** Docker Compose local PostgreSQL service, platform-independent database types (`GUID`, `UTCDateTime`, `JSONType`), Alembic baseline migrations, and GitHub Actions CI workflow.
-- **Phase 1 — Identity, Organizations, and Authorization:** Multi-tenant organization isolation (`organizations`, `organization_members`), public registration with admin approval workflow (`registration_requests`), granular database-driven RBAC (`roles`, `permissions`, `user_roles`), Argon2id password hashing, opaque server-side session cookies, CSRF protection, and audit logs.
-- **Phase 2 — Equipment and Sensor Foundations:** Extensible equipment type registry (`equipment_types`), generic equipment with tenant asset tags (`equipment`), versioned JSONB motor technical specifications (`equipment_specifications`), hierarchical components (`components`), user responsibility assignments (`equipment_assignments`), and sensor definitions (`sensors`).
+- **Phase 0 — Repository and Engineering Foundation:** Multi-database types (`GUID`, `UTCDateTime`, `JSONType`), Alembic migrations, Ruff, ESLint, and CI workflows.
+- **Phase 1 — Identity, Organizations, and Authorization:** Multi-tenant organization isolation, public registration with admin approval workflow, granular database RBAC, Argon2id/PBKDF2 password hashing, secure session cookies, CSRF protection, and audit logs.
+- **Phase 2 — Equipment and Sensor Foundations:** Extensible equipment type registry, generic equipment with tenant asset tags, versioned JSONB motor technical specifications, hierarchical components, and sensor definitions.
+- **Phase 3 — Telemetry Simulator and Ingestion:** Bounded batch ingestion endpoint with idempotency checks, quality statuses, time-range queries, and a deterministic 5-scenario physics motor simulator.
+- **Phase 4 — Monitoring and Alerts:** Configurable threshold and duration rules engine, background evaluation, anomaly event generation, alert lifecycle management (open -> acknowledged -> resolved/dismissed), and equipment health status overview.
+- **Phase 5 — Hybrid Diagnostics:** Versioned scikit-learn Random Forest model registry, NetworkX knowledge graph ontology reasoning, hybrid diagnostic orchestrator (Rules + ML + Knowledge Graph), explainable multi-layer evidence persistence, and advisory human review workflow.
+- **Phase 6 — Maintenance and Files:** Work orders linked to equipment, alerts, and diagnoses, technician/supervisor verification workflow, and secure local file storage with SHA-256 integrity checks and path traversal neutralization.
+- **Phase 7 — Frontend and 3D Experience:** Feature-based React 19 application with Vite, Tailwind CSS v4, TanStack Query, Recharts live telemetry plots, full condition monitoring workflows, and an interactive 3D electric motor digital twin built with Three.js and React Three Fiber.
+- **Phase 8 — Hardening and Optional Public Deployment:** Comprehensive end-to-end integration test suite, automated backup/restore scripts with cryptographic SHA-256 manifest verification, production Docker Compose multi-container configuration with Nginx security headers and rate limits, data retention policies, and release gate security audit report.
 
 ## Tech stack
 
@@ -152,9 +158,9 @@ Development progress per [`DEVELOPMENT_ROADMAP.md`](./DEVELOPMENT_ROADMAP.md):
 - [x] **Phase 0 — Repository and engineering foundation**
 - [x] **Phase 1 — Identity, organizations, and authorization**
 - [x] **Phase 2 — Equipment and sensor foundations** (extensible motor specifications, components, sensor registry)
-- [ ] **Phase 3 — Telemetry simulator and ingestion** (bounded batch ingestion, idempotency, deterministic simulator)
-- [ ] **Phase 4 — Monitoring and alerts** (configurable threshold/duration rules, anomalies, alert resolution)
-- [ ] **Phase 5 — Hybrid diagnostics** (diagnostic orchestrator, rules + ML inference + NetworkX graph reasoning, human review)
-- [ ] **Phase 6 — Maintenance and files** (maintenance tasks, secure local file storage, audit history)
-- [ ] **Phase 7 — Frontend and 3D experience** (full feature UI, dashboard, equipment inspection, 3D digital twin)
-- [ ] **Phase 8 — Hardening and optional public deployment** (E2E tests, security audits, backups, production guides)
+- [x] **Phase 3 — Telemetry simulator and ingestion** (bounded batch ingestion, idempotency, deterministic simulator)
+- [x] **Phase 4 — Monitoring and alerts** (configurable threshold/duration rules, anomalies, alert resolution)
+- [x] **Phase 5 — Hybrid diagnostics** (diagnostic orchestrator, rules + ML inference + NetworkX graph reasoning, human review)
+- [x] **Phase 6 — Maintenance and files** (maintenance tasks, secure local file storage, audit history)
+- [x] **Phase 7 — Frontend and 3D experience** (full feature UI, dashboard, equipment inspection, 3D digital twin)
+- [x] **Phase 8 — Hardening and optional public deployment** (E2E tests, security audits, backups, production guides)

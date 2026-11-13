@@ -36,6 +36,15 @@ def health_ready(db: DbSession) -> HealthStatus:
             code="NOT_READY",
             status_code=503,
         ) from exc
+    try:
+        (settings.data_root / "uploads").mkdir(parents=True, exist_ok=True)
+        (settings.data_root / "models").mkdir(parents=True, exist_ok=True)
+    except Exception as exc:
+        raise AppError(
+            "Storage directory is not ready.",
+            code="STORAGE_NOT_READY",
+            status_code=503,
+        ) from exc
     return HealthStatus(status="ready")
 
 
