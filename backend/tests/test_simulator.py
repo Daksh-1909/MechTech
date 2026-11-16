@@ -3,10 +3,10 @@ import random
 import threading
 from datetime import UTC, datetime
 
-from simulator import simulator
-from simulator.config import SimulatorConfig
-from simulator.dataset import export_csv, export_metadata, generate_dataset
-from simulator.scenarios import Scenario
+from sensor_simulator import simulator
+from sensor_simulator.config import SimulatorConfig
+from sensor_simulator.dataset import export_csv, export_metadata, generate_dataset
+from sensor_simulator.scenarios import Scenario
 
 from app.schemas.sensor import SensorReadingPayload
 

@@ -10,7 +10,12 @@ interface AuthContextType {
   error: string | null
   login: (email: string, password: string) => Promise<void>
   logout: () => Promise<void>
-  register: (name: string, email: string, password: string, organizationName?: string) => Promise<any>
+  register: (
+    name: string,
+    email: string,
+    password: string,
+    organizationName?: string,
+  ) => Promise<any>
   refreshUser: () => Promise<void>
   hasRole: (roleKey: string) => boolean
   isPlatformAdmin: boolean
@@ -27,18 +32,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const refreshUser = async () => {
     try {
-      const data = await api.get<{ user: User; organization?: Organization }>('/auth/me')
-      setUser(data.user)
-      if (data.organization) {
-        setOrganization(data.organization)
-      } else if (data.user.organization_id) {
-        try {
-          const org = await api.get<Organization>(`/organizations/${data.user.organization_id}`)
-          setOrganization(org)
-        } catch {
-          // ignore org fetch error
-        }
-      }
+      const currentUser = await api.get<User>('/auth/me')
+      setUser(currentUser)
+      setOrganization(currentUser.organizations[0] ?? null)
       setError(null)
     } catch (err: any) {
       setUser(null)
@@ -60,21 +56,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setIsLoading(true)
     setError(null)
     try {
-      const res = await api.post<{ user: User; organization?: Organization }>('/auth/login', {
+      const res = await api.post<{ user: User }>('/auth/login', {
         email,
         password,
       })
       setUser(res.user)
-      if (res.organization) {
-        setOrganization(res.organization)
-      } else if (res.user.organization_id) {
-        try {
-          const org = await api.get<Organization>(`/organizations/${res.user.organization_id}`)
-          setOrganization(org)
-        } catch {
-          // ignore
-        }
-      }
+      setOrganization(res.user.organizations[0] ?? null)
     } catch (err: any) {
       const msg = err.message || 'Login failed. Please check your credentials.'
       setError(msg)
@@ -93,9 +80,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }
 
-  const register = async (name: string, email: string, password: string, organizationName?: string) => {
+  const register = async (
+    name: string,
+    email: string,
+    password: string,
+    organizationName?: string,
+  ) => {
     return api.post('/auth/register', {
-      name,
+      display_name: name,
       email,
       password,
       organization_name: organizationName,
@@ -104,12 +96,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const hasRole = (roleKey: string) => {
     if (!user) return false
-    if (user.is_superuser) return true
-    if (user.roles?.includes(roleKey)) return true
-    return user.assigned_roles?.some((r) => r.role.key === roleKey) ?? false
+    return user.roles.includes(roleKey)
   }
 
-  const isPlatformAdmin = Boolean(user?.is_superuser || hasRole('platform_admin') || hasRole('admin'))
+  const isPlatformAdmin = Boolean(hasRole('platform_admin') || hasRole('admin'))
   const isMaintainer = Boolean(isPlatformAdmin || hasRole('maintainer') || hasRole('org_admin'))
 
   return (
@@ -141,4 +131,3 @@ export const useAuth = () => {
   }
   return context
 }
-

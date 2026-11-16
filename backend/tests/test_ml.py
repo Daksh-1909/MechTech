@@ -4,7 +4,7 @@ from types import SimpleNamespace
 import joblib
 import pytest
 from fastapi.testclient import TestClient
-from simulator.dataset import generate_dataset
+from sensor_simulator.dataset import generate_dataset
 from sklearn.linear_model import LogisticRegression
 
 from app.core.config import settings

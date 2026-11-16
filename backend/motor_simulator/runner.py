@@ -4,7 +4,7 @@ Sends simulated motor readings to the MechTech API.
 
 Usage::
 
-    python -m simulator.runner \\
+    python -m motor_simulator.runner \\
         --equipment-id <uuid> \\
         --scenario overheating \\
         --seed 42 \\
@@ -44,8 +44,8 @@ _BACKEND_DIR = Path(__file__).resolve().parent.parent
 if str(_BACKEND_DIR) not in sys.path:
     sys.path.insert(0, str(_BACKEND_DIR))
 
-from simulator.config import SimulatorConfig  # noqa: E402
-from simulator.motor.generator import ReadingGenerator  # noqa: E402
+from motor_simulator.config import SimulatorConfig  # noqa: E402
+from motor_simulator.motor.generator import ReadingGenerator  # noqa: E402
 
 logger = logging.getLogger("mechtech.simulator")
 
@@ -57,7 +57,7 @@ _SCENARIOS: dict[str, Any] = {}
 
 
 def _load_scenarios() -> None:
-    from simulator.scenarios import normal, overheating, bearing_wear, combined, noisy_sensor
+    from motor_simulator.scenarios import normal, overheating, bearing_wear, combined, noisy_sensor
 
     _SCENARIOS["normal"] = normal.perturbation
     _SCENARIOS["overheating"] = overheating.perturbation
@@ -204,7 +204,7 @@ def run(config: SimulatorConfig) -> None:
 
 def _build_cli_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        prog="python -m simulator.runner",
+        prog="python -m motor_simulator.runner",
         description=(
             "MechTech motor simulator — generates simulated telemetry readings.\n"
             "DISCLAIMER: Simulated data only. Not real-world fault evidence."

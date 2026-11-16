@@ -19,9 +19,9 @@ from urllib.parse import urlparse
 from urllib.request import Request, urlopen
 from uuid import uuid4
 
-from simulator.config import SimulatorConfig
-from simulator.dataset import export_csv, export_metadata, generate_dataset
-from simulator.scenarios import NORMAL_RANGES, SCENARIO_RANGES, Scenario
+from sensor_simulator.config import SimulatorConfig
+from sensor_simulator.dataset import export_csv, export_metadata, generate_dataset
+from sensor_simulator.scenarios import NORMAL_RANGES, SCENARIO_RANGES, Scenario
 
 
 def build_parser() -> argparse.ArgumentParser:

@@ -108,7 +108,7 @@ resolution and dismissal are admin/technician actions.
 Generate a deterministic labeled CSV dataset from the repository root:
 
 ```powershell
-python -m simulator.simulator --export-csv data/exports/phase3.csv --samples-per-scenario 120 --seed 42
+python -m sensor_simulator.simulator --export-csv data/exports/phase3.csv --samples-per-scenario 120 --seed 42
 ```
 
 Create equipment, then run the simulator with `SIMULATOR_API_KEY` configured
@@ -180,7 +180,7 @@ From the repository root:
 ```powershell
 .\.venv\Scripts\Activate.ps1
 $env:SIMULATOR_API_KEY = "local-simulator-key"
-python -m simulator.simulator --scenario normal --interval 2 --seed 42
+python -m sensor_simulator.simulator --scenario normal --interval 2 --seed 42
 ```
 
 Supported scenarios include normal, increased vibration, overheating, combined

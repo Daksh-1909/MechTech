@@ -49,10 +49,10 @@ from app.modules.monitoring import repository as rule_repo
 from app.modules.organizations import service as org_service
 from app.modules.sensors import reading_repository as reading_repo
 from app.modules.sensors import repository as sensor_repo
-from simulator.motor.generator import ReadingGenerator
-from simulator.scenarios.bearing_wear import perturbation as bearing_wear_pert
-from simulator.scenarios.normal import perturbation as normal_pert
-from simulator.scenarios.overheating import perturbation as overheating_pert
+from motor_simulator.motor.generator import ReadingGenerator
+from motor_simulator.scenarios.bearing_wear import perturbation as bearing_wear_pert
+from motor_simulator.scenarios.normal import perturbation as normal_pert
+from motor_simulator.scenarios.overheating import perturbation as overheating_pert
 
 PASSWORD = "test-pass-phase5"
 ADMIN_PASSWORD = "admin-pass-phase5"

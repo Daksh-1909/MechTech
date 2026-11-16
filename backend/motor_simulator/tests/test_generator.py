@@ -15,8 +15,8 @@ import pytest
 import random
 import math
 
-from simulator.motor.physics import MotorPhysics, MotorParameters, MotorState
-from simulator.motor.generator import ReadingGenerator
+from motor_simulator.motor.physics import MotorPhysics, MotorParameters, MotorState
+from motor_simulator.motor.generator import ReadingGenerator
 
 
 # ---------------------------------------------------------------------------
@@ -131,8 +131,8 @@ class TestReadingGenerator:
 
     def test_determinism_same_seed(self):
         """Same seed produces identical readings across two generator instances."""
-        g1 = self._make_generator(seed=7)
-        g2 = self._make_generator(seed=7)
+        g1 = self._make_generator(seed=7, run_id="deterministic-run")
+        g2 = self._make_generator(seed=7, run_id="deterministic-run")
 
         r1 = list(g1.stream(max_steps=10))
         r2 = list(g2.stream(max_steps=10))
@@ -190,7 +190,7 @@ class TestScenarioRanges:
     """
 
     def _run_scenario(self, perturbation_fn, steps: int = 200, seed: int = 0):
-        from simulator.motor.physics import MotorPhysics, MotorState
+        from motor_simulator.motor.physics import MotorPhysics, MotorState
 
         import random as _random
         rng = _random.Random(seed)
@@ -205,13 +205,13 @@ class TestScenarioRanges:
         return temps, vibs
 
     def test_normal_temperature_range(self):
-        from simulator.scenarios.normal import perturbation
+        from motor_simulator.scenarios.normal import perturbation
         temps, vibs = self._run_scenario(perturbation, steps=300)
         assert min(temps) >= 30.0, "Normal temp should be above ambient"
         assert max(temps) <= 100.0, f"Normal temp should not overheat, got {max(temps):.1f}"
 
     def test_overheating_temperature_rises(self):
-        from simulator.scenarios.overheating import perturbation
+        from motor_simulator.scenarios.overheating import perturbation
         temps, _ = self._run_scenario(perturbation, steps=200)
         # Later readings should be meaningfully hotter than early ones
         early_avg = sum(temps[:20]) / 20
@@ -221,7 +221,7 @@ class TestScenarioRanges:
         )
 
     def test_bearing_wear_vibration_rises(self):
-        from simulator.scenarios.bearing_wear import perturbation
+        from motor_simulator.scenarios.bearing_wear import perturbation
         _, vibs = self._run_scenario(perturbation, steps=200)
         early_avg = sum(vibs[:20]) / 20
         late_avg = sum(vibs[-20:]) / 20
@@ -230,7 +230,7 @@ class TestScenarioRanges:
         )
 
     def test_combined_both_rise(self):
-        from simulator.scenarios.combined import perturbation
+        from motor_simulator.scenarios.combined import perturbation
         temps, vibs = self._run_scenario(perturbation, steps=200)
         early_temp_avg = sum(temps[:20]) / 20
         late_temp_avg = sum(temps[-20:]) / 20
@@ -240,8 +240,8 @@ class TestScenarioRanges:
         assert late_vib_avg > early_vib_avg, "Combined: vibration should rise"
 
     def test_noisy_sensor_high_variance(self):
-        from simulator.scenarios.noisy_sensor import perturbation
-        from simulator.scenarios.normal import perturbation as normal_perturbation
+        from motor_simulator.scenarios.noisy_sensor import perturbation
+        from motor_simulator.scenarios.normal import perturbation as normal_perturbation
         import statistics
         normal_temps, normal_vibs = self._run_scenario(normal_perturbation, steps=200, seed=5)
         noisy_temps, noisy_vibs = self._run_scenario(perturbation, steps=200, seed=5)

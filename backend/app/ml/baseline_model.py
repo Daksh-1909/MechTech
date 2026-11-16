@@ -34,8 +34,8 @@ from app.ml.features import (
     to_feature_vector,
 )
 from app.ml.service import models_root
-from simulator.motor.generator import ReadingGenerator
-from simulator.scenarios import (
+from motor_simulator.motor.generator import ReadingGenerator
+from motor_simulator.scenarios import (
     bearing_wear,
     combined,
     normal,

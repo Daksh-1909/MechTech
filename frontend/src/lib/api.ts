@@ -1,4 +1,4 @@
-const BASE_URL = '/api/v1'
+const BASE_URL = (import.meta.env.VITE_API_BASE_URL || '/api/v1').replace(/\/$/, '')
 
 export class ApiError extends Error {
   code?: string
@@ -16,14 +16,11 @@ export class ApiError extends Error {
 
 function getCsrfToken(): string | null {
   if (typeof document === 'undefined') return null
-  const match = document.cookie.match(new RegExp('(^|;\\s*)csrf_token=([^;]+)'))
+  const match = document.cookie.match(new RegExp('(^|;\\s*)mechtech_csrf=([^;]+)'))
   return match ? decodeURIComponent(match[2]) : null
 }
 
-export async function request<T = any>(
-  endpoint: string,
-  options: RequestInit = {}
-): Promise<T> {
+export async function request<T = any>(endpoint: string, options: RequestInit = {}): Promise<T> {
   const url = endpoint.startsWith('http') ? endpoint : `${BASE_URL}${endpoint}`
   const headers = new Headers(options.headers || {})
 
@@ -37,11 +34,7 @@ export async function request<T = any>(
   }
 
   // Auto set Content-Type to JSON if sending raw object and not already FormData
-  if (
-    options.body &&
-    !(options.body instanceof FormData) &&
-    !headers.has('Content-Type')
-  ) {
+  if (options.body && !(options.body instanceof FormData) && !headers.has('Content-Type')) {
     headers.set('Content-Type', 'application/json')
   }
 
@@ -67,12 +60,16 @@ export async function request<T = any>(
   }
 
   if (!response.ok) {
+    const apiError = data?.error
+    const validationDetails = apiError?.details
     const message =
-      (data && (data.message || data.detail)) ||
+      apiError?.message ||
+      data?.message ||
+      data?.detail ||
       response.statusText ||
       `Request failed with status ${response.status}`
-    const code = data && data.code
-    throw new ApiError(message, response.status, code, data)
+    const code = apiError?.code || data?.code
+    throw new ApiError(message, response.status, code, validationDetails || data)
   }
 
   return data as T
@@ -106,4 +103,3 @@ export const api = {
       body: formData,
     }),
 }
-

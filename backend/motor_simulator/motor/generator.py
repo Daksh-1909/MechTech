@@ -15,7 +15,7 @@ from collections.abc import Callable, Generator
 from datetime import UTC, datetime, timedelta
 from typing import Any
 
-from simulator.motor.physics import MotorParameters, MotorPhysics, MotorState
+from motor_simulator.motor.physics import MotorParameters, MotorPhysics, MotorState
 
 
 class ReadingGenerator:

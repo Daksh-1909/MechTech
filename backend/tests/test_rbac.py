@@ -38,7 +38,7 @@ def test_role_permission_matrix() -> None:
     assert role_has_permission(UserRole.ADMIN, Permission.EQUIPMENT_MANAGE)
 
     assert role_has_permission(UserRole.TECHNICIAN, Permission.ALERTS_MANAGE)
-    assert role_has_permission(UserRole.TECHNICIAN, Permission.MAINTENANCE_MANAGE)
+    assert role_has_permission(UserRole.TECHNICIAN, Permission.MAINTENANCE_CREATE)
     assert not role_has_permission(UserRole.TECHNICIAN, Permission.USERS_MANAGE)
     assert not role_has_permission(UserRole.TECHNICIAN, Permission.AUDIT_VIEW)
     assert not role_has_permission(UserRole.TECHNICIAN, Permission.EQUIPMENT_MANAGE)
@@ -46,19 +46,17 @@ def test_role_permission_matrix() -> None:
     assert role_has_permission(UserRole.OPERATOR, Permission.MONITORING_VIEW)
     assert role_has_permission(UserRole.OPERATOR, Permission.EQUIPMENT_VIEW)
     assert not role_has_permission(UserRole.OPERATOR, Permission.ALERTS_MANAGE)
-    assert not role_has_permission(UserRole.OPERATOR, Permission.MAINTENANCE_MANAGE)
+    assert not role_has_permission(UserRole.OPERATOR, Permission.MAINTENANCE_CREATE)
 
     assert not role_has_permission("unknown-role", Permission.MONITORING_VIEW)
 
 
 def test_inactive_users_have_no_permissions() -> None:
     user = User(
-        id=1,
-        name="Inactive",
+        display_name="Inactive",
         email="inactive@example.com",
         password_hash="x",
-        role=UserRole.ADMIN.value,
-        is_active=False,
+        status="suspended",
     )
 
     assert not has_permission(user, Permission.USERS_MANAGE)

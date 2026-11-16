@@ -10,13 +10,13 @@ readings for the prototype electric motor.
 
 ```powershell
 .\.venv\Scripts\Activate.ps1
-python -m simulator.simulator --scenario normal --interval 2 --seed 42
+python -m sensor_simulator.simulator --scenario normal --interval 2 --seed 42
 ```
 
 Generate a deterministic five-scenario dataset without starting the API:
 
 ```powershell
-python -m simulator.simulator --export-csv data/exports/phase3.csv --samples-per-scenario 120 --seed 42
+python -m sensor_simulator.simulator --export-csv data/exports/phase3.csv --samples-per-scenario 120 --seed 42
 ```
 
 Continuous runs accept a stop event through the Python API and flush any

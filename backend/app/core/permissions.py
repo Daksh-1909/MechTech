@@ -191,6 +191,14 @@ ROLE_PERMISSIONS: dict[str, frozenset[Permission]] = {
 }
 
 
+def role_has_permission(role: str, permission: Permission) -> bool:
+    """Check a role's configured default permission without loading a user."""
+    role_key = str(role)
+    if role_key not in ROLE_PERMISSIONS:
+        role_key = getattr(role, "value", role_key)
+    return permission in ROLE_PERMISSIONS.get(str(role_key), frozenset())
+
+
 def get_user_permissions(user: User, organization_id: uuid.UUID | str | None = None) -> set[Permission]:
     """Retrieve all effective permissions for a user across roles or for a specific organization."""
     if not user.is_active:

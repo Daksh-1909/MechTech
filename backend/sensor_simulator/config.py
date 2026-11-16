@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from simulator.scenarios import Scenario
+from sensor_simulator.scenarios import Scenario
 
 
 @dataclass(slots=True)

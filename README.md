@@ -78,7 +78,7 @@ npm run dev --prefix .\frontend
 # Simulator (separate terminal)
 .\.venv\Scripts\Activate.ps1
 $env:SIMULATOR_API_KEY = "local-simulator-key"   # match backend .env
-python -m simulator.simulator --scenario normal --interval 2 --seed 42
+python -m sensor_simulator.simulator --scenario normal --interval 2 --seed 42
 
 # Reference knowledge and model tooling (from backend/)
 Set-Location backend

@@ -5,8 +5,8 @@ from collections import defaultdict
 from datetime import UTC, datetime, timedelta
 from types import SimpleNamespace
 
-from simulator.dataset import generate_dataset
-from simulator.scenarios import PHASE3_LABELS, SCENARIO_RANGES, Scenario
+from sensor_simulator.dataset import generate_dataset
+from sensor_simulator.scenarios import PHASE3_LABELS, SCENARIO_RANGES, Scenario
 
 from app.ml.features import FEATURE_NAMES, build_features, segment_readings, to_feature_vector
 

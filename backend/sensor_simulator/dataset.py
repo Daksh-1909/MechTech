@@ -6,7 +6,7 @@ import random
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
-from simulator.scenarios import PHASE3_LABELS, Scenario
+from sensor_simulator.scenarios import PHASE3_LABELS, Scenario
 
 PHASE3_SCENARIOS = tuple(Scenario(label) for label in PHASE3_LABELS)
 
@@ -28,7 +28,7 @@ def generate_dataset(
     if started_at.tzinfo is None:
         raise ValueError("started_at must be timezone-aware.")
 
-    from simulator.simulator import generate_contract_reading
+    from sensor_simulator.simulator import generate_contract_reading
 
     output: list[dict[str, object]] = []
     for scenario_index, scenario in enumerate(PHASE3_SCENARIOS):

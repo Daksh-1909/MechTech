@@ -1,26 +1,24 @@
-export type UserRole = 'platform_admin' | 'org_admin' | 'maintainer' | 'technician' | 'viewer' | 'demo_user'
+export type UserRole =
+  'platform_admin' | 'org_admin' | 'maintainer' | 'technician' | 'viewer' | 'demo_user' | 'admin'
 
 export interface User {
   id: string
   email: string
-  name: string
+  display_name: string
   status: 'pending' | 'active' | 'rejected' | 'suspended'
-  is_superuser: boolean
+  is_active: boolean
   roles: string[]
-  assigned_roles?: Array<{
-    role: {
-      key: string
-      name: string
-    }
-  }>
-  organization_id?: string | null
+  permissions: string[]
+  organizations: Organization[]
+  created_at: string
+  updated_at: string
 }
 
 export interface Organization {
   id: string
   name: string
   slug: string
-  status: 'active' | 'suspended' | 'archived'
+  role?: string | null
 }
 
 export interface Equipment {
@@ -135,7 +133,14 @@ export interface Diagnosis {
   primary_fault_id?: string | null
   primary_fault_key?: string | null
   primary_fault_name?: string | null
-  status: 'normal' | 'attention_required' | 'possible_fault' | 'insufficient_data' | 'under_review' | 'confirmed_by_reviewer' | 'dismissed'
+  status:
+    | 'normal'
+    | 'attention_required'
+    | 'possible_fault'
+    | 'insufficient_data'
+    | 'under_review'
+    | 'confirmed_by_reviewer'
+    | 'dismissed'
   severity: 'low' | 'medium' | 'high' | 'critical'
   confidence_score: number
   summary: string
@@ -215,4 +220,3 @@ export interface RegistrationRequest {
   status: 'pending' | 'approved' | 'rejected'
   created_at: string
 }
-

@@ -30,8 +30,8 @@ from app.models.enums import AlertStatus, RuleOperator, Severity
 from app.modules.auth import service as auth_service
 from app.modules.equipment import repository as eq_repo
 from app.modules.organizations import service as org_service
-from simulator.motor.generator import ReadingGenerator
-from simulator.scenarios.overheating import perturbation as overheating_perturbation
+from motor_simulator.motor.generator import ReadingGenerator
+from motor_simulator.scenarios.overheating import perturbation as overheating_perturbation
 
 PASSWORD = "test-pass-phase4"
 ADMIN_PASSWORD = "admin-pass-phase4"

@@ -5,7 +5,7 @@ and adheres to the expected physical trends.
 """
 
 import random
-from simulator.scenarios import (
+from motor_simulator.scenarios import (
     bearing_wear,
     combined,
     noisy_sensor,

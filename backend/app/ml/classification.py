@@ -3,7 +3,7 @@
 from typing import Any
 
 import numpy as np
-from simulator.scenarios import PHASE3_LABELS
+from sensor_simulator.scenarios import PHASE3_LABELS
 
 from app.core.exceptions import AppError
 from app.ml.features import FEATURE_NAMES, FEATURE_SCHEMA_VERSION, to_feature_vector

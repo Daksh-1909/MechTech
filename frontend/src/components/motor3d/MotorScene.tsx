@@ -1,6 +1,6 @@
 import React, { useRef, useState } from 'react'
 import { Canvas, useFrame } from '@react-three/fiber'
-import { OrbitControls, Text, Float } from '@react-three/drei'
+import { OrbitControls } from '@react-three/drei'
 import * as THREE from 'three'
 
 export interface MotorComponentStatus {
@@ -82,7 +82,8 @@ const Bearing: React.FC<{
   useFrame(({ clock }) => {
     if (status === 'critical' && meshRef.current) {
       const pulse = (Math.sin(clock.getElapsedTime() * 6) + 1) / 2
-      ;(meshRef.current.material as THREE.MeshStandardMaterial).emissiveIntensity = 0.3 + pulse * 0.7
+      ;(meshRef.current.material as THREE.MeshStandardMaterial).emissiveIntensity =
+        0.3 + pulse * 0.7
     }
   })
 
@@ -182,7 +183,8 @@ const StatorWindings: React.FC<{
   useFrame(({ clock }) => {
     if (status === 'critical' && meshRef.current) {
       const pulse = (Math.sin(clock.getElapsedTime() * 5) + 1) / 2
-      ;(meshRef.current.material as THREE.MeshStandardMaterial).emissiveIntensity = 0.4 + pulse * 0.6
+      ;(meshRef.current.material as THREE.MeshStandardMaterial).emissiveIntensity =
+        0.4 + pulse * 0.6
     }
   })
 
@@ -266,11 +268,7 @@ const MotorHousing: React.FC<{
         const y = Math.cos(angle) * 1.22
         const z = Math.sin(angle) * 1.22
         return (
-          <mesh
-            key={i}
-            position={[0, y, z]}
-            rotation={[angle, 0, 0]}
-          >
+          <mesh key={i} position={[0, y, z]} rotation={[angle, 0, 0]}>
             <boxGeometry args={[2.0, 0.05, 0.18]} />
             <meshStandardMaterial color="#334155" metalness={0.5} roughness={0.5} />
           </mesh>
@@ -361,24 +359,29 @@ export const MotorScene: React.FC<MotorSceneProps> = ({
   const activeHover = hoveredComponent || selectedComponentKey
 
   return (
-    <div className="relative w-full h-[420px] rounded-xl overflow-hidden bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 border border-slate-800 shadow-2xl select-none">
+    <div className="relative h-[420px] w-full overflow-hidden rounded-xl border border-slate-800 bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 shadow-2xl select-none">
       {/* Overlay controls and legend */}
-      <div className="absolute top-4 left-4 z-10 flex flex-col gap-2 pointer-events-none">
-        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-900/80 backdrop-blur-md border border-slate-700 text-xs font-mono text-cyan-400">
-          <span className={`w-2 h-2 rounded-full ${isRunning ? 'bg-emerald-400 animate-pulse' : 'bg-slate-500'}`} />
+      <div className="pointer-events-none absolute top-4 left-4 z-10 flex flex-col gap-2">
+        <div className="inline-flex items-center gap-2 rounded-full border border-slate-700 bg-slate-900/80 px-3 py-1.5 font-mono text-xs text-cyan-400 backdrop-blur-md">
+          <span
+            className={`h-2 w-2 rounded-full ${isRunning ? 'animate-pulse bg-emerald-400' : 'bg-slate-500'}`}
+          />
           {isRunning ? 'MOTOR ROTATING (1450 RPM)' : 'MOTOR STOPPED'}
         </div>
         {activeHover && componentStatuses[activeHover] && (
-          <div className="px-3 py-2 rounded-lg bg-slate-900/90 backdrop-blur-md border border-cyan-500/40 text-xs shadow-xl animate-in fade-in duration-150">
-            <div className="font-semibold text-slate-100">{componentStatuses[activeHover].name}</div>
+          <div className="animate-in fade-in rounded-lg border border-cyan-500/40 bg-slate-900/90 px-3 py-2 text-xs shadow-xl backdrop-blur-md duration-150">
+            <div className="font-semibold text-slate-100">
+              {componentStatuses[activeHover].name}
+            </div>
             {componentStatuses[activeHover].metricLabel && (
-              <div className="text-cyan-300 font-mono mt-0.5">
-                {componentStatuses[activeHover].metricLabel}: {componentStatuses[activeHover].metricValue}
+              <div className="mt-0.5 font-mono text-cyan-300">
+                {componentStatuses[activeHover].metricLabel}:{' '}
+                {componentStatuses[activeHover].metricValue}
               </div>
             )}
             <div className="mt-1 flex items-center gap-1.5">
               <span
-                className={`w-1.5 h-1.5 rounded-full ${
+                className={`h-1.5 w-1.5 rounded-full ${
                   componentStatuses[activeHover].status === 'critical'
                     ? 'bg-rose-500'
                     : componentStatuses[activeHover].status === 'warning'
@@ -386,7 +389,7 @@ export const MotorScene: React.FC<MotorSceneProps> = ({
                       : 'bg-emerald-400'
                 }`}
               />
-              <span className="text-[10px] uppercase font-mono tracking-wider text-slate-400">
+              <span className="font-mono text-[10px] tracking-wider text-slate-400 uppercase">
                 Status: {componentStatuses[activeHover].status}
               </span>
             </div>
@@ -394,7 +397,7 @@ export const MotorScene: React.FC<MotorSceneProps> = ({
         )}
       </div>
 
-      <div className="absolute bottom-3 right-4 z-10 text-[11px] font-mono text-slate-400 bg-slate-900/70 backdrop-blur-sm px-2.5 py-1 rounded border border-slate-800 pointer-events-none">
+      <div className="pointer-events-none absolute right-4 bottom-3 z-10 rounded border border-slate-800 bg-slate-900/70 px-2.5 py-1 font-mono text-[11px] text-slate-400 backdrop-blur-sm">
         Drag to Orbit • Scroll to Zoom • Click parts to inspect
       </div>
 
@@ -490,4 +493,3 @@ export const MotorScene: React.FC<MotorSceneProps> = ({
 }
 
 export default MotorScene
-
