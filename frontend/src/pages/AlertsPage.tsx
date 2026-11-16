@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { RefreshCw } from 'lucide-react'
+import { RefreshCw, X, AlertTriangle, CheckCircle2, ShieldAlert } from 'lucide-react'
 import { api } from '../lib/api'
 import type { Alert } from '../types/api'
 
@@ -64,10 +64,10 @@ export const AlertsPage: React.FC = () => {
   return (
     <div className="space-y-6">
       {banner && (
-        <div className="flex items-center justify-between rounded-lg border border-cyan-500/40 bg-cyan-950/80 p-3 font-mono text-xs text-cyan-200">
+        <div className="glass-panel flex items-center justify-between border-cyan-500/40 bg-cyan-950/40 p-3.5 font-mono text-xs text-cyan-200">
           <span>{banner}</span>
-          <button onClick={() => setBanner(null)} className="text-cyan-400">
-            ✕
+          <button onClick={() => setBanner(null)} className="text-cyan-400 hover:text-white">
+            <X className="h-4 w-4" />
           </button>
         </div>
       )}
@@ -75,7 +75,9 @@ export const AlertsPage: React.FC = () => {
       {/* Header & Filter Controls */}
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
         <div>
-          <h2 className="text-xl font-bold tracking-tight text-white">Active Anomaly Alerts</h2>
+          <h2 className="text-xl font-bold tracking-tight text-white drop-shadow-sm">
+            Active Anomaly Alerts
+          </h2>
           <p className="mt-1 text-xs text-slate-400">
             Real-time threshold breaches, statistical sensor anomalies, and equipment warnings.
           </p>
@@ -85,7 +87,7 @@ export const AlertsPage: React.FC = () => {
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="rounded-lg border border-slate-800 bg-slate-900 px-3 py-1.5 text-slate-200 focus:border-cyan-500 focus:outline-none"
+            className="glass-input text-xs"
           >
             <option value="all">All Statuses</option>
             <option value="open">Open</option>
@@ -97,7 +99,7 @@ export const AlertsPage: React.FC = () => {
           <select
             value={severityFilter}
             onChange={(e) => setSeverityFilter(e.target.value)}
-            className="rounded-lg border border-slate-800 bg-slate-900 px-3 py-1.5 text-slate-200 focus:border-cyan-500 focus:outline-none"
+            className="glass-input text-xs"
           >
             <option value="all">All Severities</option>
             <option value="critical">Critical</option>
@@ -108,7 +110,7 @@ export const AlertsPage: React.FC = () => {
 
           <button
             onClick={() => refetch()}
-            className="rounded-lg border border-slate-800 bg-slate-900 p-1.5 text-slate-400 hover:bg-slate-800 hover:text-white"
+            className="glass-panel-interactive flex h-9 w-9 items-center justify-center rounded-xl text-slate-300 hover:text-white"
           >
             <RefreshCw className="h-4 w-4" />
           </button>
@@ -117,16 +119,22 @@ export const AlertsPage: React.FC = () => {
 
       {/* Alerts Table */}
       {isLoading ? (
-        <div className="p-12 text-center font-mono text-sm text-slate-400">Loading alerts...</div>
+        <div className="glass-panel p-16 text-center font-mono text-sm text-slate-400">
+          Loading alerts...
+        </div>
       ) : alerts.length === 0 ? (
-        <div className="rounded-xl border border-slate-800 bg-slate-900 p-12 text-center text-sm text-slate-400">
-          No alerts found matching filter criteria. Fleet condition is nominal.
+        <div className="glass-panel p-16 text-center">
+          <CheckCircle2 className="mx-auto mb-3 h-8 w-8 text-emerald-400" />
+          <h3 className="text-sm font-semibold text-white">Fleet Operating Nominally</h3>
+          <p className="mt-1 text-xs text-slate-400">
+            No anomaly alerts found matching filter criteria.
+          </p>
         </div>
       ) : (
-        <div className="overflow-hidden rounded-xl border border-slate-800 bg-slate-900/90 shadow-xl">
-          <div className="overflow-x-auto">
+        <div className="glass-panel overflow-hidden p-6 shadow-2xl">
+          <div className="overflow-x-auto rounded-xl border border-white/5 bg-slate-950/40">
             <table className="w-full text-left text-xs">
-              <thead className="bg-slate-950 font-mono text-[10px] text-slate-400 uppercase">
+              <thead className="bg-white/5 font-mono text-[10px] text-slate-400 uppercase tracking-wider">
                 <tr>
                   <th className="p-3.5">Severity</th>
                   <th className="p-3.5">Alert Title</th>
@@ -136,17 +144,17 @@ export const AlertsPage: React.FC = () => {
                   <th className="p-3.5 text-right">Triage Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-800">
+              <tbody className="divide-y divide-white/5">
                 {alerts.map((a) => (
-                  <tr key={a.id} className="hover:bg-slate-800/40">
+                  <tr key={a.id} className="transition-colors hover:bg-white/[0.04]">
                     <td className="p-3.5">
                       <span
-                        className={`rounded-full px-2 py-0.5 font-mono text-[10px] font-semibold uppercase ${
+                        className={`glass-pill text-[10px] font-mono uppercase ${
                           a.severity === 'critical'
-                            ? 'border border-rose-800 bg-rose-950 text-rose-400'
+                            ? 'glass-pill-critical'
                             : a.severity === 'high'
-                              ? 'border border-amber-800 bg-amber-950 text-amber-400'
-                              : 'border border-blue-800 bg-blue-950 text-blue-400'
+                              ? 'glass-pill-warning'
+                              : 'glass-pill-cyan'
                         }`}
                       >
                         {a.severity}
@@ -182,32 +190,32 @@ export const AlertsPage: React.FC = () => {
                     </td>
                     <td className="p-3.5 text-right">
                       {a.status === 'open' && (
-                        <div className="flex items-center justify-end gap-1.5">
+                        <div className="flex items-center justify-end gap-2">
                           <button
                             onClick={() => handleAcknowledge(a.id)}
-                            className="rounded border border-slate-700 bg-slate-800 px-2.5 py-1 text-slate-200 hover:bg-slate-700"
+                            className="glass-btn px-2.5 py-1 text-slate-300 hover:text-white"
                           >
                             Acknowledge
                           </button>
                           <button
                             onClick={() => setResolvingAlert(a)}
-                            className="rounded border border-emerald-800/60 bg-emerald-950 px-2.5 py-1 font-semibold text-emerald-300 hover:bg-emerald-900"
+                            className="glass-btn-emerald px-2.5 py-1 font-semibold"
                           >
                             Resolve
                           </button>
                         </div>
                       )}
                       {a.status === 'acknowledged' && (
-                        <div className="flex items-center justify-end gap-1.5">
+                        <div className="flex items-center justify-end gap-2">
                           <button
                             onClick={() => setResolvingAlert(a)}
-                            className="rounded border border-emerald-800/60 bg-emerald-950 px-2.5 py-1 font-semibold text-emerald-300 hover:bg-emerald-900"
+                            className="glass-btn-emerald px-2.5 py-1 font-semibold"
                           >
                             Resolve
                           </button>
                           <button
                             onClick={() => handleDismiss(a.id)}
-                            className="rounded border border-slate-700 bg-slate-800 px-2 py-1 text-slate-400 hover:bg-slate-700"
+                            className="glass-btn px-2.5 py-1 text-slate-400 hover:text-white"
                           >
                             Dismiss
                           </button>
@@ -227,39 +235,47 @@ export const AlertsPage: React.FC = () => {
         </div>
       )}
 
-      {/* Resolve Modal */}
+      {/* Resolve Modal (Apple Frosted Glass Sheet) */}
       {resolvingAlert && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 p-4 backdrop-blur-sm">
-          <div className="w-full max-w-md space-y-4 rounded-xl border border-slate-800 bg-slate-900 p-6 shadow-2xl">
-            <h3 className="text-base font-bold text-white">Resolve Anomaly Alert</h3>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 p-4 backdrop-blur-md">
+          <div className="glass-panel w-full max-w-md space-y-4 p-6 shadow-2xl border-white/15 animate-in fade-in zoom-in-95 duration-200">
+            <div className="flex items-center justify-between">
+              <h3 className="text-base font-bold text-white">Resolve Anomaly Alert</h3>
+              <button
+                onClick={() => setResolvingAlert(null)}
+                className="text-slate-400 hover:text-white"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
             <p className="text-xs text-slate-400">
               Provide a resolution note detailing corrective actions taken (e.g. grease replenished,
               load reduced).
             </p>
-            <form onSubmit={handleResolve} className="space-y-3 text-xs">
+            <form onSubmit={handleResolve} className="space-y-3.5 text-xs">
               <div>
-                <label className="mb-1 block font-mono text-slate-400">Resolution Note</label>
+                <label className="mb-1 block font-mono text-slate-300">Resolution Note</label>
                 <textarea
                   required
                   rows={3}
                   value={resolutionNote}
                   onChange={(e) => setResolutionNote(e.target.value)}
                   placeholder="e.g. Bearing cavity inspected and replenished with 40g ISO VG 46 synthetic lubricant."
-                  className="w-full rounded-lg border border-slate-800 bg-slate-950 px-3 py-2 text-white focus:border-cyan-500 focus:outline-none"
+                  className="glass-input w-full"
                 />
               </div>
 
-              <div className="flex justify-end gap-2 pt-2">
+              <div className="flex justify-end gap-2.5 pt-4 border-t border-white/10">
                 <button
                   type="button"
                   onClick={() => setResolvingAlert(null)}
-                  className="rounded-lg bg-slate-800 px-4 py-2 text-slate-300 hover:bg-slate-700"
+                  className="glass-btn px-4 py-2 text-slate-300"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="rounded-lg bg-emerald-600 px-4 py-2 font-semibold text-white hover:bg-emerald-500"
+                  className="glass-btn-emerald px-4 py-2 font-semibold text-white"
                 >
                   Confirm Resolution
                 </button>

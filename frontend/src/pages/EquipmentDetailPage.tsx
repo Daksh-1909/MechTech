@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
-import { ArrowLeft, Cpu, Radio, Settings, Wrench } from 'lucide-react'
+import { ArrowLeft, Cpu, Radio, Settings, Wrench, Activity, ShieldCheck } from 'lucide-react'
 import { api } from '../lib/api'
 import type { Equipment, Sensor } from '../types/api'
 import MotorScene from '../components/motor3d/MotorScene'
@@ -18,7 +18,6 @@ export const EquipmentDetailPage: React.FC = () => {
     enabled: !!id,
   })
 
-  // Fetch Components
   // Fetch Sensors
   const { data: sensors = [] } = useQuery({
     queryKey: ['sensors', id],
@@ -28,8 +27,9 @@ export const EquipmentDetailPage: React.FC = () => {
 
   if (isLoading || !equipment) {
     return (
-      <div className="p-12 text-center font-mono text-slate-400">
-        Loading equipment telemetry...
+      <div className="glass-panel p-16 text-center font-mono text-slate-300">
+        <Activity className="mx-auto mb-3 h-6 w-6 animate-spin text-cyan-400" />
+        Loading equipment telemetry & 3D model...
       </div>
     )
   }
@@ -41,16 +41,18 @@ export const EquipmentDetailPage: React.FC = () => {
         <div className="flex items-center gap-3">
           <Link
             to="/equipment"
-            className="rounded-lg border border-slate-800 bg-slate-900 p-2 text-slate-400 transition-colors hover:text-white"
+            className="glass-panel-interactive flex h-10 w-10 items-center justify-center rounded-xl text-slate-300 hover:text-white"
           >
             <ArrowLeft className="h-4 w-4" />
           </Link>
           <div>
             <div className="flex items-center gap-2">
-              <span className="rounded border border-cyan-800 bg-cyan-950 px-2 py-0.5 font-mono text-xs font-semibold text-cyan-300">
+              <span className="glass-pill glass-pill-cyan font-mono text-xs font-semibold">
                 {equipment.asset_tag}
               </span>
-              <h2 className="text-xl font-bold tracking-tight text-white">{equipment.name}</h2>
+              <h2 className="text-xl font-bold tracking-tight text-white drop-shadow-sm">
+                {equipment.name}
+              </h2>
             </div>
             <p className="mt-0.5 text-xs text-slate-400">
               {equipment.manufacturer || 'ABB'} • {equipment.model_number || 'M3AA 132 SMB 4'} •{' '}
@@ -62,14 +64,14 @@ export const EquipmentDetailPage: React.FC = () => {
         <div className="flex items-center gap-2.5">
           <Link
             to="/diagnostics"
-            className="flex items-center gap-1.5 rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white shadow-lg shadow-blue-600/20 hover:bg-blue-500"
+            className="glass-btn-primary flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold"
           >
             <Cpu className="h-3.5 w-3.5" />
             Run Diagnosis
           </Link>
           <Link
             to="/maintenance"
-            className="flex items-center gap-1.5 rounded-lg border border-slate-700 bg-slate-800 px-3 py-1.5 text-xs font-semibold text-slate-200 hover:bg-slate-700"
+            className="glass-btn flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold text-slate-200"
           >
             <Wrench className="h-3.5 w-3.5" />
             Create Work Order
@@ -78,94 +80,103 @@ export const EquipmentDetailPage: React.FC = () => {
       </div>
 
       {/* 3D Model Card */}
-      <div className="rounded-xl border border-slate-800 bg-slate-900/90 p-5 shadow-xl">
-        <div className="mb-3 flex items-center justify-between">
+      <div className="glass-panel relative overflow-hidden p-6 shadow-2xl">
+        <div className="absolute top-0 right-1/4 h-32 w-32 rounded-full bg-cyan-500/10 blur-2xl pointer-events-none" />
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
           <div>
-            <h3 className="text-sm font-semibold text-white">
-              Interactive 3D Component Inspection
-            </h3>
+            <div className="flex items-center gap-2">
+              <span className="h-2 w-2 rounded-full bg-cyan-400 animate-pulse" />
+              <h3 className="text-sm font-semibold text-white">
+                Interactive 3D Component Inspection
+              </h3>
+            </div>
             <p className="mt-0.5 text-xs text-slate-400">
-              Click individual components to view sensor status, inspect drive-end bearings, or
-              isolate stator coils.
+              Click individual components to isolate mesh topology, inspect drive-end bearings, or
+              view winding status.
             </p>
           </div>
           <button
             onClick={() => setExplodedView(!explodedView)}
-            className="rounded-lg border border-slate-700 bg-slate-800 px-3 py-1.5 font-mono text-xs text-cyan-300 transition-colors hover:bg-slate-700"
+            className="glass-btn px-3.5 py-1.5 font-mono text-xs text-cyan-300 hover:text-cyan-200"
           >
             {explodedView ? 'Collapse Components' : 'Explode Components'}
           </button>
         </div>
 
-        <MotorScene
-          selectedComponentKey={selectedComponent}
-          onSelectComponent={(key) => setSelectedComponent(key)}
-          exploded={explodedView}
-          componentStatuses={{
-            bearing_front: {
-              key: 'bearing_front',
-              name: 'Drive-End Front Bearing',
-              status: 'normal',
-              metricLabel: 'RMS Vibration',
-              metricValue: '0.14 mm/s',
-            },
-            stator: {
-              key: 'stator',
-              name: 'Stator Copper Windings',
-              status: 'normal',
-              metricLabel: 'Winding Temp',
-              metricValue: '58.2 °C',
-            },
-            cooling_fan: {
-              key: 'cooling_fan',
-              name: 'Rear Ventilation Fan',
-              status: 'normal',
-              metricLabel: 'RPM',
-              metricValue: '1450',
-            },
-          }}
-        />
+        <div className="overflow-hidden rounded-xl border border-white/10 bg-slate-950/40">
+          <MotorScene
+            selectedComponentKey={selectedComponent}
+            onSelectComponent={(key) => setSelectedComponent(key)}
+            exploded={explodedView}
+            componentStatuses={{
+              bearing_front: {
+                key: 'bearing_front',
+                name: 'Drive-End Front Bearing',
+                status: 'normal',
+                metricLabel: 'RMS Vibration',
+                metricValue: '0.14 mm/s',
+              },
+              stator: {
+                key: 'stator',
+                name: 'Stator Copper Windings',
+                status: 'normal',
+                metricLabel: 'Winding Temp',
+                metricValue: '58.2 °C',
+              },
+              cooling_fan: {
+                key: 'cooling_fan',
+                name: 'Rear Ventilation Fan',
+                status: 'normal',
+                metricLabel: 'RPM',
+                metricValue: '1450',
+              },
+            }}
+          />
+        </div>
       </div>
 
       {/* Specifications & Sensor Table */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         {/* Specification */}
-        <div className="rounded-xl border border-slate-800 bg-slate-900/90 p-5 shadow-lg">
-          <h3 className="mb-3 flex items-center gap-2 text-sm font-semibold text-white">
+        <div className="glass-panel p-5">
+          <h3 className="mb-3.5 flex items-center gap-2 text-sm font-semibold text-white">
             <Settings className="h-4 w-4 text-cyan-400" />
-            Nameplate Specifications
+            Nameplate Technical Specifications
           </h3>
           <div className="grid grid-cols-2 gap-3 font-mono text-xs">
             {Object.entries(equipment.specification || {}).map(([key, value]) => (
-              <div key={key} className="rounded border border-slate-800 bg-slate-950/60 p-2.5">
-                <span className="block text-[10px] text-slate-500 uppercase">
+              <div
+                key={key}
+                className="glass-panel-interactive rounded-xl p-3 border border-white/5 bg-slate-950/40"
+              >
+                <span className="block text-[10px] text-slate-400 uppercase tracking-wider">
                   {key.replace(/_/g, ' ')}
                 </span>
-                <span className="font-semibold text-slate-200">{String(value)}</span>
+                <span className="font-semibold text-slate-100">{String(value)}</span>
               </div>
             ))}
           </div>
         </div>
 
         {/* Installed Sensors */}
-        <div className="rounded-xl border border-slate-800 bg-slate-900/90 p-5 shadow-lg">
-          <h3 className="mb-3 flex items-center gap-2 text-sm font-semibold text-white">
+        <div className="glass-panel p-5">
+          <h3 className="mb-3.5 flex items-center gap-2 text-sm font-semibold text-white">
             <Radio className="h-4 w-4 text-cyan-400" />
             Condition Monitoring Sensors ({sensors.length})
           </h3>
-          <div className="space-y-2">
+          <div className="space-y-2.5">
             {sensors.map((s) => (
               <div
                 key={s.id}
-                className="flex items-center justify-between rounded-lg border border-slate-800 bg-slate-950/60 p-3 font-mono text-xs"
+                className="glass-panel-interactive flex items-center justify-between rounded-xl p-3.5 font-mono text-xs border border-white/5 bg-slate-950/40"
               >
                 <div>
-                  <span className="block font-semibold text-slate-200">{s.sensor_key}</span>
-                  <span className="text-[10px] text-slate-500 uppercase">
+                  <span className="block font-semibold text-slate-100">{s.sensor_key}</span>
+                  <span className="text-[10px] text-slate-400 uppercase">
                     Type: {s.measurement_type} • Unit: {s.unit}
                   </span>
                 </div>
-                <span className="rounded border border-emerald-800 bg-emerald-950 px-2 py-0.5 text-[10px] text-emerald-400">
+                <span className="glass-pill glass-pill-emerald text-[10px]">
                   Online
                 </span>
               </div>

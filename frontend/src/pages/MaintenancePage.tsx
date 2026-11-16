@@ -8,6 +8,9 @@ import {
   Plus,
   ShieldCheck,
   Upload,
+  X,
+  Wrench,
+  Clock,
 } from 'lucide-react'
 import { api } from '../lib/api'
 import type { Equipment, MaintenanceRecord } from '../types/api'
@@ -109,10 +112,10 @@ export const MaintenancePage: React.FC = () => {
   return (
     <div className="space-y-6">
       {banner && (
-        <div className="flex items-center justify-between rounded-lg border border-cyan-500/40 bg-cyan-950/80 p-3 font-mono text-xs text-cyan-200">
+        <div className="glass-panel flex items-center justify-between border-cyan-500/40 bg-cyan-950/40 p-3.5 font-mono text-xs text-cyan-200">
           <span>{banner}</span>
-          <button onClick={() => setBanner(null)} className="text-cyan-400">
-            ✕
+          <button onClick={() => setBanner(null)} className="text-cyan-400 hover:text-white">
+            <X className="h-4 w-4" />
           </button>
         </div>
       )}
@@ -120,7 +123,7 @@ export const MaintenancePage: React.FC = () => {
       {/* Header */}
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
         <div>
-          <h2 className="flex items-center gap-2 text-xl font-bold tracking-tight text-white">
+          <h2 className="flex items-center gap-2 text-xl font-bold tracking-tight text-white drop-shadow-sm">
             <span>Maintenance Work Orders & File Attachments</span>
           </h2>
           <p className="mt-1 text-xs text-slate-400">
@@ -131,7 +134,7 @@ export const MaintenancePage: React.FC = () => {
 
         <button
           onClick={() => setShowCreateModal(true)}
-          className="flex items-center gap-1.5 rounded-lg bg-cyan-600 px-3.5 py-2 text-xs font-semibold text-white shadow-lg shadow-cyan-600/20 hover:bg-cyan-500"
+          className="glass-btn-primary flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-white"
         >
           <Plus className="h-4 w-4" />
           Create Work Order
@@ -141,31 +144,31 @@ export const MaintenancePage: React.FC = () => {
       {/* Main Grid: Orders List & Detailed Inspection Work Order View */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         {/* Left Col: Work Orders List */}
-        <div className="rounded-xl border border-slate-800 bg-slate-900/90 p-4 shadow-xl">
-          <h3 className="mb-3 font-mono text-xs tracking-wider text-slate-400 uppercase">
+        <div className="glass-panel p-5 shadow-xl">
+          <h3 className="mb-3.5 font-mono text-xs tracking-wider text-slate-400 uppercase">
             Orders Queue ({records.length})
           </h3>
-          <div className="max-h-[620px] space-y-2 overflow-y-auto pr-1">
+          <div className="max-h-[620px] space-y-2.5 overflow-y-auto pr-1">
             {records.map((r) => {
               const isSelected = activeRecord?.id === r.id
               return (
                 <div
                   key={r.id}
                   onClick={() => setSelectedRecordId(r.id)}
-                  className={`cursor-pointer rounded-lg border p-3.5 text-left transition-all ${
+                  className={`glass-panel-interactive cursor-pointer rounded-xl p-3.5 text-left transition-all ${
                     isSelected
-                      ? 'border-cyan-500/60 bg-cyan-950/40 shadow-md'
-                      : 'border-slate-800 bg-slate-950/50 hover:bg-slate-800/40'
+                      ? 'border-cyan-400/50 bg-cyan-500/10 shadow-lg shadow-cyan-500/10'
+                      : 'border-white/5 bg-slate-950/40'
                   }`}
                 >
-                  <div className="mb-1.5 flex items-center justify-between">
+                  <div className="mb-2 flex items-center justify-between">
                     <span
-                      className={`rounded-full px-2 py-0.5 font-mono text-[10px] font-bold uppercase ${
+                      className={`glass-pill text-[10px] font-bold uppercase font-mono ${
                         r.priority === 'critical'
-                          ? 'border border-rose-800 bg-rose-950 text-rose-400'
+                          ? 'glass-pill-critical'
                           : r.priority === 'high'
-                            ? 'border border-amber-800 bg-amber-950 text-amber-400'
-                            : 'border border-blue-800 bg-blue-950 text-blue-400'
+                            ? 'glass-pill-warning'
+                            : 'glass-pill-cyan'
                       }`}
                     >
                       {r.priority}
@@ -182,7 +185,7 @@ export const MaintenancePage: React.FC = () => {
                   <h4 className="line-clamp-1 text-xs font-semibold tracking-tight text-white">
                     {r.title}
                   </h4>
-                  <div className="mt-2 flex items-center justify-between font-mono text-[11px] text-slate-400">
+                  <div className="mt-2.5 flex items-center justify-between font-mono text-[11px] text-slate-400">
                     <span>{r.equipment_asset_tag || 'DEMO-MTR-001'}</span>
                     <span className="capitalize">{r.status.replace('_', ' ')}</span>
                   </div>
@@ -195,12 +198,12 @@ export const MaintenancePage: React.FC = () => {
         {/* Right 2 Cols: Work Order Detail & Attachment Uploader */}
         <div className="space-y-5 lg:col-span-2">
           {activeRecord ? (
-            <div className="space-y-5 rounded-xl border border-slate-800 bg-slate-900/90 p-5 shadow-xl">
+            <div className="glass-panel space-y-5 p-6 shadow-2xl">
               {/* Top Overview & Verification Status */}
-              <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-4">
+              <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 pb-4">
                 <div>
                   <div className="flex items-center gap-2">
-                    <span className="rounded-full bg-slate-800 px-2.5 py-0.5 font-mono text-xs font-semibold text-slate-300 uppercase">
+                    <span className="glass-pill font-mono text-xs font-semibold text-slate-300 uppercase">
                       {activeRecord.maintenance_type}
                     </span>
                     <span className="font-mono text-xs text-slate-400">
@@ -210,7 +213,7 @@ export const MaintenancePage: React.FC = () => {
                         'Electric Motor'}
                     </span>
                   </div>
-                  <h3 className="mt-1.5 text-lg font-bold text-white">{activeRecord.title}</h3>
+                  <h3 className="mt-2 text-lg font-bold text-white">{activeRecord.title}</h3>
                   {activeRecord.description && (
                     <p className="mt-1 max-w-xl text-xs leading-relaxed text-slate-300">
                       {activeRecord.description}
@@ -223,14 +226,14 @@ export const MaintenancePage: React.FC = () => {
                   {activeRecord.verification_status === 'pending' ? (
                     <button
                       onClick={() => setShowVerifyModal(true)}
-                      className="flex items-center gap-1.5 rounded-lg bg-emerald-600 px-3.5 py-1.5 text-xs font-semibold text-white shadow-md hover:bg-emerald-500"
+                      className="glass-btn-emerald flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold text-white"
                     >
                       <ShieldCheck className="h-4 w-4" />
                       Verify Completion
                     </button>
                   ) : (
                     <div className="text-right">
-                      <span className="flex items-center gap-1 rounded border border-emerald-800 bg-emerald-950 px-2.5 py-1 font-mono text-xs font-bold text-emerald-300">
+                      <span className="glass-pill glass-pill-emerald flex items-center gap-1.5 text-xs font-bold">
                         <CheckCircle2 className="h-3.5 w-3.5" />
                         VERIFIED BY SUPERVISOR
                       </span>
@@ -245,9 +248,9 @@ export const MaintenancePage: React.FC = () => {
               </div>
 
               {/* Maintenance Details */}
-              <div className="grid grid-cols-2 gap-4 rounded-lg border border-slate-800 bg-slate-950/60 p-4 font-mono text-xs">
+              <div className="grid grid-cols-2 gap-4 rounded-xl border border-white/5 bg-slate-950/40 p-4 font-mono text-xs">
                 <div>
-                  <span className="block text-[10px] text-slate-500 uppercase">
+                  <span className="block text-[10px] text-slate-400 uppercase tracking-wider">
                     Work Order Status
                   </span>
                   <span className="font-semibold text-white capitalize">
@@ -255,19 +258,19 @@ export const MaintenancePage: React.FC = () => {
                   </span>
                 </div>
                 <div>
-                  <span className="block text-[10px] text-slate-500 uppercase">Outcome</span>
+                  <span className="block text-[10px] text-slate-400 uppercase tracking-wider">Outcome</span>
                   <span className="font-semibold text-emerald-400 capitalize">
                     {activeRecord.outcome.replace('_', ' ')}
                   </span>
                 </div>
                 <div>
-                  <span className="block text-[10px] text-slate-500 uppercase">Created Date</span>
+                  <span className="block text-[10px] text-slate-400 uppercase tracking-wider">Created Date</span>
                   <span className="text-slate-300">
                     {new Date(activeRecord.created_at).toLocaleDateString()}
                   </span>
                 </div>
                 <div>
-                  <span className="block text-[10px] text-slate-500 uppercase">
+                  <span className="block text-[10px] text-slate-400 uppercase tracking-wider">
                     Notes / Instructions
                   </span>
                   <span className="text-slate-300">
@@ -279,7 +282,7 @@ export const MaintenancePage: React.FC = () => {
               {/* File Attachments Section */}
               <div className="space-y-3 pt-2">
                 <div className="flex items-center justify-between">
-                  <h4 className="flex items-center gap-2 text-xs font-bold tracking-wider text-slate-300 uppercase">
+                  <h4 className="flex items-center gap-2 text-xs font-bold tracking-wider text-slate-200 uppercase">
                     <Paperclip className="h-4 w-4 text-cyan-400" />
                     Inspection Photos & PDF Documentation ({activeRecord.attachments?.length || 0})
                   </h4>
@@ -288,17 +291,17 @@ export const MaintenancePage: React.FC = () => {
                 {/* Upload Form */}
                 <form
                   onSubmit={handleFileUpload}
-                  className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-slate-800 bg-slate-950/70 p-3.5 text-xs"
+                  className="glass-panel-interactive flex flex-wrap items-center justify-between gap-3 rounded-xl border-white/5 bg-slate-950/40 p-4 text-xs"
                 >
                   <input
                     type="file"
                     onChange={(e) => setUploadFile(e.target.files?.[0] || null)}
-                    className="text-slate-400 file:mr-3 file:rounded-md file:border-0 file:bg-slate-800 file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-slate-200 hover:file:bg-slate-700"
+                    className="text-slate-400 file:mr-3 file:rounded-lg file:border-0 file:bg-white/10 file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-slate-200 hover:file:bg-white/20 file:transition-colors"
                   />
                   <button
                     type="submit"
                     disabled={!uploadFile || isUploading}
-                    className="flex items-center gap-1.5 rounded-lg bg-cyan-600 px-3.5 py-1.5 font-semibold text-white hover:bg-cyan-500 disabled:opacity-50"
+                    className="glass-btn-primary flex items-center gap-1.5 px-4 py-2 font-semibold text-white disabled:opacity-50"
                   >
                     <Upload className="h-3.5 w-3.5" />
                     {isUploading ? 'Uploading...' : 'Upload Document'}
@@ -311,15 +314,15 @@ export const MaintenancePage: React.FC = () => {
                     {activeRecord.attachments.map((f) => (
                       <div
                         key={f.id}
-                        className="flex items-center justify-between rounded-lg border border-slate-800 bg-slate-950/60 p-3 text-xs"
+                        className="glass-panel-interactive flex items-center justify-between rounded-xl border-white/5 bg-slate-950/40 p-3.5 text-xs"
                       >
-                        <div className="flex items-center gap-2.5 truncate pr-3">
+                        <div className="flex items-center gap-3 truncate pr-3">
                           <FileText className="h-4 w-4 shrink-0 text-cyan-400" />
                           <div>
                             <span className="block truncate font-semibold text-slate-200">
                               {f.original_filename}
                             </span>
-                            <span className="font-mono text-[10px] text-slate-500">
+                            <span className="font-mono text-[10px] text-slate-400">
                               {(f.size_bytes / 1024).toFixed(1)} KB • SHA: {f.checksum.slice(0, 10)}
                               ...
                             </span>
@@ -330,7 +333,7 @@ export const MaintenancePage: React.FC = () => {
                           href={`/api/v1/files/${f.id}/download`}
                           target="_blank"
                           rel="noreferrer"
-                          className="flex items-center gap-1.5 rounded border border-slate-700 bg-slate-800 px-3 py-1 font-mono text-[11px] text-cyan-400 hover:bg-slate-700"
+                          className="glass-btn flex items-center gap-1.5 px-3 py-1 font-mono text-[11px] text-cyan-300 hover:text-white"
                         >
                           <Download className="h-3 w-3" />
                           Download
@@ -339,44 +342,52 @@ export const MaintenancePage: React.FC = () => {
                     ))}
                   </div>
                 ) : (
-                  <div className="rounded-lg border border-dashed border-slate-800 p-4 text-center text-xs text-slate-500">
+                  <div className="rounded-xl border border-dashed border-white/10 p-6 text-center text-xs text-slate-400">
                     No files or inspection photos attached yet.
                   </div>
                 )}
               </div>
             </div>
           ) : (
-            <div className="rounded-xl border border-slate-800 bg-slate-900 p-12 text-center text-sm text-slate-400">
+            <div className="glass-panel p-16 text-center text-sm text-slate-400">
               Select or create a work order to review task execution and documentation.
             </div>
           )}
         </div>
       </div>
 
-      {/* Create Work Order Modal */}
+      {/* Create Work Order Modal (Apple Frosted Glass Sheet) */}
       {showCreateModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 p-4 backdrop-blur-sm">
-          <div className="w-full max-w-md space-y-4 rounded-xl border border-slate-800 bg-slate-900 p-6 shadow-2xl">
-            <h3 className="text-base font-bold text-white">Create Maintenance Work Order</h3>
-            <form onSubmit={handleCreateWorkOrder} className="space-y-3 text-xs">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 p-4 backdrop-blur-md">
+          <div className="glass-panel w-full max-w-md space-y-4 p-6 shadow-2xl border-white/15 animate-in fade-in zoom-in-95 duration-200">
+            <div className="flex items-center justify-between">
+              <h3 className="text-base font-bold text-white">Create Maintenance Work Order</h3>
+              <button
+                onClick={() => setShowCreateModal(false)}
+                className="text-slate-400 hover:text-white"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+            <form onSubmit={handleCreateWorkOrder} className="space-y-3.5 text-xs">
               <div>
-                <label className="mb-1 block font-mono text-slate-400">Work Order Title</label>
+                <label className="mb-1 block font-mono text-slate-300">Work Order Title</label>
                 <input
                   type="text"
                   required
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   placeholder="e.g. Drive-End Front Bearing Replacement"
-                  className="w-full rounded-lg border border-slate-800 bg-slate-950 px-3 py-2 text-white focus:border-cyan-500 focus:outline-none"
+                  className="glass-input w-full"
                 />
               </div>
 
               <div>
-                <label className="mb-1 block font-mono text-slate-400">Equipment</label>
+                <label className="mb-1 block font-mono text-slate-300">Equipment</label>
                 <select
                   value={equipmentId}
                   onChange={(e) => setEquipmentId(e.target.value)}
-                  className="w-full rounded-lg border border-slate-800 bg-slate-950 px-3 py-2 text-white focus:border-cyan-500 focus:outline-none"
+                  className="glass-input w-full"
                 >
                   {equipment.map((eq) => (
                     <option key={eq.id} value={eq.id}>
@@ -388,11 +399,11 @@ export const MaintenancePage: React.FC = () => {
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="mb-1 block font-mono text-slate-400">Type</label>
+                  <label className="mb-1 block font-mono text-slate-300">Type</label>
                   <select
                     value={maintenanceType}
                     onChange={(e) => setMaintenanceType(e.target.value)}
-                    className="w-full rounded-lg border border-slate-800 bg-slate-950 px-3 py-2 text-white focus:border-cyan-500 focus:outline-none"
+                    className="glass-input w-full"
                   >
                     <option value="corrective">Corrective</option>
                     <option value="preventive">Preventive</option>
@@ -401,11 +412,11 @@ export const MaintenancePage: React.FC = () => {
                   </select>
                 </div>
                 <div>
-                  <label className="mb-1 block font-mono text-slate-400">Priority</label>
+                  <label className="mb-1 block font-mono text-slate-300">Priority</label>
                   <select
                     value={priority}
                     onChange={(e) => setPriority(e.target.value)}
-                    className="w-full rounded-lg border border-slate-800 bg-slate-950 px-3 py-2 text-white focus:border-cyan-500 focus:outline-none"
+                    className="glass-input w-full"
                   >
                     <option value="critical">Critical</option>
                     <option value="high">High</option>
@@ -416,27 +427,27 @@ export const MaintenancePage: React.FC = () => {
               </div>
 
               <div>
-                <label className="mb-1 block font-mono text-slate-400">Description & Tasks</label>
+                <label className="mb-1 block font-mono text-slate-300">Description & Tasks</label>
                 <textarea
                   rows={3}
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   placeholder="Task scope, replacement parts, and safety lockout requirements..."
-                  className="w-full rounded-lg border border-slate-800 bg-slate-950 px-3 py-2 text-white focus:border-cyan-500 focus:outline-none"
+                  className="glass-input w-full"
                 />
               </div>
 
-              <div className="flex justify-end gap-2 pt-2">
+              <div className="flex justify-end gap-2.5 pt-4 border-t border-white/10">
                 <button
                   type="button"
                   onClick={() => setShowCreateModal(false)}
-                  className="rounded-lg bg-slate-800 px-4 py-2 text-slate-300 hover:bg-slate-700"
+                  className="glass-btn px-4 py-2 text-slate-300"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="rounded-lg bg-cyan-600 px-4 py-2 font-semibold text-white hover:bg-cyan-500"
+                  className="glass-btn-primary px-4 py-2 font-semibold text-white"
                 >
                   Submit Order
                 </button>
@@ -446,18 +457,26 @@ export const MaintenancePage: React.FC = () => {
         </div>
       )}
 
-      {/* Verify Modal */}
+      {/* Verify Modal (Apple Frosted Glass Sheet) */}
       {showVerifyModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 p-4 backdrop-blur-sm">
-          <div className="w-full max-w-md space-y-4 rounded-xl border border-slate-800 bg-slate-900 p-6 shadow-2xl">
-            <h3 className="text-base font-bold text-white">Technician / Supervisor Verification</h3>
-            <form onSubmit={handleVerifySubmit} className="space-y-3 text-xs">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 p-4 backdrop-blur-md">
+          <div className="glass-panel w-full max-w-md space-y-4 p-6 shadow-2xl border-white/15 animate-in fade-in zoom-in-95 duration-200">
+            <div className="flex items-center justify-between">
+              <h3 className="text-base font-bold text-white">Technician / Supervisor Verification</h3>
+              <button
+                onClick={() => setShowVerifyModal(false)}
+                className="text-slate-400 hover:text-white"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+            <form onSubmit={handleVerifySubmit} className="space-y-3.5 text-xs">
               <div>
-                <label className="mb-1 block font-mono text-slate-400">Verification Status</label>
+                <label className="mb-1 block font-mono text-slate-300">Verification Status</label>
                 <select
                   value={verificationStatus}
                   onChange={(e: any) => setVerificationStatus(e.target.value)}
-                  className="w-full rounded-lg border border-slate-800 bg-slate-950 px-3 py-2 text-white focus:border-cyan-500 focus:outline-none"
+                  className="glass-input w-full"
                 >
                   <option value="verified">Verified (Task completed and inspected)</option>
                   <option value="rejected">Rejected (Rework required)</option>
@@ -465,28 +484,28 @@ export const MaintenancePage: React.FC = () => {
               </div>
 
               <div>
-                <label className="mb-1 block font-mono text-slate-400">Verification Note</label>
+                <label className="mb-1 block font-mono text-slate-300">Verification Note</label>
                 <textarea
                   required
                   rows={3}
                   value={verificationNote}
                   onChange={(e) => setVerificationNote(e.target.value)}
                   placeholder="e.g. Clearance measured at 0.045mm within manufacturer specification. Unit run-tested for 30 minutes nominal."
-                  className="w-full rounded-lg border border-slate-800 bg-slate-950 px-3 py-2 text-white focus:border-cyan-500 focus:outline-none"
+                  className="glass-input w-full"
                 />
               </div>
 
-              <div className="flex justify-end gap-2 pt-2">
+              <div className="flex justify-end gap-2.5 pt-4 border-t border-white/10">
                 <button
                   type="button"
                   onClick={() => setShowVerifyModal(false)}
-                  className="rounded-lg bg-slate-800 px-4 py-2 text-slate-300 hover:bg-slate-700"
+                  className="glass-btn px-4 py-2 text-slate-300"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="rounded-lg bg-emerald-600 px-4 py-2 font-semibold text-white hover:bg-emerald-500"
+                  className="glass-btn-emerald px-4 py-2 font-semibold text-white"
                 >
                   Confirm Verification
                 </button>

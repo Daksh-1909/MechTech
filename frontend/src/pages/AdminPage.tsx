@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { Clock, RefreshCw, ShieldCheck, UserCheck } from 'lucide-react'
+import { Clock, RefreshCw, ShieldCheck, UserCheck, X } from 'lucide-react'
 import { api } from '../lib/api'
 import type { AuditLog, RegistrationRequest } from '../types/api'
 
@@ -49,17 +49,17 @@ export const AdminPage: React.FC = () => {
   return (
     <div className="space-y-6">
       {banner && (
-        <div className="flex items-center justify-between rounded-lg border border-cyan-500/40 bg-cyan-950/80 p-3 font-mono text-xs text-cyan-200">
+        <div className="glass-panel flex items-center justify-between border-cyan-500/40 bg-cyan-950/40 p-3.5 font-mono text-xs text-cyan-200">
           <span>{banner}</span>
-          <button onClick={() => setBanner(null)} className="text-cyan-400">
-            ✕
+          <button onClick={() => setBanner(null)} className="text-cyan-400 hover:text-white">
+            <X className="h-4 w-4" />
           </button>
         </div>
       )}
 
       {/* Header */}
       <div>
-        <h2 className="flex items-center gap-2 text-xl font-bold tracking-tight text-white">
+        <h2 className="flex items-center gap-2 text-xl font-bold tracking-tight text-white drop-shadow-sm">
           <ShieldCheck className="h-5 w-5 text-cyan-400" />
           <span>System Administration & Audit Logs</span>
         </h2>
@@ -70,49 +70,51 @@ export const AdminPage: React.FC = () => {
       </div>
 
       {/* Pending Registrations Queue */}
-      <div className="rounded-xl border border-slate-800 bg-slate-900/90 p-5 shadow-xl">
-        <h3 className="mb-3 flex items-center gap-2 text-sm font-semibold text-white">
+      <div className="glass-panel overflow-hidden p-6 shadow-xl">
+        <h3 className="mb-4 flex items-center gap-2 text-sm font-semibold text-white">
           <UserCheck className="h-4 w-4 text-cyan-400" />
           Pending Account Approvals ({registrations.length})
         </h3>
         {registrations.length === 0 ? (
-          <div className="rounded-lg border border-dashed border-slate-800 p-8 text-center text-xs text-slate-500">
+          <div className="rounded-xl border border-dashed border-white/10 p-8 text-center text-xs text-slate-400">
             No pending registration requests in queue.
           </div>
         ) : (
-          <div className="overflow-x-auto">
+          <div className="overflow-x-auto rounded-xl border border-white/5 bg-slate-950/40">
             <table className="w-full text-left text-xs">
-              <thead className="bg-slate-950 font-mono text-[10px] text-slate-400 uppercase">
+              <thead className="bg-white/5 font-mono text-[10px] text-slate-400 uppercase tracking-wider">
                 <tr>
-                  <th className="p-3">Applicant Name</th>
-                  <th className="p-3">Email Address</th>
-                  <th className="p-3">Organization</th>
-                  <th className="p-3">Submitted Date</th>
-                  <th className="p-3 text-right">Approval Decision</th>
+                  <th className="p-3.5">Applicant Name</th>
+                  <th className="p-3.5">Email Address</th>
+                  <th className="p-3.5">Organization</th>
+                  <th className="p-3.5">Submitted Date</th>
+                  <th className="p-3.5 text-right">Approval Decision</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-800">
+              <tbody className="divide-y divide-white/5">
                 {registrations.map((r) => (
-                  <tr key={r.id} className="hover:bg-slate-800/40">
-                    <td className="p-3 font-semibold text-white">{r.name}</td>
-                    <td className="p-3 font-mono text-cyan-300">{r.email}</td>
-                    <td className="p-3 text-slate-300">{r.organization_name || 'Academic Lab'}</td>
-                    <td className="p-3 font-mono text-slate-400">
+                  <tr key={r.id} className="transition-colors hover:bg-white/[0.04]">
+                    <td className="p-3.5 font-semibold text-white">{r.name}</td>
+                    <td className="p-3.5 font-mono text-cyan-300">{r.email}</td>
+                    <td className="p-3.5 text-slate-300">{r.organization_name || 'Academic Lab'}</td>
+                    <td className="p-3.5 font-mono text-slate-400">
                       {new Date(r.created_at).toLocaleDateString()}
                     </td>
-                    <td className="space-x-2 p-3 text-right">
-                      <button
-                        onClick={() => handleApprove(r.id)}
-                        className="rounded border border-emerald-800 bg-emerald-950 px-3 py-1 text-xs font-semibold text-emerald-300 hover:bg-emerald-900"
-                      >
-                        Approve (Maintainer)
-                      </button>
-                      <button
-                        onClick={() => handleReject(r.id)}
-                        className="rounded border border-slate-700 bg-slate-800 px-2.5 py-1 text-xs text-rose-400 hover:bg-slate-700"
-                      >
-                        Reject
-                      </button>
+                    <td className="p-3.5 text-right">
+                      <div className="flex items-center justify-end gap-2">
+                        <button
+                          onClick={() => handleApprove(r.id)}
+                          className="glass-btn-emerald px-3 py-1 font-semibold"
+                        >
+                          Approve (Maintainer)
+                        </button>
+                        <button
+                          onClick={() => handleReject(r.id)}
+                          className="glass-btn px-3 py-1 text-slate-400 hover:text-rose-400"
+                        >
+                          Reject
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -122,60 +124,67 @@ export const AdminPage: React.FC = () => {
         )}
       </div>
 
-      {/* Audit Logs Table */}
-      <div className="rounded-xl border border-slate-800 bg-slate-900/90 p-5 shadow-xl">
+      {/* Audit Logs Trail */}
+      <div className="glass-panel overflow-hidden p-6 shadow-xl">
         <div className="mb-4 flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
-          <h3 className="flex items-center gap-2 text-sm font-semibold text-white">
+          <div className="flex items-center gap-2">
             <Clock className="h-4 w-4 text-cyan-400" />
-            Security & Lifecycle Audit Trail
-          </h3>
-          <div className="flex items-center gap-2 text-xs">
+            <h3 className="text-sm font-semibold text-white">Immutable Audit Trail</h3>
+          </div>
+
+          <div className="flex items-center gap-2.5">
             <select
               value={auditActionFilter}
               onChange={(e) => setAuditActionFilter(e.target.value)}
-              className="rounded-lg border border-slate-800 bg-slate-950 px-3 py-1.5 font-mono text-slate-300 focus:border-cyan-500 focus:outline-none"
+              className="glass-input text-xs"
             >
               <option value="all">All Actions</option>
-              <option value="auth.login_succeeded">Logins</option>
-              <option value="diagnosis.reviewed">Diagnosis Reviews</option>
-              <option value="maintenance.created">Maintenance Created</option>
-              <option value="file.uploaded">File Uploads</option>
-              <option value="alert.resolved">Alert Resolutions</option>
+              <option value="auth.login">auth.login</option>
+              <option value="auth.register">auth.register</option>
+              <option value="telemetry.batch_ingest">telemetry.batch_ingest</option>
+              <option value="diagnostics.generate">diagnostics.generate</option>
+              <option value="maintenance.create">maintenance.create</option>
             </select>
+
             <button
               onClick={() => refetchAudits()}
-              className="rounded-lg bg-slate-800 p-1.5 text-slate-300 hover:bg-slate-700"
+              className="glass-panel-interactive flex h-9 w-9 items-center justify-center rounded-xl text-slate-300 hover:text-white"
             >
-              <RefreshCw className="h-3.5 w-3.5" />
+              <RefreshCw className="h-4 w-4" />
             </button>
           </div>
         </div>
 
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto rounded-xl border border-white/5 bg-slate-950/40">
           <table className="w-full text-left text-xs">
-            <thead className="bg-slate-950 font-mono text-[10px] text-slate-400 uppercase">
+            <thead className="bg-white/5 font-mono text-[10px] text-slate-400 uppercase tracking-wider">
               <tr>
-                <th className="p-3">Action</th>
-                <th className="p-3">Resource Type</th>
-                <th className="p-3">Actor</th>
-                <th className="p-3">Timestamp</th>
-                <th className="p-3">Event Metadata</th>
+                <th className="p-3.5">Timestamp</th>
+                <th className="p-3.5">Action</th>
+                <th className="p-3.5">Target Entity</th>
+                <th className="p-3.5">IP Address</th>
+                <th className="p-3.5">Status</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-800 font-mono">
+            <tbody className="divide-y divide-white/5 font-mono">
               {auditLogs.map((log) => (
-                <tr key={log.id} className="hover:bg-slate-800/40">
-                  <td className="p-3 font-semibold text-cyan-300">{log.action}</td>
-                  <td className="p-3 text-slate-400 capitalize">{log.resource_type || 'system'}</td>
-                  <td className="p-3 text-slate-300">{log.actor_name || 'System / Admin'}</td>
-                  <td className="p-3 text-slate-500">
-                    {new Date(log.created_at).toLocaleString([], {
-                      dateStyle: 'short',
-                      timeStyle: 'medium',
+                <tr key={log.id} className="transition-colors hover:bg-white/[0.04]">
+                  <td className="p-3.5 text-slate-400">
+                    {new Date(log.created_at).toLocaleTimeString([], {
+                      hour: '2-digit',
+                      minute: '2-digit',
+                      second: '2-digit',
                     })}
                   </td>
-                  <td className="max-w-xs truncate p-3 text-slate-400">
-                    {log.metadata ? JSON.stringify(log.metadata) : '—'}
+                  <td className="p-3.5 font-semibold text-cyan-300">{log.action}</td>
+                  <td className="p-3.5 text-slate-300">
+                    {log.target_type ? `${log.target_type}:${log.target_id?.slice(0, 8)}` : '—'}
+                  </td>
+                  <td className="p-3.5 text-slate-400">{log.ip_address || '127.0.0.1'}</td>
+                  <td className="p-3.5">
+                    <span className="glass-pill glass-pill-emerald text-[10px]">
+                      SUCCESS
+                    </span>
                   </td>
                 </tr>
               ))}

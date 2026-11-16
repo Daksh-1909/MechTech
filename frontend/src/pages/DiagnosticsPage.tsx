@@ -1,6 +1,16 @@
 import React, { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { AlertTriangle, CheckCircle2, Cpu, UserCheck, Wrench } from 'lucide-react'
+import {
+  AlertTriangle,
+  CheckCircle2,
+  Cpu,
+  UserCheck,
+  Wrench,
+  X,
+  Layers,
+  Sparkles,
+  GitBranch,
+} from 'lucide-react'
 import { api } from '../lib/api'
 import type { Diagnosis, Equipment } from '../types/api'
 
@@ -75,10 +85,10 @@ export const DiagnosticsPage: React.FC = () => {
   return (
     <div className="space-y-6">
       {banner && (
-        <div className="flex items-center justify-between rounded-lg border border-cyan-500/40 bg-cyan-950/80 p-3 font-mono text-xs text-cyan-200">
+        <div className="glass-panel flex items-center justify-between border-cyan-500/40 bg-cyan-950/40 p-3.5 font-mono text-xs text-cyan-200">
           <span>{banner}</span>
-          <button onClick={() => setBanner(null)} className="text-cyan-400">
-            ✕
+          <button onClick={() => setBanner(null)} className="text-cyan-400 hover:text-white">
+            <X className="h-4 w-4" />
           </button>
         </div>
       )}
@@ -86,9 +96,9 @@ export const DiagnosticsPage: React.FC = () => {
       {/* Header & Generate Button */}
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
         <div>
-          <h2 className="flex items-center gap-2 text-xl font-bold tracking-tight text-white">
+          <h2 className="flex items-center gap-2.5 text-xl font-bold tracking-tight text-white drop-shadow-sm">
             <span>Hybrid Fault Diagnostics</span>
-            <span className="rounded border border-blue-800 bg-blue-950 px-2 py-0.5 font-mono text-xs text-blue-300">
+            <span className="glass-pill glass-pill-cyan font-mono text-xs font-semibold">
               Rules + ML + Knowledge Graph
             </span>
           </h2>
@@ -101,7 +111,7 @@ export const DiagnosticsPage: React.FC = () => {
         <button
           disabled={isGenerating || !targetEquipment}
           onClick={handleGenerateDiagnosis}
-          className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-blue-600 to-cyan-600 px-4 py-2 text-xs font-bold text-white shadow-lg shadow-blue-600/20 transition-all hover:from-blue-500 hover:to-cyan-500 disabled:opacity-50"
+          className="glass-btn-primary flex items-center gap-2 px-4 py-2.5 text-xs font-bold text-white disabled:opacity-50"
         >
           <Cpu className={`h-4 w-4 ${isGenerating ? 'animate-spin' : ''}`} />
           {isGenerating ? 'Analyzing Telemetry Window...' : 'Run Hybrid Diagnosis'}
@@ -109,49 +119,50 @@ export const DiagnosticsPage: React.FC = () => {
       </div>
 
       {/* Mandatory Advisory Notice */}
-      <div className="flex items-start gap-3 rounded-xl border border-amber-800/40 bg-amber-950/40 p-4 font-mono text-xs text-amber-200/90">
+      <div className="glass-panel relative overflow-hidden flex items-start gap-3.5 border-amber-500/30 bg-amber-950/20 p-4 font-mono text-xs text-amber-200/95">
+        <div className="absolute top-0 right-0 h-24 w-24 rounded-full bg-amber-500/10 blur-xl pointer-events-none" />
         <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-amber-400" />
         <div>
           <span className="block font-bold tracking-wider text-amber-300 uppercase">
-            Advisory Diagnostic Output:
+            Advisory Diagnostic Notice (ISO 13374 / Condition Monitoring):
           </span>
-          Predictions are derived from simulated feature windows and rule thresholds. Results are
-          advisory and must be verified by a qualified technician prior to executing mechanical
-          overhaul.
+          Predictions are derived from simulated feature windows and heuristic rule thresholds.
+          Results are purely advisory and must be verified by a qualified technician prior to
+          executing physical mechanical overhaul or machine shutdown.
         </div>
       </div>
 
       {/* Main Grid: Diagnosis Selector & Detailed Multi-Layer Evidence Explorer */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         {/* Left Column: Historical Diagnoses List */}
-        <div className="rounded-xl border border-slate-800 bg-slate-900/90 p-4 shadow-xl">
-          <h3 className="mb-3 font-mono text-xs tracking-wider text-slate-400 uppercase">
+        <div className="glass-panel p-5 shadow-xl">
+          <h3 className="mb-3.5 font-mono text-xs tracking-wider text-slate-400 uppercase">
             Diagnosis Records ({diagnoses.length})
           </h3>
-          <div className="max-h-[600px] space-y-2 overflow-y-auto pr-1">
+          <div className="max-h-[620px] space-y-2.5 overflow-y-auto pr-1">
             {diagnoses.map((d) => {
               const isSelected = activeDiagnosis?.id === d.id
               return (
                 <div
                   key={d.id}
                   onClick={() => setSelectedDiagId(d.id)}
-                  className={`cursor-pointer rounded-lg border p-3.5 text-left transition-all ${
+                  className={`glass-panel-interactive cursor-pointer rounded-xl p-3.5 text-left transition-all ${
                     isSelected
-                      ? 'border-blue-500/60 bg-blue-950/40 shadow-md'
-                      : 'border-slate-800 bg-slate-950/50 hover:bg-slate-800/40'
+                      ? 'border-cyan-400/50 bg-cyan-500/10 shadow-lg shadow-cyan-500/10'
+                      : 'border-white/5 bg-slate-950/40'
                   }`}
                 >
-                  <div className="mb-1.5 flex items-center justify-between">
+                  <div className="mb-2 flex items-center justify-between">
                     <span
-                      className={`rounded-full px-2 py-0.5 font-mono text-[10px] font-semibold uppercase ${
+                      className={`glass-pill text-[10px] uppercase font-mono ${
                         d.status === 'normal'
-                          ? 'border border-emerald-800 bg-emerald-950 text-emerald-400'
-                          : 'border border-rose-800 bg-rose-950 text-rose-400'
+                          ? 'glass-pill-emerald'
+                          : 'glass-pill-critical'
                       }`}
                     >
                       {d.status.replace('_', ' ')}
                     </span>
-                    <span className="font-mono text-[11px] text-cyan-300">
+                    <span className="glass-pill glass-pill-cyan font-mono text-[11px]">
                       {Math.round(d.confidence_score * 100)}%
                     </span>
                   </div>
@@ -160,7 +171,7 @@ export const DiagnosticsPage: React.FC = () => {
                     {d.primary_fault_name || 'Nominal Condition'}
                   </div>
 
-                  <div className="mt-2 flex items-center justify-between font-mono text-[11px] text-slate-400">
+                  <div className="mt-2.5 flex items-center justify-between font-mono text-[11px] text-slate-400">
                     <span>
                       {new Date(d.generated_at).toLocaleTimeString([], {
                         hour: '2-digit',
@@ -178,16 +189,16 @@ export const DiagnosticsPage: React.FC = () => {
         {/* Right 2 Columns: Multi-Layer Evidence Explorer */}
         <div className="space-y-5 lg:col-span-2">
           {activeDiagnosis ? (
-            <div className="space-y-5 rounded-xl border border-slate-800 bg-slate-900/90 p-5 shadow-xl">
+            <div className="glass-panel space-y-5 p-6 shadow-2xl">
               {/* Top Summary & Review Trigger */}
-              <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-4">
+              <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 pb-4">
                 <div>
                   <div className="flex items-center gap-2">
                     <span
-                      className={`rounded-full px-2.5 py-0.5 font-mono text-xs font-bold uppercase ${
+                      className={`glass-pill text-xs font-mono font-bold uppercase ${
                         activeDiagnosis.status === 'normal'
-                          ? 'border border-emerald-800 bg-emerald-950 text-emerald-400'
-                          : 'border border-rose-800 bg-rose-950 text-rose-400'
+                          ? 'glass-pill-emerald'
+                          : 'glass-pill-critical'
                       }`}
                     >
                       {activeDiagnosis.status.replace('_', ' ')}
@@ -196,10 +207,10 @@ export const DiagnosticsPage: React.FC = () => {
                       Policy v{activeDiagnosis.diagnostic_policy_version}
                     </span>
                   </div>
-                  <h3 className="mt-1.5 text-lg font-bold text-white">
+                  <h3 className="mt-2 text-lg font-bold text-white">
                     {activeDiagnosis.primary_fault_name || 'Normal Operating State'}
                   </h3>
-                  <p className="mt-0.5 max-w-xl text-xs text-slate-300">
+                  <p className="mt-1 max-w-xl text-xs text-slate-300">
                     {activeDiagnosis.summary}
                   </p>
                 </div>
@@ -209,14 +220,14 @@ export const DiagnosticsPage: React.FC = () => {
                   {activeDiagnosis.review_status === 'pending' ? (
                     <button
                       onClick={() => setReviewModal(activeDiagnosis)}
-                      className="flex items-center gap-1.5 rounded-lg bg-blue-600 px-3.5 py-1.5 text-xs font-semibold text-white shadow-md hover:bg-blue-500"
+                      className="glass-btn-primary flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold text-white"
                     >
                       <UserCheck className="h-3.5 w-3.5" />
                       Record Human Review
                     </button>
                   ) : (
                     <div className="text-right">
-                      <span className="inline-block rounded border border-emerald-800 bg-emerald-950 px-2 py-0.5 font-mono text-xs font-semibold text-emerald-300">
+                      <span className="glass-pill glass-pill-emerald font-mono text-xs font-semibold">
                         {activeDiagnosis.review_status.replace('_', ' ')}
                       </span>
                       {activeDiagnosis.review_note && (
@@ -230,36 +241,36 @@ export const DiagnosticsPage: React.FC = () => {
               </div>
 
               {/* Layer 1: Rule Evidence */}
-              <div className="space-y-2 rounded-lg border border-slate-800 bg-slate-950/70 p-4">
+              <div className="glass-panel-interactive space-y-2 rounded-xl p-4 border-white/5 bg-slate-950/40">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <span className="h-2 w-2 rounded-full bg-blue-400" />
+                    <span className="h-2 w-2 rounded-full bg-blue-400 animate-pulse" />
                     <h4 className="text-xs font-bold tracking-wider text-slate-200 uppercase">
                       Layer 1: Rule Violations & Symptoms
                     </h4>
                   </div>
-                  <span className="font-mono text-[11px] text-slate-400">Weight: 1.0</span>
+                  <span className="glass-pill font-mono text-[11px] text-slate-400">Weight: 1.0</span>
                 </div>
                 {ruleEvidence ? (
-                  <div className="space-y-1.5 pt-1 font-mono text-xs">
+                  <div className="space-y-2 pt-1 font-mono text-xs">
                     <div className="text-slate-300">
                       Violations Count:{' '}
                       <span className="font-bold text-white">
                         {ruleEvidence.details_json.violations?.length || 0}
                       </span>
                     </div>
-                    <div className="flex flex-wrap gap-1.5">
+                    <div className="flex flex-wrap gap-2">
                       {ruleEvidence.details_json.symptoms?.map((sym: string) => (
                         <span
                           key={sym}
-                          className="rounded border border-rose-800 bg-rose-950/80 px-2 py-0.5 text-[10px] text-rose-300"
+                          className="glass-pill glass-pill-critical text-[10px]"
                         >
                           {sym}
                         </span>
                       ))}
                       {(!ruleEvidence.details_json.symptoms ||
                         ruleEvidence.details_json.symptoms.length === 0) && (
-                        <span className="text-xs text-emerald-400">
+                        <span className="glass-pill glass-pill-emerald text-xs">
                           All threshold rules evaluated nominal (no symptoms).
                         </span>
                       )}
@@ -271,15 +282,15 @@ export const DiagnosticsPage: React.FC = () => {
               </div>
 
               {/* Layer 2: ML Model Prediction */}
-              <div className="space-y-2 rounded-lg border border-slate-800 bg-slate-950/70 p-4">
+              <div className="glass-panel-interactive space-y-2 rounded-xl p-4 border-white/5 bg-slate-950/40">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <span className="h-2 w-2 rounded-full bg-cyan-400" />
+                    <span className="h-2 w-2 rounded-full bg-cyan-400 animate-pulse" />
                     <h4 className="text-xs font-bold tracking-wider text-slate-200 uppercase">
                       Layer 2: Scikit-learn Classifier Prediction
                     </h4>
                   </div>
-                  <span className="font-mono text-[11px] text-cyan-300">
+                  <span className="glass-pill glass-pill-cyan font-mono text-[11px]">
                     Model: {mlEvidence?.details_json?.model_version || '1.0.0'}
                   </span>
                 </div>
@@ -308,7 +319,7 @@ export const DiagnosticsPage: React.FC = () => {
                     {/* Probabilities distribution */}
                     {mlEvidence.details_json.probabilities && (
                       <div className="space-y-1.5 pt-1">
-                        <span className="block font-mono text-[10px] text-slate-400 uppercase">
+                        <span className="block font-mono text-[10px] text-slate-400 uppercase tracking-wider">
                           Class Probabilities Distribution:
                         </span>
                         <div className="grid grid-cols-2 gap-2 font-mono text-xs">
@@ -316,7 +327,7 @@ export const DiagnosticsPage: React.FC = () => {
                             ([cls, prob]: [string, any]) => (
                               <div
                                 key={cls}
-                                className="flex items-center justify-between rounded border border-slate-800 bg-slate-900 p-2"
+                                className="glass-panel flex items-center justify-between p-2.5 rounded-lg border-white/5 bg-slate-950/50"
                               >
                                 <span className="text-slate-300 capitalize">
                                   {cls.replace('_', ' ')}
@@ -337,29 +348,31 @@ export const DiagnosticsPage: React.FC = () => {
               </div>
 
               {/* Layer 3: Knowledge Graph Reasoning */}
-              <div className="space-y-2 rounded-lg border border-slate-800 bg-slate-950/70 p-4">
+              <div className="glass-panel-interactive space-y-2 rounded-xl p-4 border-white/5 bg-slate-950/40">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <span className="h-2 w-2 rounded-full bg-purple-400" />
+                    <span className="h-2 w-2 rounded-full bg-purple-400 animate-pulse" />
                     <h4 className="text-xs font-bold tracking-wider text-slate-200 uppercase">
                       Layer 3: NetworkX Knowledge Graph Traversal & Remediation
                     </h4>
                   </div>
-                  <span className="font-mono text-[11px] text-purple-300">Ontology Engine</span>
+                  <span className="glass-pill font-mono text-[11px] text-purple-300">
+                    Ontology Engine
+                  </span>
                 </div>
                 {graphEvidence ? (
                   <div className="space-y-3 pt-1 text-xs">
                     {/* Affected Components */}
                     {graphEvidence.details_json.affected_components?.length > 0 && (
                       <div>
-                        <span className="mb-1 block font-mono text-[10px] text-slate-400 uppercase">
+                        <span className="mb-1.5 block font-mono text-[10px] text-slate-400 uppercase tracking-wider">
                           Impaired Component (AFFECTS):
                         </span>
-                        <div className="flex flex-wrap gap-1.5">
+                        <div className="flex flex-wrap gap-2">
                           {graphEvidence.details_json.affected_components.map((c: any) => (
                             <span
                               key={c.key}
-                              className="rounded border border-slate-700 bg-slate-900 px-2 py-1 font-mono text-slate-200"
+                              className="glass-pill glass-pill-cyan font-mono text-xs"
                             >
                               {c.label}
                             </span>
@@ -371,16 +384,16 @@ export const DiagnosticsPage: React.FC = () => {
                     {/* Diagnostic Procedures */}
                     {graphEvidence.details_json.diagnostic_procedures?.length > 0 && (
                       <div>
-                        <span className="mb-1 block font-mono text-[10px] text-slate-400 uppercase">
+                        <span className="mb-1.5 block font-mono text-[10px] text-slate-400 uppercase tracking-wider">
                           Recommended Physical Inspection (CHECK_WITH):
                         </span>
-                        <div className="space-y-1">
+                        <div className="space-y-1.5">
                           {graphEvidence.details_json.diagnostic_procedures.map((p: any) => (
                             <div
                               key={p.key}
-                              className="flex items-center gap-2 rounded border border-blue-900/40 bg-slate-900/90 p-2 text-blue-200"
+                              className="glass-panel flex items-center gap-2.5 p-2.5 text-blue-200 border-blue-500/20 bg-blue-950/20"
                             >
-                              <Wrench className="h-3.5 w-3.5 shrink-0 text-blue-400" />
+                              <Wrench className="h-3.5 w-3.5 shrink-0 text-cyan-400" />
                               <span>{p.label}</span>
                             </div>
                           ))}
@@ -391,14 +404,14 @@ export const DiagnosticsPage: React.FC = () => {
                     {/* Repair Actions */}
                     {graphEvidence.details_json.repair_actions?.length > 0 && (
                       <div>
-                        <span className="mb-1 block font-mono text-[10px] text-slate-400 uppercase">
+                        <span className="mb-1.5 block font-mono text-[10px] text-slate-400 uppercase tracking-wider">
                           Remediation Plan (MAY_BE_RESOLVED_BY):
                         </span>
-                        <div className="space-y-1">
+                        <div className="space-y-1.5">
                           {graphEvidence.details_json.repair_actions.map((r: any) => (
                             <div
                               key={r.key}
-                              className="flex items-center gap-2 rounded border border-emerald-900/40 bg-slate-900/90 p-2 text-emerald-200"
+                              className="glass-panel flex items-center gap-2.5 p-2.5 text-emerald-200 border-emerald-500/20 bg-emerald-950/20"
                             >
                               <CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-emerald-400" />
                               <span>{r.label}</span>
@@ -416,18 +429,26 @@ export const DiagnosticsPage: React.FC = () => {
               </div>
             </div>
           ) : (
-            <div className="rounded-xl border border-slate-800 bg-slate-900 p-12 text-center text-sm text-slate-400">
+            <div className="glass-panel p-16 text-center text-sm text-slate-400">
               Select or generate a diagnosis to view the multi-layer explainable evidence.
             </div>
           )}
         </div>
       </div>
 
-      {/* Human Review Modal */}
+      {/* Human Review Modal (Apple Frosted Glass Sheet) */}
       {reviewModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 p-4 backdrop-blur-sm">
-          <div className="w-full max-w-md space-y-4 rounded-xl border border-slate-800 bg-slate-900 p-6 shadow-2xl">
-            <h3 className="text-base font-bold text-white">Record Human Review & Decision</h3>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 p-4 backdrop-blur-md">
+          <div className="glass-panel w-full max-w-md space-y-4 p-6 shadow-2xl border-white/15 animate-in fade-in zoom-in-95 duration-200">
+            <div className="flex items-center justify-between">
+              <h3 className="text-base font-bold text-white">Record Human Review & Decision</h3>
+              <button
+                onClick={() => setReviewModal(null)}
+                className="text-slate-400 hover:text-white"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
             <p className="text-xs text-slate-400">
               Review advisory fault prediction for{' '}
               <span className="font-semibold text-white">
@@ -435,13 +456,13 @@ export const DiagnosticsPage: React.FC = () => {
               </span>
               .
             </p>
-            <form onSubmit={handleReviewSubmit} className="space-y-3 text-xs">
+            <form onSubmit={handleReviewSubmit} className="space-y-3.5 text-xs">
               <div>
-                <label className="mb-1 block font-mono text-slate-400">Review Decision</label>
+                <label className="mb-1 block font-mono text-slate-300">Review Decision</label>
                 <select
                   value={reviewDecision}
                   onChange={(e: any) => setReviewDecision(e.target.value)}
-                  className="w-full rounded-lg border border-slate-800 bg-slate-950 px-3 py-2 text-white focus:border-cyan-500 focus:outline-none"
+                  className="glass-input w-full"
                 >
                   <option value="confirmed_by_reviewer">
                     Confirm Diagnosis (Physical inspection verified)
@@ -451,7 +472,7 @@ export const DiagnosticsPage: React.FC = () => {
               </div>
 
               <div>
-                <label className="mb-1 block font-mono text-slate-400">
+                <label className="mb-1 block font-mono text-slate-300">
                   Inspection Notes & Findings
                 </label>
                 <textarea
@@ -460,21 +481,21 @@ export const DiagnosticsPage: React.FC = () => {
                   value={reviewNote}
                   onChange={(e) => setReviewNote(e.target.value)}
                   placeholder="e.g. Visual grease inspection confirmed flaking in drive-end bearing race."
-                  className="w-full rounded-lg border border-slate-800 bg-slate-950 px-3 py-2 text-white focus:border-cyan-500 focus:outline-none"
+                  className="glass-input w-full"
                 />
               </div>
 
-              <div className="flex justify-end gap-2 pt-2">
+              <div className="flex justify-end gap-2.5 pt-4 border-t border-white/10">
                 <button
                   type="button"
                   onClick={() => setReviewModal(null)}
-                  className="rounded-lg bg-slate-800 px-4 py-2 text-slate-300 hover:bg-slate-700"
+                  className="glass-btn px-4 py-2 text-slate-300"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="rounded-lg bg-blue-600 px-4 py-2 font-semibold text-white hover:bg-blue-500"
+                  className="glass-btn-primary px-4 py-2 font-semibold text-white"
                 >
                   Save Review Decision
                 </button>

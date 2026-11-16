@@ -10,7 +10,7 @@ import {
   ResponsiveContainer,
   Legend,
 } from 'recharts'
-import { Plus, Radio, Sparkles } from 'lucide-react'
+import { Plus, Radio, Sparkles, X, Activity } from 'lucide-react'
 import { api } from '../lib/api'
 import type { Equipment, MonitoringRule } from '../types/api'
 
@@ -117,10 +117,10 @@ export const MonitoringPage: React.FC = () => {
   return (
     <div className="space-y-6">
       {banner && (
-        <div className="flex items-center justify-between rounded-lg border border-cyan-500/40 bg-cyan-950/80 p-3 font-mono text-xs text-cyan-200">
+        <div className="glass-panel flex items-center justify-between border-cyan-500/40 bg-cyan-950/40 p-3.5 font-mono text-xs text-cyan-200">
           <span>{banner}</span>
-          <button onClick={() => setBanner(null)} className="text-cyan-400">
-            ✕
+          <button onClick={() => setBanner(null)} className="text-cyan-400 hover:text-white">
+            <X className="h-4 w-4" />
           </button>
         </div>
       )}
@@ -128,7 +128,7 @@ export const MonitoringPage: React.FC = () => {
       {/* Header */}
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
         <div>
-          <h2 className="text-xl font-bold tracking-tight text-white">
+          <h2 className="text-xl font-bold tracking-tight text-white drop-shadow-sm">
             Live Telemetry & Evaluation Rules
           </h2>
           <p className="mt-1 text-xs text-slate-400">
@@ -139,7 +139,7 @@ export const MonitoringPage: React.FC = () => {
 
         <button
           onClick={() => setShowRuleModal(true)}
-          className="flex items-center gap-1.5 rounded-lg bg-cyan-600 px-3 py-1.5 text-xs font-semibold text-white shadow-lg shadow-cyan-600/20 hover:bg-cyan-500"
+          className="glass-btn-primary flex items-center gap-1.5 px-4 py-2 text-xs font-semibold"
         >
           <Plus className="h-4 w-4" />
           Create Rule
@@ -147,23 +147,24 @@ export const MonitoringPage: React.FC = () => {
       </div>
 
       {/* Telemetry Chart */}
-      <div className="rounded-xl border border-slate-800 bg-slate-900/90 p-5 shadow-xl">
-        <div className="mb-4 flex items-center justify-between">
+      <div className="glass-panel relative overflow-hidden p-6 shadow-2xl">
+        <div className="absolute -top-10 -right-10 h-36 w-36 rounded-full bg-cyan-500/10 blur-3xl pointer-events-none" />
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
           <div className="flex items-center gap-2">
             <Radio className="h-4 w-4 animate-pulse text-cyan-400" />
             <h3 className="text-sm font-semibold text-white">
               Dual-Channel Sensor Plot (Temperature & Vibration RMS)
             </h3>
           </div>
-          <span className="font-mono text-[11px] text-slate-400">
+          <span className="glass-pill glass-pill-cyan font-mono text-[11px]">
             Asset: {targetMotor?.asset_tag || 'MTR-001'}
           </span>
         </div>
 
-        <div className="h-72 w-full">
+        <div className="h-72 w-full pt-2">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={chartData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
+              <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" />
               <XAxis dataKey="time" stroke="#64748b" tick={{ fontSize: 11 }} />
               <YAxis yAxisId="left" stroke="#38bdf8" tick={{ fontSize: 11 }} unit="°C" />
               <YAxis
@@ -175,10 +176,12 @@ export const MonitoringPage: React.FC = () => {
               />
               <Tooltip
                 contentStyle={{
-                  backgroundColor: '#0f172a',
-                  borderColor: '#334155',
+                  backgroundColor: 'rgba(15, 23, 42, 0.85)',
+                  backdropFilter: 'blur(16px)',
+                  borderColor: 'rgba(255, 255, 255, 0.15)',
                   fontSize: '12px',
-                  borderRadius: '8px',
+                  borderRadius: '12px',
+                  boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4)',
                 }}
               />
               <Legend wrapperStyle={{ fontSize: '12px', paddingTop: '10px' }} />
@@ -188,7 +191,7 @@ export const MonitoringPage: React.FC = () => {
                 dataKey="temperature"
                 name="Stator Temp (°C)"
                 stroke="#38bdf8"
-                strokeWidth={2}
+                strokeWidth={2.5}
                 dot={false}
               />
               <Line
@@ -197,7 +200,7 @@ export const MonitoringPage: React.FC = () => {
                 dataKey="vibration"
                 name="Drive-End Vibration (mm/s)"
                 stroke="#f43f5e"
-                strokeWidth={2}
+                strokeWidth={2.5}
                 dot={false}
               />
             </LineChart>
@@ -206,7 +209,7 @@ export const MonitoringPage: React.FC = () => {
       </div>
 
       {/* Scenario Ingestion Simulator Panel */}
-      <div className="rounded-xl border border-slate-800 bg-slate-900/90 p-5 shadow-xl">
+      <div className="glass-panel p-6 shadow-xl">
         <div className="mb-2 flex items-center gap-2">
           <Sparkles className="h-4 w-4 text-amber-400" />
           <h3 className="text-sm font-semibold text-white">
@@ -218,19 +221,19 @@ export const MonitoringPage: React.FC = () => {
           evaluation rules and alert lifecycles in real-time.
         </p>
 
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-4">
+        <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-4">
           <button
             disabled={isSimulating}
             onClick={() => handleRunSimulation('normal')}
-            className={`rounded-lg border p-3 text-left transition-all ${
+            className={`glass-panel-interactive rounded-xl p-3.5 text-left transition-all ${
               activeScenario === 'normal'
-                ? 'border-emerald-500/60 bg-emerald-950/60 text-emerald-200'
-                : 'border-slate-700/60 bg-slate-800/60 text-slate-300 hover:bg-slate-800'
+                ? 'border-emerald-400/50 bg-emerald-500/10 shadow-lg shadow-emerald-500/10'
+                : 'border-white/5 bg-slate-950/40 text-slate-300'
             }`}
           >
             <div className="flex items-center justify-between text-xs font-semibold">
-              <span>Nominal Operating</span>
-              <span className="h-2 w-2 rounded-full bg-emerald-400" />
+              <span className="text-white">Nominal Operating</span>
+              <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
             </div>
             <div className="mt-1 text-[11px] text-slate-400">52°C Temp, 0.14 mm/s Vibration</div>
           </button>
@@ -238,15 +241,15 @@ export const MonitoringPage: React.FC = () => {
           <button
             disabled={isSimulating}
             onClick={() => handleRunSimulation('overheating')}
-            className={`rounded-lg border p-3 text-left transition-all ${
+            className={`glass-panel-interactive rounded-xl p-3.5 text-left transition-all ${
               activeScenario === 'overheating'
-                ? 'border-amber-500/60 bg-amber-950/60 text-amber-200'
-                : 'border-slate-700/60 bg-slate-800/60 text-slate-300 hover:bg-slate-800'
+                ? 'border-amber-400/50 bg-amber-500/10 shadow-lg shadow-amber-500/10'
+                : 'border-white/5 bg-slate-950/40 text-slate-300'
             }`}
           >
             <div className="flex items-center justify-between text-xs font-semibold">
-              <span>Thermal Overload</span>
-              <span className="h-2 w-2 rounded-full bg-amber-400" />
+              <span className="text-white">Thermal Overload</span>
+              <span className="h-2 w-2 rounded-full bg-amber-400 animate-pulse" />
             </div>
             <div className="mt-1 text-[11px] text-slate-400">95°C+ Temp, Rules breach</div>
           </button>
@@ -254,15 +257,15 @@ export const MonitoringPage: React.FC = () => {
           <button
             disabled={isSimulating}
             onClick={() => handleRunSimulation('bearing_wear')}
-            className={`rounded-lg border p-3 text-left transition-all ${
+            className={`glass-panel-interactive rounded-xl p-3.5 text-left transition-all ${
               activeScenario === 'bearing_wear'
-                ? 'border-rose-500/60 bg-rose-950/60 text-rose-200'
-                : 'border-slate-700/60 bg-slate-800/60 text-slate-300 hover:bg-slate-800'
+                ? 'border-rose-400/50 bg-rose-500/10 shadow-lg shadow-rose-500/10'
+                : 'border-white/5 bg-slate-950/40 text-slate-300'
             }`}
           >
             <div className="flex items-center justify-between text-xs font-semibold">
-              <span>Bearing Flaking</span>
-              <span className="h-2 w-2 rounded-full bg-rose-400" />
+              <span className="text-white">Bearing Flaking</span>
+              <span className="h-2 w-2 rounded-full bg-rose-400 animate-pulse" />
             </div>
             <div className="mt-1 text-[11px] text-slate-400">1.85 mm/s Peak, BPFO pulses</div>
           </button>
@@ -270,15 +273,15 @@ export const MonitoringPage: React.FC = () => {
           <button
             disabled={isSimulating}
             onClick={() => handleRunSimulation('combined')}
-            className={`rounded-lg border p-3 text-left transition-all ${
+            className={`glass-panel-interactive rounded-xl p-3.5 text-left transition-all ${
               activeScenario === 'combined'
-                ? 'border-purple-500/60 bg-purple-950/60 text-purple-200'
-                : 'border-slate-700/60 bg-slate-800/60 text-slate-300 hover:bg-slate-800'
+                ? 'border-purple-400/50 bg-purple-500/10 shadow-lg shadow-purple-500/10'
+                : 'border-white/5 bg-slate-950/40 text-slate-300'
             }`}
           >
             <div className="flex items-center justify-between text-xs font-semibold">
-              <span>Combined Failure</span>
-              <span className="h-2 w-2 rounded-full bg-purple-400" />
+              <span className="text-white">Combined Failure</span>
+              <span className="h-2 w-2 rounded-full bg-purple-400 animate-pulse" />
             </div>
             <div className="mt-1 text-[11px] text-slate-400">Concurrent heat & vibration</div>
           </button>
@@ -286,43 +289,43 @@ export const MonitoringPage: React.FC = () => {
       </div>
 
       {/* Rules Table */}
-      <div className="rounded-xl border border-slate-800 bg-slate-900/90 p-5 shadow-xl">
-        <h3 className="mb-3 text-sm font-semibold text-white">
+      <div className="glass-panel overflow-hidden p-6 shadow-xl">
+        <h3 className="mb-4 text-sm font-semibold text-white">
           Active Monitoring Rules ({rules.length})
         </h3>
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto rounded-xl border border-white/5 bg-slate-950/40">
           <table className="w-full text-left text-xs">
-            <thead className="bg-slate-950 font-mono text-[10px] text-slate-400 uppercase">
+            <thead className="bg-white/5 font-mono text-[10px] text-slate-400 uppercase tracking-wider">
               <tr>
-                <th className="p-3">Rule Name</th>
-                <th className="p-3">Measurement</th>
-                <th className="p-3">Condition</th>
-                <th className="p-3">Severity</th>
-                <th className="p-3">State</th>
+                <th className="p-3.5">Rule Name</th>
+                <th className="p-3.5">Measurement</th>
+                <th className="p-3.5">Condition</th>
+                <th className="p-3.5">Severity</th>
+                <th className="p-3.5">State</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-800">
+            <tbody className="divide-y divide-white/5">
               {rules.map((r) => (
-                <tr key={r.id} className="hover:bg-slate-800/40">
-                  <td className="p-3 font-semibold text-white">{r.name}</td>
-                  <td className="p-3 font-mono text-cyan-300 capitalize">{r.measurement_type}</td>
-                  <td className="p-3 font-mono text-slate-200">
+                <tr key={r.id} className="transition-colors hover:bg-white/[0.04]">
+                  <td className="p-3.5 font-semibold text-white">{r.name}</td>
+                  <td className="p-3.5 font-mono text-cyan-300 capitalize">{r.measurement_type}</td>
+                  <td className="p-3.5 font-mono text-slate-200">
                     {r.operator.toUpperCase()} {r.threshold} {r.unit}
                   </td>
-                  <td className="p-3">
+                  <td className="p-3.5">
                     <span
-                      className={`rounded-full px-2 py-0.5 font-mono text-[10px] font-semibold uppercase ${
+                      className={`glass-pill text-[10px] uppercase font-mono ${
                         r.severity === 'critical'
-                          ? 'border border-rose-800 bg-rose-950 text-rose-400'
-                          : 'border border-amber-800 bg-amber-950 text-amber-400'
+                          ? 'glass-pill-critical'
+                          : 'glass-pill-warning'
                       }`}
                     >
                       {r.severity}
                     </span>
                   </td>
-                  <td className="p-3">
-                    <span className="flex items-center gap-1 font-mono text-[11px] text-emerald-400">
-                      <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" /> Active
+                  <td className="p-3.5">
+                    <span className="glass-pill glass-pill-emerald text-[10px]">
+                      <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" /> Active
                     </span>
                   </td>
                 </tr>
@@ -332,31 +335,39 @@ export const MonitoringPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Create Rule Modal */}
+      {/* Create Rule Modal (Apple Frosted Glass Sheet) */}
       {showRuleModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 p-4 backdrop-blur-sm">
-          <div className="w-full max-w-md space-y-4 rounded-xl border border-slate-800 bg-slate-900 p-6 shadow-2xl">
-            <h3 className="text-base font-bold text-white">Add Monitoring Threshold Rule</h3>
-            <form onSubmit={handleCreateRule} className="space-y-3 text-xs">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 p-4 backdrop-blur-md transition-all">
+          <div className="glass-panel w-full max-w-md space-y-4 p-6 shadow-2xl border-white/15 animate-in fade-in zoom-in-95 duration-200">
+            <div className="flex items-center justify-between">
+              <h3 className="text-base font-bold text-white">Add Monitoring Threshold Rule</h3>
+              <button
+                onClick={() => setShowRuleModal(false)}
+                className="text-slate-400 hover:text-white"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+            <form onSubmit={handleCreateRule} className="space-y-3.5 text-xs">
               <div>
-                <label className="mb-1 block font-mono text-slate-400">Rule Name</label>
+                <label className="mb-1 block font-mono text-slate-300">Rule Name</label>
                 <input
                   type="text"
                   required
                   value={ruleName}
                   onChange={(e) => setRuleName(e.target.value)}
                   placeholder="e.g. Bearing High Temperature Warning"
-                  className="w-full rounded-lg border border-slate-800 bg-slate-950 px-3 py-2 text-white focus:border-cyan-500 focus:outline-none"
+                  className="glass-input w-full"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="mb-1 block font-mono text-slate-400">Measurement</label>
+                  <label className="mb-1 block font-mono text-slate-300">Measurement</label>
                   <select
                     value={measurementType}
                     onChange={(e) => setMeasurementType(e.target.value)}
-                    className="w-full rounded-lg border border-slate-800 bg-slate-950 px-3 py-2 text-white focus:border-cyan-500 focus:outline-none"
+                    className="glass-input w-full"
                   >
                     <option value="temperature">Temperature (°C)</option>
                     <option value="vibration">Vibration (mm/s)</option>
@@ -364,11 +375,11 @@ export const MonitoringPage: React.FC = () => {
                   </select>
                 </div>
                 <div>
-                  <label className="mb-1 block font-mono text-slate-400">Operator</label>
+                  <label className="mb-1 block font-mono text-slate-300">Operator</label>
                   <select
                     value={operator}
                     onChange={(e) => setOperator(e.target.value)}
-                    className="w-full rounded-lg border border-slate-800 bg-slate-950 px-3 py-2 text-white focus:border-cyan-500 focus:outline-none"
+                    className="glass-input w-full"
                   >
                     <option value="gt">Greater Than (&gt;)</option>
                     <option value="gte">Greater or Equal (&ge;)</option>
@@ -379,22 +390,22 @@ export const MonitoringPage: React.FC = () => {
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="mb-1 block font-mono text-slate-400">Threshold</label>
+                  <label className="mb-1 block font-mono text-slate-300">Threshold</label>
                   <input
                     type="number"
                     step="any"
                     required
                     value={threshold}
                     onChange={(e) => setThreshold(e.target.value)}
-                    className="w-full rounded-lg border border-slate-800 bg-slate-950 px-3 py-2 text-white focus:border-cyan-500 focus:outline-none"
+                    className="glass-input w-full"
                   />
                 </div>
                 <div>
-                  <label className="mb-1 block font-mono text-slate-400">Severity</label>
+                  <label className="mb-1 block font-mono text-slate-300">Severity</label>
                   <select
                     value={severity}
                     onChange={(e) => setSeverity(e.target.value)}
-                    className="w-full rounded-lg border border-slate-800 bg-slate-950 px-3 py-2 text-white focus:border-cyan-500 focus:outline-none"
+                    className="glass-input w-full"
                   >
                     <option value="critical">Critical</option>
                     <option value="high">High</option>
@@ -404,17 +415,17 @@ export const MonitoringPage: React.FC = () => {
                 </div>
               </div>
 
-              <div className="flex justify-end gap-2 pt-3">
+              <div className="flex justify-end gap-2.5 pt-4 border-t border-white/10">
                 <button
                   type="button"
                   onClick={() => setShowRuleModal(false)}
-                  className="rounded-lg bg-slate-800 px-4 py-2 text-slate-300 hover:bg-slate-700"
+                  className="glass-btn px-4 py-2 text-slate-300"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="rounded-lg bg-cyan-600 px-4 py-2 font-semibold text-white hover:bg-cyan-500"
+                  className="glass-btn-primary px-4 py-2 font-semibold text-white"
                 >
                   Create Rule
                 </button>

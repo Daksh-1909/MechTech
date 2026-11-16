@@ -369,8 +369,8 @@ export const MotorScene: React.FC<MotorSceneProps> = ({
           {isRunning ? 'MOTOR ROTATING (1450 RPM)' : 'MOTOR STOPPED'}
         </div>
         {activeHover && componentStatuses[activeHover] && (
-          <div className="animate-in fade-in rounded-lg border border-cyan-500/40 bg-slate-900/90 px-3 py-2 text-xs shadow-xl backdrop-blur-md duration-150">
-            <div className="font-semibold text-slate-100">
+          <div className="glass-panel animate-in fade-in rounded-xl border-cyan-400/40 p-3 text-xs shadow-2xl backdrop-blur-xl duration-150">
+            <div className="font-semibold text-white drop-shadow-sm">
               {componentStatuses[activeHover].name}
             </div>
             {componentStatuses[activeHover].metricLabel && (
@@ -383,13 +383,13 @@ export const MotorScene: React.FC<MotorSceneProps> = ({
               <span
                 className={`h-1.5 w-1.5 rounded-full ${
                   componentStatuses[activeHover].status === 'critical'
-                    ? 'bg-rose-500'
+                    ? 'bg-rose-400 animate-pulse'
                     : componentStatuses[activeHover].status === 'warning'
-                      ? 'bg-amber-400'
-                      : 'bg-emerald-400'
+                      ? 'bg-amber-400 animate-pulse'
+                      : 'bg-emerald-400 animate-pulse'
                 }`}
               />
-              <span className="font-mono text-[10px] tracking-wider text-slate-400 uppercase">
+              <span className="font-mono text-[10px] tracking-wider text-slate-300 uppercase">
                 Status: {componentStatuses[activeHover].status}
               </span>
             </div>
@@ -397,7 +397,7 @@ export const MotorScene: React.FC<MotorSceneProps> = ({
         )}
       </div>
 
-      <div className="pointer-events-none absolute right-4 bottom-3 z-10 rounded border border-slate-800 bg-slate-900/70 px-2.5 py-1 font-mono text-[11px] text-slate-400 backdrop-blur-sm">
+      <div className="pointer-events-none absolute right-4 bottom-3 z-10 glass-pill font-mono text-[11px] text-slate-300 backdrop-blur-md">
         Drag to Orbit • Scroll to Zoom • Click parts to inspect
       </div>
 
