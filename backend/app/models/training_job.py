@@ -1,12 +1,13 @@
 from datetime import datetime
 from typing import Any
+import uuid
 
 from sqlalchemy import JSON, ForeignKey, Index, String, Text
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.core.time import utcnow
 from app.db.base import Base
-from app.db.types import UTCDateTime
+from app.db.types import GUID, UTCDateTime
 from app.models.enums import TrainingJobStatus
 
 
@@ -14,8 +15,9 @@ class MLTrainingJob(Base):
     __tablename__ = "ml_training_jobs"
     __table_args__ = (Index("ix_ml_training_jobs_status_created_at", "status", "created_at"),)
 
-    id: Mapped[str] = mapped_column(String(36), primary_key=True)
-    submitted_by_user_id: Mapped[int | None] = mapped_column(
+    id: Mapped[uuid.UUID] = mapped_column(GUID, primary_key=True, default=uuid.uuid4)
+    submitted_by_user_id: Mapped[uuid.UUID | None] = mapped_column(
+        GUID,
         ForeignKey("users.id", ondelete="SET NULL"),
         nullable=True,
     )
@@ -29,8 +31,9 @@ class MLTrainingJob(Base):
     )
     parameters_json: Mapped[dict[str, Any]] = mapped_column(JSON, nullable=False)
     result_json: Mapped[dict[str, Any] | None] = mapped_column(JSON, nullable=True)
-    model_registry_id: Mapped[int | None] = mapped_column(
-        ForeignKey("model_registry.id", ondelete="SET NULL"),
+    model_registry_id: Mapped[uuid.UUID | None] = mapped_column(
+        GUID,
+        ForeignKey("ml_models.id", ondelete="SET NULL"),
         nullable=True,
     )
     error_message: Mapped[str | None] = mapped_column(Text, nullable=True)

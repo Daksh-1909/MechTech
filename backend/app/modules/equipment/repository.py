@@ -220,7 +220,6 @@ def create_component(
         manufacturer=manufacturer,
         model_number=model_number,
         serial_number=serial_number,
-        description=description,
         status="operational",
     )
     db.add(comp)

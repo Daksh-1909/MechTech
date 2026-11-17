@@ -7,9 +7,6 @@ import {
   UserCheck,
   Wrench,
   X,
-  Layers,
-  Sparkles,
-  GitBranch,
 } from 'lucide-react'
 import { api } from '../lib/api'
 import type { Diagnosis, Equipment } from '../types/api'

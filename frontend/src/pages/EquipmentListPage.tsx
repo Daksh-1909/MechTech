@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
-import { ArrowRight, CheckCircle2, Cpu, Filter, Layers, Plus, Search, ShieldAlert } from 'lucide-react'
+import { ArrowRight, Search } from 'lucide-react'
 import { api } from '../lib/api'
 import type { Equipment } from '../types/api'
 
@@ -14,7 +14,8 @@ export const EquipmentListPage: React.FC = () => {
     queryFn: () => api.get<Equipment[]>('/equipment'),
   })
 
-  const filtered = equipment.filter((eq) => {
+  const equipmentList = Array.isArray(equipment) ? equipment : []
+  const filtered = equipmentList.filter((eq) => {
     const matchesSearch =
       eq.name.toLowerCase().includes(search.toLowerCase()) ||
       eq.asset_tag.toLowerCase().includes(search.toLowerCase()) ||

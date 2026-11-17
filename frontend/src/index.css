@@ -4,6 +4,9 @@
 @import '@fontsource/inter/latin-700.css';
 @import '@fontsource/jetbrains-mono/latin-400.css';
 @import '@fontsource/jetbrains-mono/latin-500.css';
+@import './styles/tokens.css';
+@import './styles/themes.css';
+@import './styles/glass.css';
 @import 'tailwindcss';
 @import 'tw-animate-css';
 
@@ -12,38 +15,35 @@
 :root {
   --radius: 0.875rem;
 
-  --background: #060b14;
-  --foreground: #f1f5f9;
-  --card: rgba(15, 23, 42, 0.45);
-  --card-foreground: #f8fafc;
-  --popover: rgba(15, 23, 42, 0.85);
-  --popover-foreground: #f8fafc;
-  --primary: #38bdf8;
-  --primary-foreground: #021422;
-  --secondary: rgba(30, 41, 59, 0.5);
-  --secondary-foreground: #f1f5f9;
-  --muted: rgba(15, 23, 42, 0.4);
-  --muted-foreground: #94a3b8;
-  --accent: rgba(56, 189, 248, 0.15);
-  --accent-foreground: #38bdf8;
-  --destructive: #f43f5e;
+  --background: var(--bg-canvas);
+  --foreground: var(--text-primary);
+  --card: var(--glass-bg-standard);
+  --card-foreground: var(--text-primary);
+  --popover: var(--glass-bg-floating);
+  --popover-foreground: var(--text-primary);
+  --primary: var(--accent);
+  --primary-foreground: var(--accent-foreground);
+  --secondary: var(--bg-raised);
+  --secondary-foreground: var(--text-secondary);
+  --muted: var(--glass-bg-subtle);
+  --muted-foreground: var(--text-muted);
+  --accent: var(--accent);
+  --accent-foreground: var(--accent-foreground);
+  --destructive: var(--status-critical);
   --destructive-foreground: #ffffff;
-  --border: rgba(255, 255, 255, 0.1);
-  --input: rgba(255, 255, 255, 0.08);
-  --ring: #38bdf8;
-
-  --status-ok: #34d399;
-  --status-warning: #fbbf24;
-  --status-critical: #f43f5e;
-  --status-info: #38bdf8;
-}
-
-.dark {
-  --background: #040812;
-  --foreground: #f1f5f9;
+  --border: var(--glass-border);
+  --input: var(--glass-border);
+  --ring: var(--focus-ring);
 }
 
 @theme inline {
+  --color-canvas: var(--bg-canvas);
+  --color-surface: var(--bg-surface);
+  --color-raised: var(--bg-raised);
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-muted: var(--text-muted);
+
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);

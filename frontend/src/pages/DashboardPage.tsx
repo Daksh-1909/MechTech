@@ -8,8 +8,6 @@ import {
   CheckCircle2,
   Cpu,
   Layers,
-  Play,
-  RotateCcw,
   Sparkles,
   Wrench,
   Radio,

@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
-import { ArrowLeft, Cpu, Radio, Settings, Wrench, Activity, ShieldCheck } from 'lucide-react'
+import { ArrowLeft, Cpu, Radio, Settings, Wrench, Activity } from 'lucide-react'
 import { api } from '../lib/api'
 import type { Equipment, Sensor } from '../types/api'
 import MotorScene from '../components/motor3d/MotorScene'

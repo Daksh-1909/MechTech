@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { RefreshCw, X, AlertTriangle, CheckCircle2, ShieldAlert } from 'lucide-react'
+import { RefreshCw, X, CheckCircle2 } from 'lucide-react'
 import { api } from '../lib/api'
 import type { Alert } from '../types/api'
 

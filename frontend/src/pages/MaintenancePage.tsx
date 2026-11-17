@@ -9,8 +9,6 @@ import {
   ShieldCheck,
   Upload,
   X,
-  Wrench,
-  Clock,
 } from 'lucide-react'
 import { api } from '../lib/api'
 import type { Equipment, MaintenanceRecord } from '../types/api'

@@ -178,9 +178,9 @@ export const AdminPage: React.FC = () => {
                   </td>
                   <td className="p-3.5 font-semibold text-cyan-300">{log.action}</td>
                   <td className="p-3.5 text-slate-300">
-                    {log.target_type ? `${log.target_type}:${log.target_id?.slice(0, 8)}` : '—'}
+                    {log.resource_type ? `${log.resource_type}:${log.resource_id?.slice(0, 8)}` : '—'}
                   </td>
-                  <td className="p-3.5 text-slate-400">{log.ip_address || '127.0.0.1'}</td>
+                  <td className="p-3.5 text-slate-400">{log.metadata?.ip_address || '127.0.0.1'}</td>
                   <td className="p-3.5">
                     <span className="glass-pill glass-pill-emerald text-[10px]">
                       SUCCESS

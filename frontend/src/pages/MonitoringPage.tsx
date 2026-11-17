@@ -10,7 +10,7 @@ import {
   ResponsiveContainer,
   Legend,
 } from 'recharts'
-import { Plus, Radio, Sparkles, X, Activity } from 'lucide-react'
+import { Plus, Radio, Sparkles, X } from 'lucide-react'
 import { api } from '../lib/api'
 import type { Equipment, MonitoringRule } from '../types/api'
 

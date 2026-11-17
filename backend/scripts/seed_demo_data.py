@@ -1,7 +1,12 @@
 """Seed demonstration organization, roles, permissions, demo users, electric motor equipment, components, and sensors."""
 
 import argparse
+from pathlib import Path
 import sys
+
+_BACKEND = Path(__file__).resolve().parents[1]
+if str(_BACKEND) not in sys.path:
+    sys.path.insert(0, str(_BACKEND))
 
 from app.db.session import SessionLocal
 from app.models import Organization, UserStatus

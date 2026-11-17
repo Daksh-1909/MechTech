@@ -12,7 +12,6 @@ import {
   Wrench,
   X,
   Radio,
-  Sparkles,
 } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 
@@ -32,7 +31,7 @@ export const AppLayout: React.FC = () => {
   ]
 
   const userRoleDisplay =
-    user?.roles?.[0] || (user?.is_superuser ? 'Platform Admin' : 'Viewer')
+    user?.roles?.[0] || (isPlatformAdmin ? 'Platform Admin' : 'Viewer')
 
   return (
     <div className="relative min-h-screen flex flex-col bg-[#050914] text-slate-100 font-sans antialiased selection:bg-cyan-500 selection:text-slate-950 overflow-x-hidden">
@@ -134,7 +133,7 @@ export const AppLayout: React.FC = () => {
             <div className="p-3 border-t border-white/[0.08] bg-white/[0.02]">
               <div className="flex items-center justify-between p-2 rounded-xl bg-white/[0.03] border border-white/[0.06]">
                 <div className="truncate pr-2">
-                  <div className="text-xs font-semibold text-slate-200 truncate">{user?.name}</div>
+                  <div className="text-xs font-semibold text-slate-200 truncate">{user?.display_name || 'Technician'}</div>
                   <div className="text-[10px] text-slate-400 truncate flex items-center gap-1.5 mt-0.5 font-mono">
                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
                     <span className="capitalize">{userRoleDisplay.replace('_', ' ')}</span>

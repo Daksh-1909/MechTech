@@ -1,0 +1,163 @@
+/**
+ * MechTech Liquid Glass Design System — Core Design Tokens
+ * Defines semantic color palettes, typography, radii, elevations, and transitions.
+ */
+
+:root {
+  /* Typography */
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Display', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', 'SF Mono', ui-monospace, monospace;
+
+  /* Corner Radii */
+  --radius-xs: 0.375rem; /* 6px */
+  --radius-sm: 0.5rem;   /* 8px */
+  --radius-md: 0.75rem;  /* 12px */
+  --radius-lg: 1rem;     /* 16px */
+  --radius-xl: 1.25rem;  /* 20px */
+  --radius-2xl: 1.5rem;  /* 24px */
+  --radius-full: 9999px;
+
+  /* Spring Transitions */
+  --ease-spring: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --duration-fast: 150ms;
+  --duration-normal: 250ms;
+  --duration-slow: 400ms;
+
+  /* Blur Levels */
+  --blur-subtle: 8px;
+  --blur-standard: 16px;
+  --blur-floating: 24px;
+  --blur-modal: 28px;
+}
+
+/* -------------------------------------------------------------------------
+   Light Theme Tokens
+   ------------------------------------------------------------------------- */
+:root[data-theme='light'],
+.light {
+  color-scheme: light;
+
+  /* Core Canvas & Surfaces */
+  --bg-canvas: #F3F6FA;
+  --bg-surface: #FFFFFF;
+  --bg-raised: #E5EBF3;
+  --bg-inset: #EAEEF5;
+
+  /* Text & Content */
+  --text-primary: #182333;
+  --text-secondary: #64748B;
+  --text-muted: #8E9BAE;
+  --text-inverse: #FFFFFF;
+
+  /* Brand & Accent */
+  --accent: #286CC4;
+  --accent-hover: #1E559E;
+  --accent-subtle: rgba(40, 108, 196, 0.1);
+  --accent-glow: rgba(40, 108, 196, 0.25);
+  --accent-foreground: #FFFFFF;
+
+  /* Semantic Status */
+  --status-ok: #16A34A;
+  --status-ok-bg: rgba(22, 163, 74, 0.1);
+  --status-ok-border: rgba(22, 163, 74, 0.25);
+
+  --status-warning: #D97706;
+  --status-warning-bg: rgba(217, 119, 6, 0.1);
+  --status-warning-border: rgba(217, 119, 6, 0.25);
+
+  --status-critical: #DC2626;
+  --status-critical-bg: rgba(220, 38, 38, 0.1);
+  --status-critical-border: rgba(220, 38, 38, 0.25);
+
+  --status-info: #0284C7;
+  --status-info-bg: rgba(2, 132, 199, 0.1);
+  --status-info-border: rgba(2, 132, 199, 0.25);
+
+  /* Glass Surface Tokens (Light Theme) */
+  --glass-bg-subtle: rgba(255, 255, 255, 0.55);
+  --glass-bg-standard: rgba(255, 255, 255, 0.68);
+  --glass-bg-floating: rgba(255, 255, 255, 0.82);
+  --glass-bg-modal: rgba(255, 255, 255, 0.90);
+
+  --glass-border: rgba(0, 0, 0, 0.08);
+  --glass-border-interactive: rgba(40, 108, 196, 0.35);
+  --glass-highlight: inset 0 1px 1.5px 0 rgba(255, 255, 255, 0.95);
+  --glass-highlight-subtle: inset 0 1px 1px 0 rgba(255, 255, 255, 0.8);
+
+  --glass-shadow-sm: 0 2px 8px -2px rgba(15, 23, 42, 0.06), 0 1px 3px -1px rgba(15, 23, 42, 0.04);
+  --glass-shadow-md: 0 8px 24px -4px rgba(15, 23, 42, 0.08), 0 2px 6px -1px rgba(15, 23, 42, 0.04);
+  --glass-shadow-lg: 0 16px 36px -8px rgba(15, 23, 42, 0.12), 0 4px 12px -2px rgba(15, 23, 42, 0.06);
+  --glass-shadow-xl: 0 24px 48px -12px rgba(15, 23, 42, 0.16), 0 8px 20px -4px rgba(15, 23, 42, 0.08);
+
+  --glass-fallback-bg: #FFFFFF;
+  --glass-fallback-border: #D1D5DB;
+
+  --focus-ring: rgba(40, 108, 196, 0.35);
+}
+
+/* -------------------------------------------------------------------------
+   Dark Theme Tokens (Default)
+   ------------------------------------------------------------------------- */
+:root,
+:root[data-theme='dark'],
+.dark {
+  color-scheme: dark;
+
+  /* Core Canvas & Surfaces */
+  --bg-canvas: #080D16;
+  --bg-surface: #151E2C;
+  --bg-raised: #253348;
+  --bg-inset: #0F1622;
+
+  /* Text & Content */
+  --text-primary: #F2F6FC;
+  --text-secondary: #A0AEC0;
+  --text-muted: #64748B;
+  --text-inverse: #080D16;
+
+  /* Brand & Accent */
+  --accent: #83B9FF;
+  --accent-hover: #ADCFFF;
+  --accent-subtle: rgba(131, 185, 255, 0.12);
+  --accent-glow: rgba(131, 185, 255, 0.28);
+  --accent-foreground: #080D16;
+
+  /* Semantic Status */
+  --status-ok: #34D399;
+  --status-ok-bg: rgba(52, 211, 153, 0.12);
+  --status-ok-border: rgba(52, 211, 153, 0.3);
+
+  --status-warning: #FBBF24;
+  --status-warning-bg: rgba(251, 191, 36, 0.12);
+  --status-warning-border: rgba(251, 191, 36, 0.3);
+
+  --status-critical: #F87171;
+  --status-critical-bg: rgba(248, 113, 113, 0.14);
+  --status-critical-border: rgba(248, 113, 113, 0.35);
+
+  --status-info: #38BDF8;
+  --status-info-bg: rgba(56, 189, 248, 0.12);
+  --status-info-border: rgba(56, 189, 248, 0.3);
+
+  /* Glass Surface Tokens (Dark Theme) */
+  --glass-bg-subtle: rgba(21, 30, 44, 0.45);
+  --glass-bg-standard: rgba(21, 30, 44, 0.58);
+  --glass-bg-floating: rgba(21, 30, 44, 0.75);
+  --glass-bg-modal: rgba(21, 30, 44, 0.88);
+
+  --glass-border: rgba(255, 255, 255, 0.12);
+  --glass-border-interactive: rgba(131, 185, 255, 0.4);
+  --glass-highlight: inset 0 1px 1px 0 rgba(255, 255, 255, 0.18);
+  --glass-highlight-subtle: inset 0 1px 1px 0 rgba(255, 255, 255, 0.1);
+
+  --glass-shadow-sm: 0 4px 16px -2px rgba(0, 0, 0, 0.4), inset 0 1px 1px 0 rgba(255, 255, 255, 0.1);
+  --glass-shadow-md: 0 12px 36px -8px rgba(0, 0, 0, 0.55), inset 0 1px 1px 0 rgba(255, 255, 255, 0.18);
+  --glass-shadow-lg: 0 20px 48px -10px rgba(0, 0, 0, 0.65), inset 0 1px 1.5px 0 rgba(255, 255, 255, 0.22);
+  --glass-shadow-xl: 0 28px 64px -12px rgba(0, 0, 0, 0.75), inset 0 1px 2px 0 rgba(255, 255, 255, 0.25);
+
+  --glass-fallback-bg: #151E2C;
+  --glass-fallback-border: #2D3A4F;
+
+  --focus-ring: rgba(131, 185, 255, 0.4);
+}

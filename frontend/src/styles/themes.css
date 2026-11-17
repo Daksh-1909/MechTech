@@ -1,0 +1,56 @@
+/**
+ * MechTech Liquid Glass Design System — Theme Architecture
+ * Handles theme transitions, document attributes, and accessibility overrides.
+ */
+
+/* Smooth color transitions during theme toggle */
+html.theme-transitioning,
+html.theme-transitioning *,
+html.theme-transitioning *::before,
+html.theme-transitioning *::after {
+  transition: 
+    background-color 250ms var(--ease-spring),
+    border-color 250ms var(--ease-spring),
+    color 200ms var(--ease-spring),
+    box-shadow 250ms var(--ease-spring) !important;
+}
+
+/* Accessibility: Reduced Transparency Support */
+@media (prefers-reduced-transparency: reduce) {
+  :root,
+  :root[data-theme='light'],
+  .light,
+  :root[data-theme='dark'],
+  .dark {
+    --glass-bg-subtle: var(--bg-surface);
+    --glass-bg-standard: var(--bg-surface);
+    --glass-bg-floating: var(--bg-raised);
+    --glass-bg-modal: var(--bg-surface);
+    --blur-subtle: 0px;
+    --blur-standard: 0px;
+    --blur-floating: 0px;
+    --blur-modal: 0px;
+  }
+
+  .liquid-glow-orb-cyan,
+  .liquid-glow-orb-indigo,
+  .liquid-glow-orb-emerald {
+    display: none !important;
+  }
+}
+
+/* Accessibility: Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+  html,
+  html * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  .liquid-glow-orb-cyan,
+  .liquid-glow-orb-indigo,
+  .liquid-glow-orb-emerald {
+    animation: none !important;
+  }
+}

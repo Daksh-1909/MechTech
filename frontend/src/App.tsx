@@ -2,6 +2,7 @@ import React, { Suspense, lazy } from 'react'
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { AuthProvider, useAuth } from './context/AuthContext'
+import { ThemeProvider } from './providers/ThemeProvider'
 import AppLayout from './components/layout/AppLayout'
 import LandingPage from './pages/LandingPage'
 
@@ -16,6 +17,7 @@ const MaintenancePage = lazy(() => import('./pages/MaintenancePage'))
 const AdminPage = lazy(() => import('./pages/AdminPage'))
 const LoginPage = lazy(() => import('./pages/LoginPage'))
 const RegisterPage = lazy(() => import('./pages/RegisterPage'))
+const DesignPlaygroundPage = lazy(() => import('./pages/DesignPlaygroundPage'))
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -59,39 +61,42 @@ const PageFallback = () => (
 export function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <BrowserRouter>
-          <Suspense fallback={<PageFallback />}>
-            <Routes>
-              {/* Public pages */}
-              <Route path="/" element={<LandingPage />} />
-              <Route path="/login" element={<LoginPage />} />
-              <Route path="/register" element={<RegisterPage />} />
+      <ThemeProvider>
+        <AuthProvider>
+          <BrowserRouter>
+            <Suspense fallback={<PageFallback />}>
+              <Routes>
+                {/* Public pages */}
+                <Route path="/" element={<LandingPage />} />
+                <Route path="/login" element={<LoginPage />} />
+                <Route path="/register" element={<RegisterPage />} />
+                <Route path="/design-system" element={<DesignPlaygroundPage />} />
 
-              {/* The website is public; the operational workspace requires a session. */}
-              <Route
-                element={
-                  <ProtectedRoute>
-                    <AppLayout />
-                  </ProtectedRoute>
-                }
-              >
-                <Route path="/dashboard" element={<DashboardPage />} />
-                <Route path="/equipment" element={<EquipmentListPage />} />
-                <Route path="/equipment/:id" element={<EquipmentDetailPage />} />
-                <Route path="/monitoring" element={<MonitoringPage />} />
-                <Route path="/alerts" element={<AlertsPage />} />
-                <Route path="/diagnostics" element={<DiagnosticsPage />} />
-                <Route path="/maintenance" element={<MaintenancePage />} />
-                <Route path="/admin" element={<AdminPage />} />
-              </Route>
+                {/* The website is public; the operational workspace requires a session. */}
+                <Route
+                  element={
+                    <ProtectedRoute>
+                      <AppLayout />
+                    </ProtectedRoute>
+                  }
+                >
+                  <Route path="/dashboard" element={<DashboardPage />} />
+                  <Route path="/equipment" element={<EquipmentListPage />} />
+                  <Route path="/equipment/:id" element={<EquipmentDetailPage />} />
+                  <Route path="/monitoring" element={<MonitoringPage />} />
+                  <Route path="/alerts" element={<AlertsPage />} />
+                  <Route path="/diagnostics" element={<DiagnosticsPage />} />
+                  <Route path="/maintenance" element={<MaintenancePage />} />
+                  <Route path="/admin" element={<AdminPage />} />
+                </Route>
 
-              {/* Catch-all redirect */}
-              <Route path="*" element={<Navigate to="/" replace />} />
-            </Routes>
-          </Suspense>
-        </BrowserRouter>
-      </AuthProvider>
+                {/* Catch-all redirect */}
+                <Route path="*" element={<Navigate to="/" replace />} />
+              </Routes>
+            </Suspense>
+          </BrowserRouter>
+        </AuthProvider>
+      </ThemeProvider>
     </QueryClientProvider>
   )
 }
