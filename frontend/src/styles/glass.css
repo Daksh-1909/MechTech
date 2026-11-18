@@ -25,6 +25,64 @@
 .glass-input:focus { border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-subtle); }
 .magnetic-control { transition:transform 300ms var(--ease-spring); will-change:transform; }
 .liquid-glow-orb-cyan,.liquid-glow-orb-indigo,.liquid-glow-orb-emerald { display:none; }
+
+/* =========================================================================
+   UI Hub GPU Hardware-Accelerated Vector Flow (Compositor Thread, 0ms JS lag)
+   ========================================================================= */
+@keyframes uiHubFlow {
+  0% {
+    stroke-dashoffset: 1600;
+  }
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes uiHubDrift1 {
+  0%, 100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(14px, -10px, 0) scale(1.015);
+  }
+}
+
+@keyframes uiHubDrift2 {
+  0%, 100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(-14px, 10px, 0) scale(0.985);
+  }
+}
+
+.ui-hub-path-flow {
+  stroke-dasharray: 800 600;
+  will-change: stroke-dashoffset;
+  animation-name: uiHubFlow;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
+.ui-hub-group-1 {
+  transform-origin: center;
+  will-change: transform;
+  animation: uiHubDrift1 22s ease-in-out infinite;
+}
+
+.ui-hub-group-2 {
+  transform-origin: center;
+  will-change: transform;
+  animation: uiHubDrift2 26s ease-in-out infinite;
+}
+
 @supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))) { .glass-material-subtle,.glass-material-standard,.glass-material-floating,.glass-material-modal { background:var(--glass-fallback-bg); border-color:var(--glass-fallback-border); } }
 @media (prefers-reduced-transparency:reduce) { .glass-material-subtle,.glass-material-standard,.glass-material-floating,.glass-material-modal { backdrop-filter:none; -webkit-backdrop-filter:none; background:var(--bg-surface); } }
-@media (prefers-reduced-motion:reduce) { *,*::before,*::after { scroll-behavior:auto!important; animation-duration:.01ms!important; animation-iteration-count:1!important; transition-duration:.01ms!important; } }
+@media (prefers-reduced-motion:reduce) {
+  *,*::before,*::after { scroll-behavior:auto!important; animation-duration:.01ms!important; animation-iteration-count:1!important; transition-duration:.01ms!important; }
+  .ui-hub-path-flow,
+  .ui-hub-group-1,
+  .ui-hub-group-2 {
+    animation: none !important;
+  }
+}

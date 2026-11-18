@@ -1,79 +1,6 @@
-import React from 'react'
+import React, { useMemo } from 'react'
 import { motion, useReducedMotion } from 'framer-motion'
 import { cn } from '../../lib/utils'
-
-interface FloatingPathsProps {
-  position: number
-  pathColor?: string
-  accentColor?: string
-}
-
-function FloatingPaths({
-  position,
-  pathColor = 'currentColor',
-  accentColor = '#FF5A36',
-}: FloatingPathsProps) {
-  const reduceMotion = useReducedMotion()
-
-  const paths = Array.from({ length: 36 }, (_, i) => {
-    const isAccent = i % 7 === 0 // 10% signal orange accent distribution
-    return {
-      id: i,
-      d: `M-${380 - i * 5 * position} -${189 + i * 6}C-${380 - i * 5 * position} -${
-        189 + i * 6
-      } -${312 - i * 5 * position} ${216 - i * 6} ${152 - i * 5 * position} ${
-        343 - i * 6
-      }C${616 - i * 5 * position} ${470 - i * 6} ${684 - i * 5 * position} ${
-        875 - i * 6
-      } ${684 - i * 5 * position} ${875 - i * 6}`,
-      width: 0.5 + i * 0.03,
-      stroke: isAccent ? accentColor : pathColor,
-      strokeOpacity: isAccent ? 0.35 : 0.08 + (i / 36) * 0.18,
-      duration: 20 + (i % 8) * 2.5,
-    }
-  })
-
-  return (
-    <div className="absolute inset-0 pointer-events-none overflow-hidden select-none" aria-hidden="true">
-      <svg
-        className="w-full h-full"
-        viewBox="0 0 696 316"
-        fill="none"
-        preserveAspectRatio="xMidYMid slice"
-      >
-        <title>Background Paths</title>
-        {paths.map((path) => (
-          <motion.path
-            key={path.id}
-            d={path.d}
-            stroke={path.stroke}
-            strokeWidth={path.width}
-            strokeOpacity={path.strokeOpacity}
-            initial={reduceMotion ? { pathLength: 1, opacity: path.strokeOpacity } : { pathLength: 0.3, opacity: 0.4 }}
-            animate={
-              reduceMotion
-                ? undefined
-                : {
-                    pathLength: 1,
-                    opacity: [0.2, path.strokeOpacity, 0.2],
-                    pathOffset: [0, 1, 0],
-                  }
-            }
-            transition={
-              reduceMotion
-                ? undefined
-                : {
-                    duration: path.duration,
-                    repeat: Number.POSITIVE_INFINITY,
-                    ease: 'linear',
-                  }
-            }
-          />
-        ))}
-      </svg>
-    </div>
-  )
-}
 
 export interface BackgroundPathsProps {
   title?: string
@@ -85,31 +12,133 @@ export interface BackgroundPathsProps {
   children?: React.ReactNode
 }
 
-export function BackgroundPaths({
+interface PathDef {
+  id: string
+  d: string
+  width: number
+  stroke: string
+  strokeOpacity: number
+  duration: number
+  delay: number
+}
+
+function generatePaths(position: number, pathColor: string, accentColor: string): PathDef[] {
+  // 20 calibrated paths per side (40 total) for optimal density and 60fps GPU performance
+  return Array.from({ length: 20 }, (_, i) => {
+    const isAccent = i % 5 === 0 // 10% Signal Orange accent distribution
+    return {
+      id: `${position}-${i}`,
+      d: `M-${380 - i * 9 * position} -${189 + i * 10}C-${380 - i * 9 * position} -${
+        189 + i * 10
+      } -${312 - i * 9 * position} ${216 - i * 10} ${152 - i * 9 * position} ${
+        343 - i * 10
+      }C${616 - i * 9 * position} ${470 - i * 10} ${684 - i * 9 * position} ${
+        875 - i * 10
+      } ${684 - i * 9 * position} ${875 - i * 10}`,
+      width: isAccent ? 1.6 : 0.85 + (i / 20) * 0.75,
+      stroke: isAccent ? accentColor : pathColor,
+      strokeOpacity: isAccent ? 0.85 : 0.18 + (i / 20) * 0.32,
+      duration: 18 + (i % 5) * 3.5,
+      delay: -(i * 1.8),
+    }
+  })
+}
+
+export const BackgroundPaths: React.FC<BackgroundPathsProps> = ({
   title,
   subtitle,
   className = '',
-  pathColor = 'currentColor',
+  pathColor = '#171717',
   accentColor = '#FF5A36',
-  opacity = 0.85,
+  opacity = 1,
   children,
-}: BackgroundPathsProps) {
+}) => {
+  const reduceMotion = useReducedMotion()
+
+  const pathsGroup1 = useMemo(
+    () => generatePaths(1, pathColor, accentColor),
+    [pathColor, accentColor],
+  )
+  const pathsGroup2 = useMemo(
+    () => generatePaths(-1, pathColor, accentColor),
+    [pathColor, accentColor],
+  )
+
   const words = title ? title.split(' ') : []
 
   return (
     <div
       className={cn(
-        'relative w-full flex items-center justify-center overflow-hidden bg-canvas transition-colors duration-300',
+        'relative min-h-[350px] h-full w-full flex items-center justify-center overflow-hidden transition-colors duration-300',
         className,
       )}
+      style={{
+        contain: 'strict',
+        transform: 'translateZ(0)',
+        backfaceVisibility: 'hidden',
+      }}
     >
-      <div className="absolute inset-0 pointer-events-none" style={{ opacity }}>
-        <FloatingPaths position={1} pathColor={pathColor} accentColor={accentColor} />
-        <FloatingPaths position={-1} pathColor={pathColor} accentColor={accentColor} />
+      {/* Single Unified High-Performance Hardware-Accelerated SVG Layer */}
+      <div className="absolute inset-0 pointer-events-none select-none" style={{ opacity }}>
+        <svg
+          className="w-full h-full"
+          viewBox="0 0 696 316"
+          fill="none"
+          preserveAspectRatio="xMidYMid slice"
+          shapeRendering="geometricPrecision"
+        >
+          <title>UI Hub Floating Background Paths</title>
+
+          {/* Group 1: Flowing forward with GPU float */}
+          <g className={reduceMotion ? undefined : 'ui-hub-group-1'}>
+            {pathsGroup1.map((p) => (
+              <path
+                key={p.id}
+                d={p.d}
+                stroke={p.stroke}
+                strokeWidth={p.width}
+                strokeOpacity={p.strokeOpacity}
+                strokeLinecap="round"
+                className={reduceMotion ? undefined : 'ui-hub-path-flow'}
+                style={
+                  reduceMotion
+                    ? undefined
+                    : {
+                        animationDuration: `${p.duration}s`,
+                        animationDelay: `${p.delay}s`,
+                      }
+                }
+              />
+            ))}
+          </g>
+
+          {/* Group 2: Flowing in counter-harmony with GPU float */}
+          <g className={reduceMotion ? undefined : 'ui-hub-group-2'}>
+            {pathsGroup2.map((p) => (
+              <path
+                key={p.id}
+                d={p.d}
+                stroke={p.stroke}
+                strokeWidth={p.width}
+                strokeOpacity={p.strokeOpacity}
+                strokeLinecap="round"
+                className={reduceMotion ? undefined : 'ui-hub-path-flow'}
+                style={
+                  reduceMotion
+                    ? undefined
+                    : {
+                        animationDuration: `${p.duration}s`,
+                        animationDelay: `${p.delay}s`,
+                      }
+                }
+              />
+            ))}
+          </g>
+        </svg>
       </div>
 
       {children ? (
-        <div className="relative z-10 w-full">{children}</div>
+        <div className="relative z-10 w-full h-full">{children}</div>
       ) : title ? (
         <div className="relative z-10 container mx-auto px-4 md:px-6 text-center py-20">
           <motion.div

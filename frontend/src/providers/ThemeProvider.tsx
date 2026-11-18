@@ -15,12 +15,12 @@ const STORAGE_KEY = 'mechtech-theme'
 export const ThemeContext = createContext<ThemeContextValue | undefined>(undefined)
 
 function getSystemTheme(): ResolvedTheme {
-  if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') return 'dark'
+  if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') return 'light'
   return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
 }
 
 function getInitialTheme(): Theme {
-  if (typeof window === 'undefined') return 'system'
+  if (typeof window === 'undefined') return 'light'
   try {
     const saved = localStorage.getItem(STORAGE_KEY)
     if (saved === 'light' || saved === 'dark' || saved === 'system') {
@@ -29,7 +29,7 @@ function getInitialTheme(): Theme {
   } catch {
     // Storage access may be restricted
   }
-  return 'system'
+  return 'light'
 }
 
 export const ThemeProvider: React.FC<{
@@ -37,7 +37,7 @@ export const ThemeProvider: React.FC<{
   defaultTheme?: Theme
   storageKey?: string
 }> = ({ children, defaultTheme, storageKey = STORAGE_KEY }) => {
-  const [theme, setThemeState] = useState<Theme>(() => defaultTheme || getInitialTheme())
+  const [theme, setThemeState] = useState<Theme>(() => defaultTheme ?? getInitialTheme())
   const [systemTheme, setSystemTheme] = useState<ResolvedTheme>(getSystemTheme)
 
   // Listen to system changes when system mode is selected
@@ -67,7 +67,7 @@ export const ThemeProvider: React.FC<{
     if (typeof document === 'undefined') return
 
     const root = document.documentElement
-    
+
     // Add transition class momentarily to prevent jumpy paints
     root.classList.add('theme-transitioning')
     const timer = setTimeout(() => {
@@ -88,14 +88,17 @@ export const ThemeProvider: React.FC<{
     return () => clearTimeout(timer)
   }, [resolvedTheme])
 
-  const setTheme = useCallback((newTheme: Theme) => {
-    try {
-      localStorage.setItem(storageKey, newTheme)
-    } catch {
-      // Storage access may be restricted
-    }
-    setThemeState(newTheme)
-  }, [storageKey])
+  const setTheme = useCallback(
+    (newTheme: Theme) => {
+      try {
+        localStorage.setItem(storageKey, newTheme)
+      } catch {
+        // Storage access may be restricted
+      }
+      setThemeState(newTheme)
+    },
+    [storageKey],
+  )
 
   const toggleTheme = useCallback(() => {
     setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')
@@ -113,3 +116,5 @@ export const ThemeProvider: React.FC<{
 
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>
 }
+
+export default ThemeProvider
