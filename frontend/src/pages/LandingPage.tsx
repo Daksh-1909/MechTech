@@ -1,6 +1,7 @@
 import { Activity, ArrowRight, BrainCircuit, Gauge, Radio, ShieldCheck, Wrench } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import { IntroOverlay } from '../components/IntroOverlay'
 
 const capabilities = [
   {
@@ -25,10 +26,11 @@ export const LandingPage = () => {
   const { isAuthenticated } = useAuth()
 
   return (
-    <div className="min-h-screen overflow-hidden bg-slate-950 text-slate-100 selection:bg-cyan-400 selection:text-slate-950">
+    <div className="landing-page min-h-screen overflow-hidden bg-canvas text-primary">
+      <IntroOverlay />
       <header className="relative z-10 mx-auto flex max-w-7xl items-center justify-between px-5 py-5 sm:px-8">
         <Link to="/" className="flex items-center gap-3" aria-label="MechTech home">
-          <span className="flex size-10 items-center justify-center rounded-xl bg-cyan-400 text-slate-950 shadow-lg shadow-cyan-950/60">
+          <span className="flex size-10 items-center justify-center rounded-lg bg-accent text-black">
             <Activity className="size-6" />
           </span>
           <span>
@@ -48,7 +50,7 @@ export const LandingPage = () => {
           {isAuthenticated ? (
             <Link
               to="/dashboard"
-              className="inline-flex items-center gap-2 rounded-lg bg-cyan-400 px-4 py-2.5 text-sm font-semibold text-slate-950 transition hover:bg-cyan-300"
+              className="magnetic-control inline-flex items-center gap-2 rounded-lg bg-accent px-4 py-2.5 text-sm font-semibold text-black transition hover:bg-accent-hover"
             >
               Open workspace <ArrowRight className="size-4" />
             </Link>
@@ -62,7 +64,7 @@ export const LandingPage = () => {
               </Link>
               <Link
                 to="/register"
-                className="rounded-lg border border-cyan-400/50 bg-cyan-400/10 px-4 py-2.5 text-sm font-semibold text-cyan-200 transition hover:bg-cyan-400/20"
+                className="rounded-lg border border-accent/50 bg-accent/10 px-4 py-2.5 text-sm font-semibold text-accent transition hover:bg-accent/20"
               >
                 Request access
               </Link>
@@ -73,14 +75,13 @@ export const LandingPage = () => {
 
       <main>
         <section className="relative mx-auto grid max-w-7xl items-center gap-14 px-5 pt-14 pb-20 sm:px-8 sm:pt-20 lg:grid-cols-[1.05fr_0.95fr] lg:gap-16 lg:pt-24 lg:pb-28">
-          <div className="pointer-events-none absolute top-0 -left-40 size-[30rem] rounded-full bg-cyan-500/10 blur-[120px]" />
           <div className="relative">
-            <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-cyan-400/20 bg-cyan-400/5 px-3 py-1.5 font-mono text-[11px] tracking-[0.14em] text-cyan-200 uppercase">
-              <span className="size-1.5 rounded-full bg-cyan-300" />
+            <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-accent/20 bg-accent/5 px-3 py-1.5 font-mono text-[11px] tracking-[0.14em] text-accent uppercase">
+              <span className="size-1.5 rounded-full bg-accent" />
               Condition monitoring for electric motors
             </div>
             <h1 className="max-w-3xl text-4xl leading-[1.08] font-semibold tracking-tight text-white sm:text-5xl lg:text-6xl">
-              Keep critical equipment <span className="text-cyan-300">in view.</span>
+              Keep critical equipment <span className="text-accent">in view.</span>
             </h1>
             <p className="mt-6 max-w-xl text-base leading-7 text-slate-300 sm:text-lg">
               MechTech brings motor telemetry, anomaly signals, diagnostic evidence, and maintenance
@@ -90,7 +91,7 @@ export const LandingPage = () => {
               {isAuthenticated ? (
                 <Link
                   to="/dashboard"
-                  className="inline-flex items-center justify-center gap-2 rounded-lg bg-cyan-400 px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-cyan-300"
+                  className="magnetic-control inline-flex items-center justify-center gap-2 rounded-lg bg-accent px-5 py-3 text-sm font-semibold text-black transition"
                 >
                   Go to workspace <ArrowRight className="size-4" />
                 </Link>
@@ -98,7 +99,7 @@ export const LandingPage = () => {
                 <>
                   <Link
                     to="/register"
-                    className="inline-flex items-center justify-center gap-2 rounded-lg bg-cyan-400 px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-cyan-300"
+                    className="magnetic-control inline-flex items-center justify-center gap-2 rounded-lg bg-accent px-5 py-3 text-sm font-semibold text-black transition"
                   >
                     Request an account <ArrowRight className="size-4" />
                   </Link>
@@ -124,7 +125,7 @@ export const LandingPage = () => {
           </div>
 
           <div className="relative mx-auto w-full max-w-xl">
-            <div className="absolute -inset-6 rounded-[2rem] bg-cyan-400/10 blur-3xl" />
+          <div className="absolute -inset-6 rounded-[2rem]" />
             <div className="relative rounded-2xl border border-slate-700/80 bg-slate-900/90 p-4 shadow-2xl shadow-black/40 backdrop-blur sm:p-5">
               <div className="flex items-center justify-between border-b border-slate-800 px-1 pb-4">
                 <div>
@@ -174,7 +175,7 @@ export const LandingPage = () => {
                   ].map((height, index) => (
                     <span
                       key={index}
-                      className="flex-1 rounded-t-sm bg-gradient-to-t from-cyan-700/60 to-cyan-300/90"
+                      className="flex-1 rounded-t-sm bg-accent/70"
                       style={{ height: `${height}%` }}
                     />
                   ))}

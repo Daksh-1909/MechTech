@@ -14,14 +14,16 @@ import {
   Radio,
 } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
+import { motion, useReducedMotion } from 'framer-motion'
 
 export const AppLayout: React.FC = () => {
+  const reduceMotion = useReducedMotion()
   const { user, organization, logout, isPlatformAdmin } = useAuth()
   const location = useLocation()
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
   const navItems = [
-    { label: 'Overview', path: '/', icon: LayoutDashboard },
+    { label: 'Overview', path: '/dashboard', icon: LayoutDashboard },
     { label: 'Equipment Fleet', path: '/equipment', icon: Layers },
     { label: 'Live Telemetry & Rules', path: '/monitoring', icon: Radio },
     { label: 'Anomaly Alerts', path: '/alerts', icon: AlertTriangle },
@@ -34,16 +36,16 @@ export const AppLayout: React.FC = () => {
     user?.roles?.[0] || (isPlatformAdmin ? 'Platform Admin' : 'Viewer')
 
   return (
-    <div className="relative min-h-screen flex flex-col bg-[#050914] text-slate-100 font-sans antialiased selection:bg-cyan-500 selection:text-slate-950 overflow-x-hidden">
+    <div className="mechtech-shell relative min-h-screen flex flex-col bg-canvas text-primary font-sans antialiased overflow-x-hidden">
       {/* Apple Liquid Ambient Aurora Glow Orbs */}
       <div className="liquid-glow-orb-cyan" />
       <div className="liquid-glow-orb-indigo" />
       <div className="liquid-glow-orb-emerald" />
 
       {/* Top Advisory Disclaimer Bar — Liquid Glass Banner */}
-      <div className="relative z-20 backdrop-blur-2xl bg-amber-500/[0.08] border-b border-amber-400/20 px-4 py-1.5 text-center text-xs text-amber-200/90 font-mono flex items-center justify-center gap-2 shadow-[inset_0_1px_1px_rgba(255,255,255,0.15)]">
-        <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse shadow-[0_0_8px_rgba(251,191,36,0.8)]" />
-        <span className="font-semibold uppercase tracking-wider text-amber-300">Academic Advisory System:</span>
+      <div className="relative z-20 border-b border-border bg-raised px-4 py-1.5 text-center text-xs text-secondary font-mono flex items-center justify-center gap-2">
+        <span className="w-1.5 h-1.5 rounded-full bg-accent" />
+        <span className="font-semibold uppercase tracking-wider text-accent">Academic Advisory System:</span>
         <span className="hidden sm:inline">Telemetry & ML predictions are simulated. Physical human inspection required before maintenance action.</span>
         <span className="sm:hidden">Simulated data only. Physical verification required.</span>
       </div>
@@ -67,8 +69,8 @@ export const AppLayout: React.FC = () => {
             {/* Logo Header */}
             <div className="h-16 px-5 flex items-center justify-between border-b border-white/[0.08]">
               <Link to="/" className="flex items-center gap-3 group">
-                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-cyan-400 via-sky-500 to-blue-600 flex items-center justify-center text-slate-950 font-bold shadow-[0_0_20px_rgba(56,189,248,0.45),inset_0_1px_1px_rgba(255,255,255,0.6)] group-hover:scale-105 transition-transform duration-300">
-                  <Activity className="w-5 h-5 text-slate-950" />
+                <div className="w-9 h-9 rounded-lg bg-accent flex items-center justify-center text-black font-bold group-hover:scale-105 transition-transform duration-300">
+                  <Activity className="w-5 h-5 text-black" />
                 </div>
                 <div>
                   <div className="font-bold text-base tracking-tight text-white flex items-center gap-1.5">
@@ -118,11 +120,12 @@ export const AppLayout: React.FC = () => {
                     onClick={() => setSidebarOpen(false)}
                     className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-medium transition-all duration-200 ${
                       isActive
-                        ? 'bg-gradient-to-r from-cyan-500/25 to-blue-500/15 text-cyan-300 border border-cyan-400/40 shadow-[0_4px_16px_rgba(6,182,212,0.25),inset_0_1px_1px_rgba(255,255,255,0.25)] translate-x-1'
+                        ? 'text-accent border border-transparent'
                         : 'text-slate-300 hover:bg-white/[0.06] hover:text-white hover:translate-x-0.5'
                     }`}
                   >
-                    <Icon className={`w-4 h-4 ${isActive ? 'text-cyan-300' : 'text-slate-400'}`} />
+                    {isActive && <motion.span layoutId="workspace-nav-indicator" className="nav-active-surface" transition={reduceMotion ? { duration: 0 } : { type: 'spring', stiffness: 420, damping: 32, mass: 0.7 }} />}
+                    <Icon className={`w-4 h-4 ${isActive ? 'text-accent' : 'text-slate-400'}`} />
                     <span className="truncate">{item.label}</span>
                   </Link>
                 )
@@ -154,7 +157,7 @@ export const AppLayout: React.FC = () => {
         {/* Main Content Area */}
         <div className="flex-1 flex flex-col min-w-0 overflow-y-auto">
           {/* Top Glass Navbar */}
-          <header className="h-16 px-6 flex items-center justify-between sticky top-0 z-30 backdrop-blur-2xl bg-[#070d18]/50 border-b border-white/[0.08] shadow-[0_4px_24px_rgba(0,0,0,0.3)]">
+          <header className="h-16 px-6 flex items-center justify-between sticky top-0 z-30 backdrop-blur-2xl bg-canvas/80 border-b border-border shadow-sm">
             <div className="flex items-center gap-3">
               <button
                 onClick={() => setSidebarOpen(true)}

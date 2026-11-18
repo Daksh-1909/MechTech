@@ -1,106 +1,30 @@
-/**
- * MechTech Liquid Glass Design System — Glass Materials
- * Implements subtle, standard, floating, and modal glass variants with fallbacks.
- */
-
-/* Common Glass Surface Foundation */
-.glass-surface-base {
-  position: relative;
-  border-style: solid;
-  border-width: 1px;
-  border-color: var(--glass-border);
-  border-radius: var(--radius-lg);
-  color: var(--text-primary);
-  transition: 
-    background-color var(--duration-normal) var(--ease-spring),
-    border-color var(--duration-normal) var(--ease-spring),
-    box-shadow var(--duration-normal) var(--ease-spring),
-    transform var(--duration-normal) var(--ease-spring);
+.glass-surface-base,.glass-panel,.glass-panel-interactive {
+  position: relative; overflow: hidden; color: var(--text-primary); border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg); transition: background-color var(--duration-normal) var(--ease-spring),
+  border-color var(--duration-normal) var(--ease-spring), box-shadow var(--duration-normal) var(--ease-spring), transform var(--duration-normal) var(--ease-spring);
 }
-
-/* 1. Subtle Glass: ~8px blur for pills, tabs, low-emphasis tiles */
-.glass-material-subtle {
-  background-color: var(--glass-bg-subtle);
-  backdrop-filter: blur(var(--blur-subtle)) saturate(160%);
-  -webkit-backdrop-filter: blur(var(--blur-subtle)) saturate(160%);
-  box-shadow: var(--glass-shadow-sm), var(--glass-highlight-subtle);
-}
-
-/* 2. Standard Glass: ~16px blur for cards, panels, content blocks */
-.glass-material-standard {
-  background-color: var(--glass-bg-standard);
-  backdrop-filter: blur(var(--blur-standard)) saturate(180%);
-  -webkit-backdrop-filter: blur(var(--blur-standard)) saturate(180%);
-  box-shadow: var(--glass-shadow-md), var(--glass-highlight);
-}
-
-/* 3. Floating Glass: ~24px blur for floating toolbars, navigation headers */
-.glass-material-floating {
-  background-color: var(--glass-bg-floating);
-  backdrop-filter: blur(var(--blur-floating)) saturate(200%);
-  -webkit-backdrop-filter: blur(var(--blur-floating)) saturate(200%);
-  box-shadow: var(--glass-shadow-lg), var(--glass-highlight);
-}
-
-/* 4. Modal Glass: ~28px blur for dialogs, drawer sheets, prominent overlays */
-.glass-material-modal {
-  background-color: var(--glass-bg-modal);
-  backdrop-filter: blur(var(--blur-modal)) saturate(200%);
-  -webkit-backdrop-filter: blur(var(--blur-modal)) saturate(200%);
-  box-shadow: var(--glass-shadow-xl), var(--glass-highlight);
-}
-
-/* Interactive States */
-.glass-surface-interactive {
-  cursor: pointer;
-  user-select: none;
-}
-
-.glass-surface-interactive:hover {
-  transform: translateY(-2px) scale(1.006);
-  border-color: var(--glass-border-interactive);
-}
-
-.glass-surface-interactive:active {
-  transform: translateY(0px) scale(0.992);
-  transition-duration: var(--duration-fast);
-}
-
-.glass-surface-interactive:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 2px;
-}
-
-/* Glass Glow Accents */
-.glass-glow-cyan {
-  box-shadow: 0 0 24px -4px rgba(14, 165, 233, 0.25), var(--glass-highlight);
-}
-
-.glass-glow-indigo {
-  box-shadow: 0 0 24px -4px rgba(99, 102, 241, 0.25), var(--glass-highlight);
-}
-
-.glass-glow-emerald {
-  box-shadow: 0 0 24px -4px rgba(16, 185, 129, 0.25), var(--glass-highlight);
-}
-
-.glass-glow-amber {
-  box-shadow: 0 0 24px -4px rgba(245, 158, 11, 0.25), var(--glass-highlight);
-}
-
-.glass-glow-rose {
-  box-shadow: 0 0 24px -4px rgba(244, 63, 94, 0.25), var(--glass-highlight);
-}
-
-/* Fallback for browsers lacking backdrop-filter support */
-@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-  .glass-material-subtle,
-  .glass-material-standard,
-  .glass-material-floating,
-  .glass-material-modal {
-    background-color: var(--glass-fallback-bg) !important;
-    border-color: var(--glass-fallback-border) !important;
-    backdrop-filter: none !important;
-    -webkit-backdrop-filter: none !important;
-  }
-}
+.glass-material-subtle { background: var(--glass-bg-subtle); backdrop-filter: blur(var(--blur-subtle)); -webkit-backdrop-filter: blur(var(--blur-subtle)); box-shadow: var(--glass-shadow-sm),var(--glass-highlight-subtle); }
+.glass-material-standard,.glass-panel { background: var(--glass-bg-standard); backdrop-filter: blur(var(--blur-standard)); -webkit-backdrop-filter: blur(var(--blur-standard)); box-shadow: var(--glass-shadow-md),var(--glass-highlight); }
+.glass-material-floating { background: var(--glass-bg-floating); backdrop-filter: blur(var(--blur-floating)); -webkit-backdrop-filter: blur(var(--blur-floating)); box-shadow: var(--glass-shadow-lg),var(--glass-highlight); }
+.glass-material-modal { background: var(--glass-bg-modal); backdrop-filter: blur(var(--blur-modal)); -webkit-backdrop-filter: blur(var(--blur-modal)); box-shadow: var(--glass-shadow-xl),var(--glass-highlight); }
+.glass-panel-interactive,.glass-surface-interactive { cursor: pointer; box-shadow: var(--glass-shadow-md),var(--glass-highlight); }
+.glass-panel-interactive:hover,.glass-surface-interactive:hover { transform: translateY(-2px); border-color: var(--glass-border-interactive); box-shadow: var(--glass-shadow-lg),var(--glass-highlight); }
+.glass-panel-interactive:active,.glass-surface-interactive:active { transform: translateY(0) scale(.99); }
+.glass-panel-interactive:focus-visible,.glass-surface-interactive:focus-visible,:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+.glass-pill { display:inline-flex; align-items:center; gap:.4rem; padding:.25rem .65rem; border-radius:var(--radius-full); font:500 .6875rem var(--font-mono); background:var(--glass-bg-subtle); border:1px solid var(--glass-border); }
+.glass-pill-ok { color:var(--status-ok); border-color:var(--status-ok-border); background:var(--status-ok-bg); }
+.glass-pill-warning { color:var(--status-warning); border-color:var(--status-warning-border); background:var(--status-warning-bg); }
+.glass-pill-critical { color:var(--status-critical); border-color:var(--status-critical-border); background:var(--status-critical-bg); }
+.glass-pill-info { color:var(--status-info); border-color:var(--status-info-border); background:var(--status-info-bg); }
+.glass-btn { display:inline-flex; align-items:center; justify-content:center; gap:.5rem; padding:.5rem 1rem; border:1px solid var(--glass-border); border-radius:var(--radius-md); background:var(--glass-bg-standard); color:var(--text-primary); font-size:.75rem; font-weight:600; cursor:pointer; box-shadow:var(--glass-highlight-subtle); transition:transform var(--duration-normal) var(--ease-spring),background var(--duration-normal),border-color var(--duration-normal); }
+.glass-btn:hover { transform:translateY(-1px); border-color:var(--glass-border-interactive); }
+.glass-btn:active { transform:scale(.98); }
+.glass-btn-primary { background:var(--accent); color:var(--accent-foreground); border-color:var(--accent); }
+.glass-btn-primary:hover { background:var(--accent-hover); }
+.glass-input { width:100%; padding:.55rem .8rem; border:1px solid var(--glass-border); border-radius:var(--radius-md); color:var(--text-primary); background:var(--bg-inset); outline:none; }
+.glass-input:focus { border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-subtle); }
+.magnetic-control { transition:transform 300ms var(--ease-spring); will-change:transform; }
+.liquid-glow-orb-cyan,.liquid-glow-orb-indigo,.liquid-glow-orb-emerald { display:none; }
+@supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))) { .glass-material-subtle,.glass-material-standard,.glass-material-floating,.glass-material-modal { background:var(--glass-fallback-bg); border-color:var(--glass-fallback-border); } }
+@media (prefers-reduced-transparency:reduce) { .glass-material-subtle,.glass-material-standard,.glass-material-floating,.glass-material-modal { backdrop-filter:none; -webkit-backdrop-filter:none; background:var(--bg-surface); } }
+@media (prefers-reduced-motion:reduce) { *,*::before,*::after { scroll-behavior:auto!important; animation-duration:.01ms!important; animation-iteration-count:1!important; transition-duration:.01ms!important; } }

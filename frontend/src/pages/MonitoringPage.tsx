@@ -165,23 +165,23 @@ export const MonitoringPage: React.FC = () => {
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={chartData}>
               <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" />
-              <XAxis dataKey="time" stroke="#64748b" tick={{ fontSize: 11 }} />
-              <YAxis yAxisId="left" stroke="#38bdf8" tick={{ fontSize: 11 }} unit="°C" />
+              <XAxis dataKey="time" stroke="var(--text-muted)" tick={{ fontSize: 11 }} />
+              <YAxis yAxisId="left" stroke="var(--text-primary)" tick={{ fontSize: 11 }} unit="°C" />
               <YAxis
                 yAxisId="right"
                 orientation="right"
-                stroke="#f43f5e"
+                stroke="var(--accent)"
                 tick={{ fontSize: 11 }}
                 unit="mm/s"
               />
               <Tooltip
                 contentStyle={{
-                  backgroundColor: 'rgba(15, 23, 42, 0.85)',
+                  backgroundColor: 'var(--glass-bg-floating)',
                   backdropFilter: 'blur(16px)',
-                  borderColor: 'rgba(255, 255, 255, 0.15)',
+                  borderColor: 'var(--glass-border)',
                   fontSize: '12px',
                   borderRadius: '12px',
-                  boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4)',
+                  boxShadow: 'var(--glass-shadow-md)',
                 }}
               />
               <Legend wrapperStyle={{ fontSize: '12px', paddingTop: '10px' }} />
@@ -190,7 +190,7 @@ export const MonitoringPage: React.FC = () => {
                 type="monotone"
                 dataKey="temperature"
                 name="Stator Temp (°C)"
-                stroke="#38bdf8"
+                stroke="var(--text-primary)"
                 strokeWidth={2.5}
                 dot={false}
               />
@@ -199,7 +199,7 @@ export const MonitoringPage: React.FC = () => {
                 type="monotone"
                 dataKey="vibration"
                 name="Drive-End Vibration (mm/s)"
-                stroke="#f43f5e"
+                stroke="var(--accent)"
                 strokeWidth={2.5}
                 dot={false}
               />

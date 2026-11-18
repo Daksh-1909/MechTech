@@ -38,7 +38,7 @@ const Shaft: React.FC<{
     }
   })
 
-  const color = isSelected ? '#38bdf8' : status === 'critical' ? '#ef4444' : '#94a3b8'
+  const color = isSelected ? '#FF5A36' : status === 'critical' ? '#FF5A36' : '#FFFFFF'
 
   return (
     <mesh
@@ -60,7 +60,7 @@ const Shaft: React.FC<{
         color={color}
         metalness={0.85}
         roughness={0.2}
-        emissive={isSelected ? '#0284c7' : '#000000'}
+        emissive={isSelected ? '#FF5A36' : '#000000'}
         emissiveIntensity={isSelected ? 0.3 : 0}
       />
     </mesh>
@@ -89,14 +89,14 @@ const Bearing: React.FC<{
 
   const baseColor =
     status === 'critical'
-      ? '#dc2626'
+      ? '#FF5A36'
       : status === 'warning'
-        ? '#f59e0b'
+        ? '#FFFFFF'
         : isSelected
-          ? '#38bdf8'
-          : '#cbd5e1'
+          ? '#FF5A36'
+          : '#FFFFFF'
 
-  const emissiveColor = status === 'critical' ? '#b91c1c' : isSelected ? '#0284c7' : '#000000'
+  const emissiveColor = status === 'critical' ? '#FF5A36' : isSelected ? '#FF5A36' : '#000000'
 
   return (
     <group position={position}>
@@ -160,7 +160,7 @@ const RotorCore: React.FC<{
       <mesh>
         <cylinderGeometry args={[0.62, 0.62, 1.6, 24]} />
         <meshStandardMaterial
-          color={isSelected ? '#38bdf8' : '#475569'}
+          color={isSelected ? '#FF5A36' : '#FFFFFF'}
           metalness={0.8}
           roughness={0.4}
         />
@@ -190,14 +190,14 @@ const StatorWindings: React.FC<{
 
   const baseColor =
     status === 'critical'
-      ? '#ef4444'
+      ? '#FF5A36'
       : status === 'warning'
-        ? '#f59e0b'
+        ? '#FFFFFF'
         : isSelected
-          ? '#38bdf8'
-          : '#b45309'
+          ? '#FF5A36'
+          : '#FFFFFF'
 
-  const emissiveColor = status === 'critical' ? '#b91c1c' : isSelected ? '#0284c7' : '#78350f'
+  const emissiveColor = status === 'critical' ? '#FF5A36' : isSelected ? '#FF5A36' : '#000000'
 
   return (
     <mesh
@@ -253,7 +253,7 @@ const MotorHousing: React.FC<{
       <mesh rotation={[0, 0, Math.PI / 2]}>
         <cylinderGeometry args={[1.15, 1.15, 2.1, 32, 1, true, 0, Math.PI * 1.55]} />
         <meshStandardMaterial
-          color={isSelected ? '#0284c7' : '#1e293b'}
+          color={isSelected ? '#FF5A36' : '#000000'}
           metalness={0.6}
           roughness={0.4}
           side={THREE.DoubleSide}
@@ -270,7 +270,7 @@ const MotorHousing: React.FC<{
         return (
           <mesh key={i} position={[0, y, z]} rotation={[angle, 0, 0]}>
             <boxGeometry args={[2.0, 0.05, 0.18]} />
-            <meshStandardMaterial color="#334155" metalness={0.5} roughness={0.5} />
+            <meshStandardMaterial color="#FFFFFF" metalness={0.5} roughness={0.5} />
           </mesh>
         )
       })}
@@ -278,13 +278,13 @@ const MotorHousing: React.FC<{
       {/* Terminal Box */}
       <mesh position={[0, 1.45, 0]}>
         <boxGeometry args={[0.65, 0.35, 0.55]} />
-        <meshStandardMaterial color="#0f172a" metalness={0.6} roughness={0.3} />
+        <meshStandardMaterial color="#000000" metalness={0.6} roughness={0.3} />
       </mesh>
 
       {/* Mounting Feet Base */}
       <mesh position={[0, -1.25, 0]}>
         <boxGeometry args={[1.8, 0.15, 1.6]} />
-        <meshStandardMaterial color="#0f172a" metalness={0.7} roughness={0.4} />
+        <meshStandardMaterial color="#000000" metalness={0.7} roughness={0.4} />
       </mesh>
     </group>
   )
@@ -299,7 +299,7 @@ const CoolingFan: React.FC<{
   onClick?: () => void
   onPointerOver?: () => void
   onPointerOut?: () => void
-}> = ({ isRunning, isSelected, exploded, status, onClick, onPointerOver, onPointerOut }) => {
+}> = ({ isRunning, isSelected, exploded, onClick, onPointerOver, onPointerOut }) => {
   const fanRef = useRef<THREE.Group>(null)
 
   useFrame((_, delta) => {
@@ -324,7 +324,7 @@ const CoolingFan: React.FC<{
       <group ref={fanRef}>
         <mesh rotation={[0, 0, Math.PI / 2]}>
           <cylinderGeometry args={[0.3, 0.3, 0.2, 16]} />
-          <meshStandardMaterial color="#0284c7" metalness={0.4} roughness={0.4} />
+          <meshStandardMaterial color="#FFFFFF" metalness={0.4} roughness={0.4} />
         </mesh>
         {Array.from({ length: 6 }).map((_, i) => {
           const angle = (i * Math.PI) / 3
@@ -332,7 +332,7 @@ const CoolingFan: React.FC<{
             <mesh key={i} rotation={[angle, 0, 0]} position={[0, 0, 0]}>
               <boxGeometry args={[0.15, 0.8, 0.08]} />
               <meshStandardMaterial
-                color={isSelected ? '#38bdf8' : status === 'warning' ? '#f59e0b' : '#0369a1'}
+                color={isSelected ? '#FF5A36' : '#FFFFFF'}
                 roughness={0.3}
               />
             </mesh>
@@ -404,8 +404,8 @@ export const MotorScene: React.FC<MotorSceneProps> = ({
       <Canvas camera={{ position: [3.8, 2.5, 3.8], fov: 45 }}>
         <ambientLight intensity={0.9} />
         <directionalLight position={[10, 10, 5]} intensity={1.4} />
-        <directionalLight position={[-10, -5, -5]} intensity={0.6} color="#38bdf8" />
-        <pointLight position={[0, 0, 0]} intensity={1.2} color="#22d3ee" distance={4} />
+        <directionalLight position={[-10, -5, -5]} intensity={0.6} color="#FFFFFF" />
+        <pointLight position={[0, 0, 0]} intensity={1.2} color="#FFFFFF" distance={4} />
 
         <group position={[0, -0.2, 0]}>
           {/* Shaft */}
