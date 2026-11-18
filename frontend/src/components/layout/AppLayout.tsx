@@ -37,11 +37,6 @@ export const AppLayout: React.FC = () => {
 
   return (
     <div className="mechtech-shell relative min-h-screen flex flex-col bg-canvas text-primary font-sans antialiased overflow-x-hidden">
-      {/* Apple Liquid Ambient Aurora Glow Orbs */}
-      <div className="liquid-glow-orb-cyan" />
-      <div className="liquid-glow-orb-indigo" />
-      <div className="liquid-glow-orb-emerald" />
-
       {/* Top Advisory Disclaimer Bar — Liquid Glass Banner */}
       <div className="relative z-20 border-b border-border bg-raised px-4 py-1.5 text-center text-xs text-secondary font-mono flex items-center justify-center gap-2">
         <span className="w-1.5 h-1.5 rounded-full bg-accent" />
@@ -65,28 +60,28 @@ export const AppLayout: React.FC = () => {
             sidebarOpen ? 'translate-x-0 p-3' : '-translate-x-full lg:p-3'
           }`}
         >
-          <div className="h-full flex flex-col rounded-2xl glass-panel border border-white/[0.12] overflow-hidden">
+          <div className="h-full flex flex-col rounded-2xl glass-panel border border-border overflow-hidden">
             {/* Logo Header */}
-            <div className="h-16 px-5 flex items-center justify-between border-b border-white/[0.08]">
+            <div className="h-16 px-5 flex items-center justify-between border-b border-border">
               <Link to="/" className="flex items-center gap-3 group">
                 <div className="w-9 h-9 rounded-lg bg-accent flex items-center justify-center text-black font-bold group-hover:scale-105 transition-transform duration-300">
                   <Activity className="w-5 h-5 text-black" />
                 </div>
                 <div>
-                  <div className="font-bold text-base tracking-tight text-white flex items-center gap-1.5">
+                  <div className="font-bold text-base tracking-tight text-primary flex items-center gap-1.5">
                     MechTech
-                    <span className="text-[10px] font-mono px-1.5 py-0.5 rounded-full bg-cyan-400/15 text-cyan-300 border border-cyan-400/30">
+                    <span className="text-[10px] font-mono px-1.5 py-0.5 rounded-full bg-accent/15 text-accent border border-accent/30">
                       v1.0
                     </span>
                   </div>
-                  <span className="text-[10px] text-slate-400 font-mono block -mt-0.5">
+                  <span className="text-[10px] text-muted font-mono block -mt-0.5">
                     Detect. Diagnose. Maintain.
                   </span>
                 </div>
               </Link>
               <button
                 onClick={() => setSidebarOpen(false)}
-                className="lg:hidden text-slate-400 hover:text-white p-1 rounded-lg"
+                className="lg:hidden text-secondary hover:text-primary p-1 rounded-lg"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -94,18 +89,18 @@ export const AppLayout: React.FC = () => {
 
             {/* Org Selector / Info Pill */}
             <div className="p-3">
-              <div className="p-3 rounded-xl bg-white/[0.04] border border-white/[0.08] shadow-[inset_0_1px_1px_rgba(255,255,255,0.08)]">
-                <div className="text-[9px] font-mono uppercase tracking-widest text-slate-400 flex items-center justify-between">
+              <div className="p-3 rounded-xl bg-raised border border-border">
+                <div className="text-[9px] font-mono uppercase tracking-widest text-muted flex items-center justify-between">
                   <span>Organization</span>
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.8)]" />
+                  <span className="w-1.5 h-1.5 rounded-full bg-accent" />
                 </div>
-                <div className="font-semibold text-xs text-slate-200 truncate mt-1">
+                <div className="font-semibold text-xs text-primary truncate mt-1">
                   {organization?.name || 'Academic Demonstration'}
                 </div>
               </div>
             </div>
 
-            {/* Nav Items */}
+            {/* Nav Items with Shared layoutId Active Surface */}
             <nav className="flex-1 px-3 space-y-1.5 overflow-y-auto">
               {navItems.map((item) => {
                 const Icon = item.icon
@@ -118,34 +113,46 @@ export const AppLayout: React.FC = () => {
                     key={item.path}
                     to={item.path}
                     onClick={() => setSidebarOpen(false)}
-                    className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-medium transition-all duration-200 ${
+                    className={`relative flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-medium transition-colors duration-200 ${
                       isActive
-                        ? 'text-accent border border-transparent'
-                        : 'text-slate-300 hover:bg-white/[0.06] hover:text-white hover:translate-x-0.5'
+                        ? 'text-accent'
+                        : 'text-secondary hover:text-primary hover:bg-raised'
                     }`}
                   >
-                    {isActive && <motion.span layoutId="workspace-nav-indicator" className="nav-active-surface" transition={reduceMotion ? { duration: 0 } : { type: 'spring', stiffness: 420, damping: 32, mass: 0.7 }} />}
-                    <Icon className={`w-4 h-4 ${isActive ? 'text-accent' : 'text-slate-400'}`} />
-                    <span className="truncate">{item.label}</span>
+                    {isActive && (
+                      <motion.span
+                        layoutId="workspace-nav-indicator"
+                        className="nav-active-surface"
+                        transition={
+                          reduceMotion
+                            ? { duration: 0 }
+                            : { type: 'spring', stiffness: 400, damping: 30, mass: 0.6 }
+                        }
+                      />
+                    )}
+                    <Icon className={`relative z-10 w-4 h-4 ${isActive ? 'text-accent' : 'text-muted'}`} />
+                    <span className="relative z-10 truncate">{item.label}</span>
                   </Link>
                 )
               })}
             </nav>
 
             {/* User Profile Glass Footer */}
-            <div className="p-3 border-t border-white/[0.08] bg-white/[0.02]">
-              <div className="flex items-center justify-between p-2 rounded-xl bg-white/[0.03] border border-white/[0.06]">
+            <div className="p-3 border-t border-border bg-raised">
+              <div className="flex items-center justify-between p-2 rounded-xl bg-surface border border-border">
                 <div className="truncate pr-2">
-                  <div className="text-xs font-semibold text-slate-200 truncate">{user?.display_name || 'Technician'}</div>
-                  <div className="text-[10px] text-slate-400 truncate flex items-center gap-1.5 mt-0.5 font-mono">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                  <div className="text-xs font-semibold text-primary truncate">
+                    {user?.display_name || 'Technician'}
+                  </div>
+                  <div className="text-[10px] text-muted truncate flex items-center gap-1.5 mt-0.5 font-mono">
+                    <span className="w-1.5 h-1.5 rounded-full bg-accent" />
                     <span className="capitalize">{userRoleDisplay.replace('_', ' ')}</span>
                   </div>
                 </div>
                 <button
                   onClick={() => logout()}
                   title="Sign out"
-                  className="p-1.5 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 border border-transparent hover:border-rose-500/30 transition-all"
+                  className="p-1.5 rounded-lg text-secondary hover:text-accent hover:bg-accent/10 border border-transparent hover:border-accent/30 transition-all"
                 >
                   <LogOut className="w-3.5 h-3.5" />
                 </button>
@@ -161,11 +168,11 @@ export const AppLayout: React.FC = () => {
             <div className="flex items-center gap-3">
               <button
                 onClick={() => setSidebarOpen(true)}
-                className="lg:hidden p-2 rounded-xl text-slate-400 hover:text-white glass-btn"
+                className="lg:hidden p-2 rounded-xl text-secondary hover:text-primary glass-btn"
               >
                 <Menu className="w-4 h-4" />
               </button>
-              <h1 className="text-sm font-semibold text-slate-100 hidden sm:flex items-center gap-2">
+              <h1 className="text-sm font-semibold text-primary hidden sm:flex items-center gap-2">
                 <span>
                   {navItems.find((n) =>
                     n.path === '/'
@@ -178,7 +185,7 @@ export const AppLayout: React.FC = () => {
 
             <div className="flex items-center gap-3">
               <div className="glass-pill glass-pill-ok">
-                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_6px_rgba(52,211,153,0.9)]" />
+                <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
                 <span>API Gateway: 127.0.0.1:8000</span>
               </div>
             </div>

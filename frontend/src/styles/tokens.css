@@ -1,38 +1,91 @@
 :root {
-  --brand-white: #FFFFFF;
-  --brand-black: #000000;
+  --brand-white: #F5F5F2;
+  --brand-black: #171717;
   --brand-orange: #FF5A36;
-  --font-sans: 'Geist Variable', sans-serif;
-  --font-mono: 'Geist Mono Variable', monospace;
+  --font-sans: 'Geist Variable', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'Geist Mono Variable', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   --radius-xs: .25rem; --radius-sm: .375rem; --radius-md: .5rem; --radius-lg: .75rem; --radius-xl: 1rem; --radius-full: 9999px;
   --ease-spring: cubic-bezier(.2,.9,.25,1.2);
   --duration-fast: 150ms; --duration-normal: 250ms; --duration-slow: 400ms;
-  --blur-subtle: 8px; --blur-standard: 16px; --blur-floating: 22px; --blur-modal: 26px;
+  --blur-subtle: 8px; --blur-standard: 16px; --blur-floating: 22px; --blur-modal: 28px;
 }
 
 :root[data-theme='light'], .light {
   color-scheme: light;
-  --bg-canvas: #FFFFFF; --bg-surface: #FFFFFF; --bg-raised: rgb(0 0 0 / 4%); --bg-inset: rgb(0 0 0 / 3%);
-  --text-primary: #000000; --text-secondary: rgb(0 0 0 / 72%); --text-muted: rgb(0 0 0 / 54%); --text-inverse: #FFFFFF;
-  --accent: #FF5A36; --accent-hover: #FF5A36; --accent-subtle: rgb(255 90 54 / 10%); --accent-glow: rgb(255 90 54 / 16%); --accent-foreground: #000000;
-  --glass-bg-subtle: rgb(255 255 255 / 72%); --glass-bg-standard: rgb(255 255 255 / 84%); --glass-bg-floating: rgb(255 255 255 / 92%); --glass-bg-modal: rgb(255 255 255 / 96%);
-  --glass-border: rgb(0 0 0 / 10%); --glass-border-interactive: rgb(255 90 54 / 55%);
-  --glass-highlight: inset 0 1px 0 rgb(255 255 255 / 90%); --glass-highlight-subtle: inset 0 1px 0 rgb(255 255 255 / 70%);
-  --glass-shadow-sm: 0 2px 8px rgb(0 0 0 / 5%); --glass-shadow-md: 0 8px 24px rgb(0 0 0 / 8%); --glass-shadow-lg: 0 16px 36px rgb(0 0 0 / 11%); --glass-shadow-xl: 0 24px 48px rgb(0 0 0 / 15%);
-  --glass-fallback-bg: #FFFFFF; --glass-fallback-border: rgb(0 0 0 / 14%); --focus-ring: rgb(255 90 54 / 65%);
+  --bg-canvas: #F5F5F2;
+  --bg-surface: #FFFFFF;
+  --bg-raised: rgb(23 23 23 / 4%);
+  --bg-inset: rgb(23 23 23 / 3%);
+  --text-primary: #171717;
+  --text-secondary: rgb(23 23 23 / 72%);
+  --text-muted: rgb(23 23 23 / 50%);
+  --text-inverse: #F5F5F2;
+  --accent: #FF5A36;
+  --accent-hover: #E84C28;
+  --accent-subtle: rgb(255 90 54 / 10%);
+  --accent-glow: rgb(255 90 54 / 16%);
+  --accent-foreground: #FFFFFF;
+  --glass-bg-subtle: rgb(245 245 242 / 72%);
+  --glass-bg-standard: rgb(255 255 255 / 84%);
+  --glass-bg-floating: rgb(255 255 255 / 92%);
+  --glass-bg-modal: rgb(255 255 255 / 96%);
+  --glass-border: rgb(23 23 23 / 10%);
+  --glass-border-interactive: rgb(255 90 54 / 60%);
+  --glass-highlight: inset 0 1px 0 rgb(255 255 255 / 90%);
+  --glass-highlight-subtle: inset 0 1px 0 rgb(255 255 255 / 70%);
+  --glass-shadow-sm: 0 2px 8px rgb(23 23 23 / 5%);
+  --glass-shadow-md: 0 8px 24px rgb(23 23 23 / 8%);
+  --glass-shadow-lg: 0 16px 36px rgb(23 23 23 / 11%);
+  --glass-shadow-xl: 0 24px 48px rgb(23 23 23 / 15%);
+  --glass-fallback-bg: #F5F5F2;
+  --glass-fallback-border: rgb(23 23 23 / 14%);
+  --focus-ring: rgb(255 90 54 / 65%);
 }
 
 :root, :root[data-theme='dark'], .dark {
   color-scheme: dark;
-  --bg-canvas: #000000; --bg-surface: rgb(255 255 255 / 5%); --bg-raised: rgb(255 255 255 / 8%); --bg-inset: rgb(255 255 255 / 4%);
-  --text-primary: #FFFFFF; --text-secondary: rgb(255 255 255 / 76%); --text-muted: rgb(255 255 255 / 55%); --text-inverse: #000000;
-  --accent: #FF5A36; --accent-hover: #FF5A36; --accent-subtle: rgb(255 90 54 / 12%); --accent-glow: rgb(255 90 54 / 16%); --accent-foreground: #000000;
-  --glass-bg-subtle: rgb(255 255 255 / 5%); --glass-bg-standard: rgb(255 255 255 / 7%); --glass-bg-floating: rgb(255 255 255 / 10%); --glass-bg-modal: rgb(255 255 255 / 13%);
-  --glass-border: rgb(255 255 255 / 12%); --glass-border-interactive: rgb(255 90 54 / 55%);
-  --glass-highlight: inset 0 1px 0 rgb(255 255 255 / 12%); --glass-highlight-subtle: inset 0 1px 0 rgb(255 255 255 / 7%);
-  --glass-shadow-sm: 0 3px 12px rgb(0 0 0 / 18%); --glass-shadow-md: 0 10px 28px rgb(0 0 0 / 22%); --glass-shadow-lg: 0 18px 40px rgb(0 0 0 / 28%); --glass-shadow-xl: 0 26px 56px rgb(0 0 0 / 34%);
-  --glass-fallback-bg: #000000; --glass-fallback-border: rgb(255 255 255 / 16%); --focus-ring: rgb(255 90 54 / 75%);
+  --bg-canvas: #171717;
+  --bg-surface: rgb(245 245 242 / 5%);
+  --bg-raised: rgb(245 245 242 / 8%);
+  --bg-inset: rgb(245 245 242 / 4%);
+  --text-primary: #F5F5F2;
+  --text-secondary: rgb(245 245 242 / 76%);
+  --text-muted: rgb(245 245 242 / 50%);
+  --text-inverse: #171717;
+  --accent: #FF5A36;
+  --accent-hover: #FF6E4D;
+  --accent-subtle: rgb(255 90 54 / 12%);
+  --accent-glow: rgb(255 90 54 / 20%);
+  --accent-foreground: #171717;
+  --glass-bg-subtle: rgb(23 23 23 / 60%);
+  --glass-bg-standard: rgb(30 30 30 / 68%);
+  --glass-bg-floating: rgb(35 35 35 / 78%);
+  --glass-bg-modal: rgb(23 23 23 / 88%);
+  --glass-border: rgb(245 245 242 / 12%);
+  --glass-border-interactive: rgb(255 90 54 / 60%);
+  --glass-highlight: inset 0 1px 0 rgb(245 245 242 / 12%);
+  --glass-highlight-subtle: inset 0 1px 0 rgb(245 245 242 / 7%);
+  --glass-shadow-sm: 0 3px 12px rgb(0 0 0 / 25%);
+  --glass-shadow-md: 0 10px 28px rgb(0 0 0 / 35%);
+  --glass-shadow-lg: 0 18px 40px rgb(0 0 0 / 45%);
+  --glass-shadow-xl: 0 26px 56px rgb(0 0 0 / 55%);
+  --glass-fallback-bg: #171717;
+  --glass-fallback-border: rgb(245 245 242 / 16%);
+  --focus-ring: rgb(255 90 54 / 75%);
 }
 
-/* Status labels stay distinguishable through text and iconography, using the brand palette only. */
-:root { --status-ok: var(--text-secondary); --status-warning: var(--accent); --status-critical: var(--accent); --status-info: var(--text-secondary); --status-ok-bg: var(--bg-raised); --status-warning-bg: var(--accent-subtle); --status-critical-bg: var(--accent-subtle); --status-info-bg: var(--bg-raised); --status-ok-border: var(--glass-border); --status-warning-border: var(--glass-border-interactive); --status-critical-border: var(--glass-border-interactive); --status-info-border: var(--glass-border); }
+/* Status labels stay distinguishable through typography and iconography, strictly mapped into the 3-color system. */
+:root {
+  --status-ok: var(--text-secondary);
+  --status-warning: var(--accent);
+  --status-critical: var(--accent);
+  --status-info: var(--text-secondary);
+  --status-ok-bg: var(--bg-raised);
+  --status-warning-bg: var(--accent-subtle);
+  --status-critical-bg: var(--accent-subtle);
+  --status-info-bg: var(--bg-raised);
+  --status-ok-border: var(--glass-border);
+  --status-warning-border: var(--glass-border-interactive);
+  --status-critical-border: var(--glass-border-interactive);
+  --status-info-border: var(--glass-border);
+}

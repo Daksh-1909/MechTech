@@ -31,12 +31,6 @@ html.theme-transitioning *::after {
     --blur-floating: 0px;
     --blur-modal: 0px;
   }
-
-  .liquid-glow-orb-cyan,
-  .liquid-glow-orb-indigo,
-  .liquid-glow-orb-emerald {
-    display: none !important;
-  }
 }
 
 /* Accessibility: Reduced Motion Support */
@@ -46,11 +40,5 @@ html.theme-transitioning *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
-  }
-
-  .liquid-glow-orb-cyan,
-  .liquid-glow-orb-indigo,
-  .liquid-glow-orb-emerald {
-    animation: none !important;
   }
 }
