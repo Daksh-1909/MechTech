@@ -88,6 +88,7 @@
 [class*="bg-slate-950"] { background-color:var(--bg-canvas); }
 [class*="bg-slate-900"],[class*="bg-slate-800"],[class*="bg-slate-700"] { background-color:var(--bg-surface); }
 [class*="text-slate-50"],[class*="text-slate-100"],[class*="text-slate-200"] { color:var(--text-primary); }
+[class*="text-white"] { color:var(--text-primary); }
 [class*="text-slate-300"],[class*="text-slate-400"] { color:var(--text-secondary); }
 [class*="text-slate-500"],[class*="text-slate-600"],[class*="text-slate-700"],[class*="text-slate-800"] { color:var(--text-muted); }
 [class*="shadow-["] { box-shadow:var(--glass-shadow-sm)!important; }
@@ -98,4 +99,9 @@
 .mechtech-shell { background:var(--bg-canvas); color:var(--text-primary); }
 .mechtech-shell header { background:color-mix(in srgb,var(--bg-canvas) 84%,transparent); border-color:var(--glass-border); box-shadow:var(--glass-shadow-sm); }
 .mechtech-shell nav a .nav-active-surface { border-color:var(--glass-border-interactive); background:var(--accent-subtle); }
+/* Preserve contrasting text on accent controls while legacy white text follows the theme. */
+.glass-btn-primary[class*="text-white"], [class*="bg-accent"][class*="text-white"] { color:var(--accent-foreground); }
+.login-page { color:var(--text-primary); }
+.login-page .login-input { padding-left:2.5rem; }
+.login-page .glass-panel { max-width:100%; }
 .playground-stage { background:var(--bg-raised); }

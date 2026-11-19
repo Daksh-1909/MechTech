@@ -49,13 +49,13 @@ export const LoginPage: React.FC = () => {
   }
 
   return (
-    <div className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-slate-950 p-4 font-sans selection:bg-cyan-500 selection:text-slate-950">
+    <div className="login-page relative flex min-h-screen w-full flex-col items-center justify-center overflow-x-hidden bg-slate-950 p-4 font-sans selection:bg-cyan-500 selection:text-slate-950">
       {/* Floating Apple Liquid Mesh Aurora Orbs */}
       <div className="liquid-glow-orb-cyan pointer-events-none" />
       <div className="liquid-glow-orb-indigo pointer-events-none" />
       <div className="liquid-glow-orb-emerald pointer-events-none" />
 
-      <div className="relative z-10 w-full max-w-md space-y-6">
+      <div className="relative z-10 w-full max-w-md min-w-0 space-y-6">
         {/* Brand Header */}
         <div className="space-y-3 text-center">
           <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-cyan-400 to-blue-600 font-bold text-slate-950 shadow-2xl shadow-cyan-500/30 transition-transform duration-500 hover:scale-105">
@@ -72,11 +72,11 @@ export const LoginPage: React.FC = () => {
         </div>
 
         {/* Apple Liquid Glass Login Card */}
-        <div className="glass-panel space-y-5 p-8 shadow-2xl">
+        <div className="glass-panel w-full min-w-0 space-y-5 p-6 shadow-2xl sm:p-8">
           {(errorMessage || error) && (
             <div className="glass-panel flex items-center gap-2.5 border-rose-500/40 bg-rose-950/40 p-3.5 font-mono text-xs text-rose-300">
               <AlertCircle className="h-4 w-4 shrink-0 text-rose-400" />
-              <span>{errorMessage || error}</span>
+              <span className="min-w-0 break-words">{errorMessage || error}</span>
             </div>
           )}
 
@@ -91,7 +91,7 @@ export const LoginPage: React.FC = () => {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="name@example.com"
-                  className="glass-input w-full pl-10"
+                  className="glass-input login-input w-full"
                 />
               </div>
             </div>
@@ -106,7 +106,7 @@ export const LoginPage: React.FC = () => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••••••"
-                  className="glass-input w-full pl-10"
+                  className="glass-input login-input w-full"
                 />
               </div>
             </div>
